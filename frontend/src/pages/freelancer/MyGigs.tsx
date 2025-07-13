@@ -1,0 +1,464 @@
+import React, { useState, useEffect } from "react";
+import { API_ENDPOINTS, fetchApi, API_BASE_URL } from "@/lib/api";
+import { Link, useNavigate } from "react-router-dom";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { GradientButton } from "@/components/ui/gradient-button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  ArrowLeft,
+  Plus,
+  Search,
+  Filter,
+  MoreVertical,
+  Edit3,
+  Eye,
+  Trash2,
+  Star,
+  TrendingUp,
+  Clock,
+  DollarSign,
+  Package,
+  BarChart3,
+} from "lucide-react";
+import { io as socketIOClient } from 'socket.io-client';
+
+function getStatusColor(status: string) {
+  switch (status) {
+    case "active":
+      return "bg-green-500";
+    case "paused":
+      return "bg-yellow-500";
+    case "draft":
+      return "bg-gray-400";
+    case "pending":
+      return "bg-blue-500";
+    case "rejected":
+      return "bg-red-500";
+    default:
+      return "bg-gray-200";
+  }
+}
+
+export default function MyGigs() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("recent");
+  const [gigs, setGigs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    async function fetchGigs() {
+      setLoading(true);
+      setError(null);
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        setError('Not logged in.');
+        setGigs([]);
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch('/api/gigs/my', {
+          headers: {
+            'user-id': `userId-freelancerId-${userId}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          setError(data.message || 'Failed to fetch gigs.');
+          setGigs([]);
+        } else {
+          setGigs(data.gigs);
+        }
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch gigs.');
+        setGigs([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchGigs();
+  }, []);
+
+  useEffect(() => {
+    const socket = socketIOClient(API_BASE_URL);
+    socket.on('gigCreated', (gig) => {
+      setGigs((prev) => [gig, ...prev]);
+    });
+    socket.on('gigUpdated', (gig) => {
+      setGigs((prev) => prev.map((g) => g._id === gig._id ? gig : g));
+    });
+    socket.on('gigDeleted', (gigId) => {
+      setGigs((prev) => prev.filter((g) => g._id !== gigId));
+    });
+    return () => { socket.disconnect(); };
+  }, []);
+
+  const filteredGigs = gigs.filter((gig) => {
+    const matchesSearch = gig.title
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || gig.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+  
+
+  const handleDeleteGig = (gigId: string) => {
+    // In a real app, you'd call an API to delete the gig
+    console.log("Deleting gig:", gigId);
+  };
+
+  const handleDuplicateGig = (gigId: string) => {
+    // In a real app, you'd call an API to duplicate the gig
+    console.log("Duplicating gig:", gigId);
+  };
+
+  const handleToggleStatus = (gigId: string, currentStatus: string) => {
+    const newStatus = currentStatus === "active" ? "paused" : "active";
+    console.log(`Changing gig ${gigId} from ${currentStatus} to ${newStatus}`);
+  };
+
+  if (loading) return <div className="text-center py-8">Loading gigs...</div>;
+  if (error) return <div className="text-center py-8 text-red-500">Error: {error}</div>;
+  if (!gigs.length) return <div className="text-center py-8">No gigs found.</div>;
+
+  return (
+    <div className="min-h-screen">
+      <Navbar />
+
+      <main className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+          <div className="flex items-center space-x-4 mb-4 md:mb-0">
+            <Button variant="ghost" asChild>
+              <Link to="/freelancer/dashboard">
+                <ArrowLeft className="w-4 h-4" />
+              </Link>
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold">My Gigs</h1>
+              <p className="text-muted-foreground">
+                Manage your services and track performance
+              </p>
+            </div>
+          </div>
+          <GradientButton asChild>
+            <Link to="/freelancer/create-gig">
+              <Plus className="w-4 h-4 mr-2" />
+              Create New Gig
+            </Link>
+          </GradientButton>
+        </div>
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="border-0 bg-card/50 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Active Gigs
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {gigs.filter((g) => g.status === "active").length}
+                  </p>
+                </div>
+                <Package className="h-8 w-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 bg-card/50 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Total Orders
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {gigs.reduce((sum, gig) => sum + gig.orders, 0)}
+                  </p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 bg-card/50 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Avg. Rating
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {(
+                      gigs
+                        .filter((g) => g.rating > 0)
+                        .reduce((sum, gig) => sum + gig.rating, 0) /
+                      gigs.filter((g) => g.rating > 0).length
+                    ).toFixed(1)}
+                  </p>
+                </div>
+                <Star className="h-8 w-8 text-yellow-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 bg-card/50 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    In Queue
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {gigs.reduce((sum, gig) => sum + gig.queue, 0)}
+                  </p>
+                </div>
+                <Clock className="h-8 w-8 text-purple-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Filters and Search */}
+        <Card className="border-0 bg-card/50 backdrop-blur-sm mb-6">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+              <div className="flex gap-4 w-full md:w-auto">
+                <div className="relative flex-1 md:w-80">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    placeholder="Search your gigs..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-32">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="paused">Paused</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">Most Recent</SelectItem>
+                  <SelectItem value="orders">Most Orders</SelectItem>
+                  <SelectItem value="rating">Highest Rated</SelectItem>
+                  <SelectItem value="price">Price: Low to High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Gigs Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {loading ? (
+            <Card className="border-0 bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-12 text-center">
+                <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">Loading...</h3>
+              </CardContent>
+            </Card>
+          ) : filteredGigs.length === 0 ? (
+            <Card className="border-0 bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-12 text-center">
+                <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No gigs found</h3>
+                <p className="text-muted-foreground mb-6">
+                  {searchQuery || statusFilter !== "all"
+                    ? "Try adjusting your search or filters"
+                    : "Create your first gig to start selling your services"}
+                </p>
+                <GradientButton asChild>
+                  <Link to="/freelancer/create-gig">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create New Gig
+                  </Link>
+                </GradientButton>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredGigs.map((gig) => (
+              <Card
+                key={gig._id}
+                className="border-0 bg-card/50 backdrop-blur-sm floating-card"
+              >
+                <CardContent className="p-0">
+                  {/* Gig Image */}
+
+                  { gig.images?.length > 0 && (
+  <img src={`${API_BASE_URL}${gig.images[0]}`} alt={gig.title} className="w-full h-full object-cover rounded-t-lg" />
+)}
+                  <div className="aspect-video bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded-t-lg relative">
+                    <div className="absolute top-3 left-3">
+                      <Badge className={getStatusColor(gig.status)}>
+                        {gig.status}
+                      </Badge>
+                    </div>
+                    <div className="absolute top-3 right-3">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 bg-background/80 backdrop-blur-sm"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem asChild>
+                            <Link to={`/gigs/${gig._id}`}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to={`/freelancer/edit-gig/${gig._id}`}>
+                              <Edit3 className="mr-2 h-4 w-4" />
+                              Edit
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleToggleStatus(gig._id, gig.status)}
+                          >
+                            <Package className="mr-2 h-4 w-4" />
+                            {gig.status === "active" ? "Pause" : "Activate"}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDuplicateGig(gig._id)}
+                          >
+                            <Package className="mr-2 h-4 w-4" />
+                            Duplicate
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteGig(gig._id)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+
+                  {/* Gig Info */}
+                  <div className="p-6">
+                    <h3 className="font-semibold mb-2 line-clamp-2 min-h-[3rem]">
+                      {gig.title}
+                    </h3>
+
+                    <div className="flex items-center justify-between mb-4">
+                      <Badge variant="outline" className="text-xs">
+                        {gig.category}
+                      </Badge>
+                      <span className="text-lg font-bold">${gig.price}</span>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                      <div className="flex items-center space-x-2">
+                        <TrendingUp className="w-4 h-4 text-green-500" />
+                        <span className="text-muted-foreground">Orders:</span>
+                        <span className="font-medium">{gig.orders}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Clock className="w-4 h-4 text-blue-500" />
+                        <span className="text-muted-foreground">Queue:</span>
+                        <span className="font-medium">{gig.queue}</span>
+                      </div>
+                      {gig.rating > 0 && (
+                        <>
+                          <div className="flex items-center space-x-2">
+                            <Star className="w-4 h-4 text-yellow-500" />
+                            <span className="font-medium">{gig.rating}</span>
+                            <span className="text-muted-foreground">
+                              ({gig.reviews})
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <BarChart3 className="w-4 h-4 text-purple-500" />
+                            <span className="text-muted-foreground">Views:</span>
+                            <span className="font-medium">{gig.impressions}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => navigate(`/gigs/detail/${gig._id}`)}
+                      >
+                        <Eye className="w-4 h-4 mr-1" />
+                        View
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        asChild
+                      >
+                        <Link to={`/freelancer/edit-gig/${gig._id}`}>
+                          <Edit3 className="w-4 h-4 mr-1" />
+                          Edit
+                        </Link>
+                      </Button>
+                      <Button
+                        variant={
+                          gig.status === "active" ? "secondary" : "default"
+                        }
+                        size="sm"
+                        onClick={() => handleToggleStatus(gig._id, gig.status)}
+                      >
+                        {gig.status === "active" ? "Pause" : "Activate"}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
+
