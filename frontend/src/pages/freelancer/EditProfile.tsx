@@ -1,0 +1,229 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+export default function EditFreelancerProfile() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const freelancerId = user?._id;
+  const [profileData, setProfileData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!freelancerId) return;
+    setLoading(true);
+    setError(null);
+    // Try /api/users/:id first, fallback to /api/freelancer/profile/:id
+    fetch(`/api/users/${freelancerId}`)
+      .then(async res => {
+        if (res.ok) return res.json();
+        if (res.status === 404) {
+          // Try fallback endpoint
+          const fallbackRes = await fetch(`/api/freelancer/profile/${freelancerId}`);
+          if (!fallbackRes.ok) throw new Error("Failed to fetch profile");
+          return fallbackRes.json();
+        }
+        throw new Error("Failed to fetch profile");
+      })
+      .then(data => {
+        setProfileData(data.user || data); // handle both shapes
+        setLoading(false);
+      })
+      .catch(err => {
+        setError(err.message || "Failed to load profile");
+        setLoading(false);
+      });
+  }, [freelancerId]);
+
+  const handleInputChange = (field: string, value: any) => {
+    setProfileData((prev: any) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveChanges = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      // Try /api/users/:id first
+      let res = await fetch(`/api/users/${freelancerId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData),
+      });
+      if (res.status === 404) {
+        // Fallback to /api/freelancer/profile/:id
+        res = await fetch(`/api/freelancer/profile/${freelancerId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(profileData),
+        });
+      }
+      if (!res.ok) throw new Error("Failed to save profile");
+      setSaving(false);
+      navigate("/freelancer/profile");
+      window.location.reload();
+    } catch (err: any) {
+      setError(err.message || "Failed to save profile");
+      setSaving(false);
+    }
+  };
+
+  if (loading || !profileData) {
+    return <div className="min-h-screen flex items-center justify-center">Loading profile...</div>;
+  }
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-destructive">{error}</div>;
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <Card className="w-full max-w-2xl p-6">
+        <CardHeader>
+          <CardTitle>Edit Profile</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Banner Upload and Preview */}
+          <div className="mb-6">
+            {profileData.coverPhoto ? (
+              <img
+                src={profileData.coverPhoto}
+                alt="Banner Preview"
+                className="w-full h-36 object-cover rounded-xl mb-2"
+              />
+            ) : (
+              <div className="w-full h-36 flex items-center justify-center rounded-xl mb-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-5xl font-bold">
+                {profileData.name?.[0] || "?"}
+              </div>
+            )}
+            <label className="block text-sm font-medium">Banner (Cover Photo)</label>
+            <input
+              type="file"
+              accept="image/*"
+              className="block mt-1"
+              onChange={e => {
+                const file = e.target.files && e.target.files[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = ev => {
+                    handleInputChange("coverPhoto", ev.target?.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
+          </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <Avatar className="w-20 h-20">
+                <AvatarImage src={profileData.avatar} />
+                <AvatarFallback>{profileData.name?.[0]}</AvatarFallback>
+              </Avatar>
+              <div>
+                <label className="block text-sm font-medium">Name</label>
+                <Input
+                  value={profileData.name || ""}
+                  onChange={e => handleInputChange("name", e.target.value)}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Email</label>
+              <Input value={profileData.email || ""} disabled />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Title</label>
+              <Input
+                value={profileData.title || ""}
+                onChange={e => handleInputChange("title", e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Location</label>
+              <Input
+                value={profileData.location || ""}
+                onChange={e => handleInputChange("location", e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Overview</label>
+              <Textarea
+                rows={4}
+                value={profileData.overview || ""}
+                onChange={e => handleInputChange("overview", e.target.value)}
+              />
+            </div>
+
+            {/* Languages Section */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Languages</label>
+              <div className="flex flex-col gap-2">
+                {(profileData.languages || []).map((lang: any, idx: number) => (
+                  <div key={idx} className="flex gap-2 items-center">
+                    <Input
+                      className="w-1/2"
+                      placeholder="Language"
+                      value={lang.name}
+                      onChange={e => {
+                        const updated = [...profileData.languages];
+                        updated[idx] = { ...updated[idx], name: e.target.value };
+                        handleInputChange("languages", updated);
+                      }}
+                    />
+                    <Input
+                      className="w-1/2"
+                      placeholder="Level (e.g. Fluent, Conversational)"
+                      value={lang.level}
+                      onChange={e => {
+                        const updated = [...profileData.languages];
+                        updated[idx] = { ...updated[idx], level: e.target.value };
+                        handleInputChange("languages", updated);
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        const updated = [...profileData.languages];
+                        updated.splice(idx, 1);
+                        handleInputChange("languages", updated);
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  className="w-fit mt-2"
+                  variant="outline"
+                  onClick={() => {
+                    handleInputChange(
+                      "languages",
+                      [...(profileData.languages || []), { name: "", level: "" }]
+                    );
+                  }}
+                >
+                  + Add Language
+                </Button>
+              </div>
+            </div>
+            <Button
+              className="w-full py-3 text-lg font-semibold mt-4"
+              onClick={handleSaveChanges}
+              disabled={saving}
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

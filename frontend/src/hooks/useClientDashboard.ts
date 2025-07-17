@@ -10,7 +10,7 @@ export interface DashboardStats {
   activeJobs: number;
 }
 
-export interface ActiveOrder {
+export interface Order {
   id: string;
   title: string;
   freelancer: string;
@@ -22,6 +22,9 @@ export interface ActiveOrder {
   progress: number;
   lastUpdate: string;
 }
+
+// For backward compatibility
+export type ActiveOrder = Order;
 
 export interface PostedJob {
   id: string;
@@ -47,7 +50,8 @@ export interface RecentMessage {
 
 export interface ClientDashboardData {
   stats: DashboardStats;
-  activeOrders: ActiveOrder[];
+  orders: Order[]; // All orders, not just active
+  activeOrders?: ActiveOrder[]; // Optional, for backward compatibility
   postedJobs: PostedJob[];
   recentMessages: RecentMessage[];
 }

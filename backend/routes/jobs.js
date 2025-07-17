@@ -1,5 +1,6 @@
 import express from 'express';
 import { Job, User } from '../db.js';
+import Order from '../models/Order.js';
 import Activity from '../models/Activity.js';
 import multer from 'multer';
 import path from 'path';
@@ -191,12 +192,12 @@ router.patch('/:jobId/proposals/:proposalId/accept', async (req, res) => {
     if (job.client.toString() !== userId) {
       return res.status(403).json({ success: false, message: 'Forbidden: You can only accept proposals for your own jobs.' });
     }
-    let proposalFound = false;
+    let proposalFound = null;
     // Accept the selected proposal, reject all others
     job.proposals.forEach((proposal) => {
       if (proposal._id.toString() === proposalId) {
         proposal.status = 'accepted';
-        proposalFound = true;
+        proposalFound = proposal;
         // Simulate notification
         console.log(`[NOTIFY] Freelancer ${proposal.freelancer}: Your proposal was ACCEPTED for job ${jobId}`);
       } else {
@@ -207,7 +208,16 @@ router.patch('/:jobId/proposals/:proposalId/accept', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Proposal not found' });
     }
     await job.save();
-    res.json({ success: true, message: 'Proposal accepted and others rejected.' });
+    // Create the order
+    const order = new Order({
+      client: job.client,
+      freelancer: proposalFound.freelancer,
+      gig: job._id, // using job as gig reference
+      status: 'pending',
+      amount: proposalFound.proposedBudget || 0,
+    });
+    await order.save();
+    res.json({ success: true, message: 'Proposal accepted and others rejected. Order created.', order });
   } catch (err) {
     console.error('Error accepting proposal:', err);
     res.status(500).json({ success: false, message: err.message });

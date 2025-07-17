@@ -122,7 +122,6 @@ export default function MyGigs() {
     return matchesSearch && matchesStatus;
   });
   
-
   const handleDeleteGig = (gigId: string) => {
     // In a real app, you'd call an API to delete the gig
     console.log("Deleting gig:", gigId);
@@ -319,16 +318,19 @@ export default function MyGigs() {
               >
                 <CardContent className="p-0">
                   {/* Gig Image */}
-
-                  { gig.images?.length > 0 && (
-  <img src={`${API_BASE_URL}${gig.images[0]}`} alt={gig.title} className="w-full h-full object-cover rounded-t-lg" />
-)}
-                  <div className="aspect-video bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded-t-lg relative">
-                    <div className="absolute top-3 left-3">
-                      <Badge className={getStatusColor(gig.status)}>
-                        {gig.status}
-                      </Badge>
-                    </div>
+                  <div className="aspect-video rounded-t-lg relative overflow-hidden">
+                    {gig.images?.length > 0 ? (
+                      <img
+                        src={`${API_BASE_URL}${gig.images[0]}`}
+                        alt={gig.title}
+                        className="w-full h-full object-cover object-center transition-all duration-300 hover:scale-105"
+                        style={{ minHeight: '100%', minWidth: '100%' }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20">
+                        <Package className="w-16 h-16 text-muted-foreground opacity-40" />
+                      </div>
+                    )}
                     <div className="absolute top-3 right-3">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -367,7 +369,7 @@ export default function MyGigs() {
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDeleteGig(gig._id)}
-                            className="text-destructive"
+                            className="text-red-600"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete
@@ -377,73 +379,71 @@ export default function MyGigs() {
                     </div>
                   </div>
 
-                  {/* Gig Info */}
+                  {/* Gig Content */}
                   <div className="p-6">
-                    <h3 className="font-semibold mb-2 line-clamp-2 min-h-[3rem]">
+                    <h3 className="font-semibold text-lg mb-2 line-clamp-2">
                       {gig.title}
                     </h3>
+                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                      {gig.description}
+                    </p>
 
-                    <div className="flex items-center justify-between mb-4">
+                    {/* Category Badge */}
+                    <div className="mb-4">
                       <Badge variant="outline" className="text-xs">
-                        {gig.category}
+                        {gig.category || "General"}
                       </Badge>
-                      <span className="text-lg font-bold">${gig.price}</span>
+                    </div>
+
+                    {/* Price */}
+                    <div className="text-2xl font-bold mb-4">
+                      ${gig.price || 0}
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                      <div className="flex items-center space-x-2">
-                        <TrendingUp className="w-4 h-4 text-green-500" />
-                        <span className="text-muted-foreground">Orders:</span>
-                        <span className="font-medium">{gig.orders}</span>
+                    <div className="flex items-center justify-between mb-4 text-sm text-muted-foreground">
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 mr-1 text-yellow-500" />
+                        {gig.rating > 0 ? gig.rating.toFixed(1) : "N/A"}
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Clock className="w-4 h-4 text-blue-500" />
-                        <span className="text-muted-foreground">Queue:</span>
-                        <span className="font-medium">{gig.queue}</span>
+                      <div className="flex items-center">
+                        <TrendingUp className="w-4 h-4 mr-1 text-green-500" />
+                        Orders: {gig.orders || 0}
                       </div>
-                      {gig.rating > 0 && (
-                        <>
-                          <div className="flex items-center space-x-2">
-                            <Star className="w-4 h-4 text-yellow-500" />
-                            <span className="font-medium">{gig.rating}</span>
-                            <span className="text-muted-foreground">
-                              ({gig.reviews})
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <BarChart3 className="w-4 h-4 text-purple-500" />
-                            <span className="text-muted-foreground">Views:</span>
-                            <span className="font-medium">{gig.impressions}</span>
-                          </div>
-                        </>
-                      )}
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 mr-1 text-blue-500" />
+                        Queue: {gig.queue || 0}
+                      </div>
                     </div>
 
-                    {/* Actions */}
+                    {/* Action Buttons */}
                     <div className="flex gap-2">
-                      <Button
-                        onClick={() => navigate(`/gigs/detail/${gig._id}`)}
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        asChild
                       >
-                        <Eye className="w-4 h-4 mr-1" />
-                        View
+                        <Link to={`/gigs/${gig._id}`}>
+                          <Eye className="w-4 h-4 mr-2" />
+                          View
+                        </Link>
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
                         className="flex-1"
                         asChild
                       >
                         <Link to={`/freelancer/edit-gig/${gig._id}`}>
-                          <Edit3 className="w-4 h-4 mr-1" />
+                          <Edit3 className="w-4 h-4 mr-2" />
                           Edit
                         </Link>
                       </Button>
-                      <Button
-                        variant={
-                          gig.status === "active" ? "secondary" : "default"
-                        }
-                        size="sm"
+                      <Button 
+                        variant={gig.status === "active" ? "secondary" : "default"}
+                        size="sm" 
+                        className="flex-1"
                         onClick={() => handleToggleStatus(gig._id, gig.status)}
                       >
                         {gig.status === "active" ? "Pause" : "Activate"}
@@ -461,4 +461,3 @@ export default function MyGigs() {
     </div>
   );
 }
-

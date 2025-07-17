@@ -1,17 +1,45 @@
 import express from 'express';
 import { Gig, User } from '../db.js';
 import mongoose from 'mongoose';
+import multer from 'multer';
 
+// Configure multer to save files to disk
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage });
 const router = express.Router();
+import { getGigById, getMyGigs } from '../controllers/gigController.js';
+
+// Get all gigs for the logged-in freelancer
+router.get('/my', getMyGigs);
+
+// Fetch a gig by ID
+router.get('/:id', getGigById);
 
 // Create a new gig
-router.post('/', async (req, res) => {
+router.post('/', upload.array('images', 10), async (req, res) => {
   try {
-    const { title, description, category, packages, activePackage } = req.body;
-    const freelancer = req.headers['user-id'].split('-')[2];
+    // Parse fields from multipart/form-data (FormData)
+    let { title, description, category, packages, activePackage } = req.body;
+    const freelancer = req.headers['user-id']?.split('-')[2];
     if (!title || !description || !category || !freelancer || !packages || !activePackage) {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
+    // Parse packages if stringified JSON
+    if (typeof packages === 'string') {
+      try {
+        packages = JSON.parse(packages);
+      } catch (e) {
+        return res.status(400).json({ success: false, message: 'Invalid packages JSON' });
+      }
+    }
+    // Handle images: save file paths as URLs in DB
     const images = req.files ? req.files.map(f => '/uploads/' + f.filename) : [];
     const gig = new Gig({
       title,
@@ -19,11 +47,13 @@ router.post('/', async (req, res) => {
       category,
       images,
       freelancer,
-      packages: JSON.parse(packages),
+      packages,
       activePackage,
     });
     await gig.save();
-    req.app.get('io').emit('gigCreated', gig);
+    if (req.app.locals.io) {
+      req.app.locals.io.emit('gigCreated', gig);
+    }
     let freelancerUser = null;
     try {
       freelancerUser = await User.findById(gig.freelancer);
@@ -33,12 +63,14 @@ router.post('/', async (req, res) => {
     } catch (e) {
       freelancerUser = await User.findOne({ email: gig.freelancer });
     }
-    await req.app.get('logActivity')({
-      type: 'gig',
-      user: { id: gig.freelancer, name: freelancerUser ? freelancerUser.name : 'Unknown', role: 'freelancer' },
-      message: `created new gig '${gig.title}'`,
-      status: 'pending',
-    });
+    if (req.app.locals.logActivity) {
+      await req.app.locals.logActivity({
+        type: 'gig',
+        user: { id: gig.freelancer, name: freelancerUser ? freelancerUser.name : 'Unknown', role: 'freelancer' },
+        message: `created new gig '${gig.title}'`,
+        status: 'pending',
+      });
+    }
     res.status(201).json({ success: true, gig });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

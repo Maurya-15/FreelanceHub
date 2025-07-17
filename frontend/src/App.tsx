@@ -71,6 +71,7 @@ import FreelancerDashboard from "./pages/freelancer/Dashboard";
 import CreateGig from "./pages/freelancer/CreateGig";
 import MyGigs from "./pages/freelancer/MyGigs";
 import FreelancerProfile from "./pages/freelancer/Profile";
+import EditFreelancerProfile from "./pages/freelancer/EditProfile";
 
 // Client Pages
 import ClientDashboard from "./pages/client/Dashboard";
@@ -171,6 +172,14 @@ function App() {
               }
             />
             <Route
+              path="gigs/:gigId"
+              element={
+                <PublicRoute>
+                  <GigDetail />
+                </PublicRoute>
+              }
+            />
+            <Route
               path="/jobs"
               element={
                 <PublicRoute>
@@ -200,6 +209,7 @@ function App() {
               <Route path="create-gig" element={<CreateGig />} />
               <Route path="my-gigs" element={<MyGigs />} />
               <Route path="profile" element={<FreelancerProfile />} />
+<Route path="edit-profile" element={<EditFreelancerProfile />} />
               <Route path="earnings" element={<Earnings />} />
               {/* Default redirect for /freelancer */}
               <Route index element={<Navigate to="dashboard" replace />} />

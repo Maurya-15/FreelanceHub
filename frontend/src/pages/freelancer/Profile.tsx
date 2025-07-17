@@ -1,5 +1,8 @@
-import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import useFreelancerProfile from "@/hooks/useFreelancerProfile";
+import { useParams } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,187 +30,25 @@ import {
   Languages,
 } from "lucide-react";
 
-// Mock freelancer data
-const freelancerData = {
-  name: "Sarah Johnson",
-  title: "Senior Graphic Designer & Brand Strategist",
-  username: "@sarah_designs",
-  avatar: "/api/placeholder/120/120",
-  coverPhoto: "/api/placeholder/1200/300",
-  location: "New York, USA",
-  memberSince: "2020-03-15",
-  isOnline: true,
-  lastSeen: "2024-01-15T10:30:00Z",
-  level: "Top Rated",
-  isProVerified: true,
-  stats: {
-    rating: 4.9,
-    totalReviews: 127,
-    totalOrders: 89,
-    responseTime: "1 hour",
-    onTimeDelivery: 98,
-    repeatClients: 75,
-  },
-  overview:
-    "I'm a passionate graphic designer with over 8 years of experience in creating compelling visual identities for brands. I specialize in logo design, brand identity, and print design. My goal is to help businesses stand out through thoughtful, strategic design that connects with their target audience.",
-  skills: [
-    "Logo Design",
-    "Brand Identity",
-    "Print Design",
-    "Packaging Design",
-    "Adobe Illustrator",
-    "Adobe Photoshop",
-    "Adobe InDesign",
-    "Typography",
-    "Color Theory",
-    "Branding Strategy",
-  ],
-  languages: [
-    { name: "English", level: "Native" },
-    { name: "Spanish", level: "Conversational" },
-    { name: "French", level: "Basic" },
-  ],
-  education: [
-    {
-      degree: "Bachelor of Fine Arts in Graphic Design",
-      school: "Rhode Island School of Design",
-      year: "2016",
-    },
-    {
-      degree: "Certificate in Digital Marketing",
-      school: "Google Digital Academy",
-      year: "2019",
-    },
-  ],
-  certifications: [
-    {
-      name: "Adobe Certified Expert - Illustrator",
-      issuer: "Adobe",
-      year: "2021",
-    },
-    {
-      name: "Brand Strategy Fundamentals",
-      issuer: "Brand Institute",
-      year: "2020",
-    },
-  ],
-  gigs: [
-    {
-      id: "GIG-001",
-      title: "I will design a modern logo for your business",
-      image: "/api/placeholder/300/200",
-      price: 299,
-      rating: 4.9,
-      orders: 89,
-      deliveryTime: "3 days",
-    },
-    {
-      id: "GIG-002",
-      title: "I will create a complete brand identity package",
-      image: "/api/placeholder/300/200",
-      price: 850,
-      rating: 4.8,
-      orders: 45,
-      deliveryTime: "7 days",
-    },
-    {
-      id: "GIG-003",
-      title: "I will design packaging for your product",
-      image: "/api/placeholder/300/200",
-      price: 450,
-      rating: 5.0,
-      orders: 32,
-      deliveryTime: "5 days",
-    },
-  ],
-  portfolio: [
-    {
-      id: "PORT-001",
-      title: "Tech Startup Branding",
-      category: "Brand Identity",
-      image: "/api/placeholder/400/300",
-    },
-    {
-      id: "PORT-002",
-      title: "Restaurant Logo Design",
-      category: "Logo Design",
-      image: "/api/placeholder/400/300",
-    },
-    {
-      id: "PORT-003",
-      title: "Product Packaging",
-      category: "Packaging Design",
-      image: "/api/placeholder/400/300",
-    },
-    {
-      id: "PORT-004",
-      title: "E-commerce Brand",
-      category: "Brand Identity",
-      image: "/api/placeholder/400/300",
-    },
-    {
-      id: "PORT-005",
-      title: "Mobile App UI",
-      category: "UI Design",
-      image: "/api/placeholder/400/300",
-    },
-    {
-      id: "PORT-006",
-      title: "Print Advertisement",
-      category: "Print Design",
-      image: "/api/placeholder/400/300",
-    },
-  ],
-  reviews: [
-    {
-      id: "REV-001",
-      client: {
-        name: "Mike Chen",
-        avatar: "/api/placeholder/40/40",
-        country: "United States",
-      },
-      rating: 5,
-      date: "2024-01-10",
-      gig: "Logo Design Package",
-      review:
-        "Absolutely fantastic work! Sarah understood exactly what I was looking for and delivered beyond my expectations. The logo perfectly captures our brand essence and we've received so many compliments. Communication was excellent throughout the process.",
-    },
-    {
-      id: "REV-002",
-      client: {
-        name: "Emily Rodriguez",
-        avatar: "/api/placeholder/40/40",
-        country: "Canada",
-      },
-      rating: 5,
-      date: "2024-01-08",
-      gig: "Brand Identity Package",
-      review:
-        "Working with Sarah was an absolute pleasure. Her strategic approach to branding really impressed me. She didn't just create a logo - she created a complete visual identity that tells our story. Highly recommend!",
-    },
-    {
-      id: "REV-003",
-      client: {
-        name: "David Park",
-        avatar: "/api/placeholder/40/40",
-        country: "Australia",
-      },
-      rating: 4,
-      date: "2024-01-05",
-      gig: "Packaging Design",
-      review:
-        "Great designer with excellent technical skills. The packaging design was exactly what we needed for our product launch. Very professional and delivered on time.",
-    },
-  ],
-};
-
 export default function FreelancerProfile() {
   const { userId } = useParams();
-  const [activeTab, setActiveTab] = useState("overview");
+  const { user, isLoading: authLoading } = useAuth();
+  const freelancerId = userId || user?._id;
+  const { profile, loading, error } = useFreelancerProfile(freelancerId);
+  const isOwnProfile = userId === undefined || (profile && profile._id === user?._id);
+  const [activeTab, setActiveTab] = React.useState("overview");
 
-  // Check if viewing own profile or someone else's profile
-  const isOwnProfile = !userId || userId === undefined;
+  if (authLoading || loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
+  }
+  if (!profile) {
+    return <div className="min-h-screen flex items-center justify-center">No profile data found.</div>;
+  }
 
+  
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -225,52 +66,24 @@ export default function FreelancerProfile() {
     return `${Math.floor(diffInHours / 24)} days ago`;
   };
 
-  // Get freelancer data based on userId parameter
-  const getFreelancerData = () => {
-    if (!userId) {
-      return freelancerData; // Default data for own profile
-    }
-
-    // Mock data for different user IDs - in real app, this would fetch from API
-    const mockUsers: { [key: string]: any } = {
-      "USER-001": {
-        ...freelancerData,
-        name: "Rajesh Kumar",
-        title: "Full-Stack Developer & WordPress Expert",
-        username: "@rajesh_dev",
-        location: "Mumbai, India",
-        isOnline: true,
-        stats: {
-          ...freelancerData.stats,
-          rating: 4.8,
-          totalReviews: 247,
-          totalOrders: 156,
-        },
-      },
-      "USER-002": {
-        ...freelancerData,
-        name: "Priya Sharma",
-        title: "UI/UX Designer & Brand Strategist",
-        username: "@priya_designs",
-        location: "Bangalore, India",
-        isOnline: false,
-        lastSeen: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      },
-    };
-
-    return mockUsers[userId] || freelancerData; // Fallback to default if user not found
-  };
-
-  const currentFreelancerData = getFreelancerData();
-
   return (
     <div className="min-h-screen">
       <Navbar />
 
       <main>
-        {/* Cover Photo */}
-        <div className="relative h-64 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20">
-          <div className="absolute inset-0 bg-black/20" />
+        {/* Cover Photo / Banner */}
+        <div className="relative h-64">
+          {profile.coverPhoto ? (
+            <img
+              src={profile.coverPhoto}
+              alt="Banner"
+              className="w-full h-full object-cover rounded-b-2xl"
+            />
+          ) : (
+            <div className="w-full h-full flex justify-center items-start pt-12 rounded-b-2xl bg-gradient-to-r from-blue-500 to-purple-500 text-white text-7xl font-bold">
+              {profile.name?.[0] || "?"}
+            </div>
+          )}
         </div>
 
         {/* Profile Header */}
@@ -281,15 +94,15 @@ export default function FreelancerProfile() {
                 <div className="flex flex-col md:flex-row items-start md:items-end space-y-6 md:space-y-0 md:space-x-6">
                   <div className="relative">
                     <Avatar className="w-32 h-32 border-4 border-white shadow-lg">
-                      <AvatarImage src={currentFreelancerData.avatar} />
+                      <AvatarImage src={profile.avatar} />
                       <AvatarFallback>
-                        {currentFreelancerData.name
+                        {profile.name
                           .split(" ")
                           .map((n) => n[0])
                           .join("")}
                       </AvatarFallback>
                     </Avatar>
-                    {currentFreelancerData.isOnline && (
+                    {profile.isOnline && (
                       <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-2 border-white"></div>
                     )}
                   </div>
@@ -299,12 +112,12 @@ export default function FreelancerProfile() {
                       <div>
                         <div className="flex items-center space-x-3 mb-2">
                           <h1 className="text-3xl font-bold">
-                            {currentFreelancerData.name}
+                            {profile.name}
                           </h1>
                           <Badge className="bg-brand-gradient text-white">
-                            {currentFreelancerData.level}
+                            {profile.level}
                           </Badge>
-                          {currentFreelancerData.isProVerified && (
+                          {profile.isProVerified && (
                             <Badge variant="outline">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Pro Verified
@@ -312,23 +125,21 @@ export default function FreelancerProfile() {
                           )}
                         </div>
                         <p className="text-xl text-muted-foreground mb-2">
-                          {currentFreelancerData.title}
+                          {profile.title}
                         </p>
                         <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                           <div className="flex items-center">
                             <MapPin className="w-4 h-4 mr-1" />
-                            {currentFreelancerData.location}
+                            {profile.location}
                           </div>
                           <div className="flex items-center">
                             <Calendar className="w-4 h-4 mr-1" />
                             Member since{" "}
-                            {formatDate(currentFreelancerData.memberSince)}
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="w-4 h-4 mr-1" />
-                            {currentFreelancerData.isOnline
-                              ? "Online now"
-                              : `Last seen ${getTimeAgo(currentFreelancerData.lastSeen)}`}
+                            {profile.joinDate && !isNaN(new Date(profile.joinDate).getTime())
+                              ? formatDate(profile.joinDate)
+                              : profile.createdAt && !isNaN(new Date(profile.createdAt).getTime())
+                                ? formatDate(profile.createdAt)
+                                : "--"}
                           </div>
                         </div>
                       </div>
@@ -344,9 +155,9 @@ export default function FreelancerProfile() {
                               </Link>
                             </Button>
                             <GradientButton asChild>
-                              <Link to="/freelancer/create-gig">
-                                <TrendingUp className="w-4 h-4 mr-2" />
-                                Create New Gig
+                              <Link to="/freelancer/edit-profile">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L9 13zm0 0V21h8" /></svg>
+                                Edit Profile
                               </Link>
                             </GradientButton>
                           </>
@@ -363,7 +174,8 @@ export default function FreelancerProfile() {
                             </Button>
                             <GradientButton asChild>
                               <Link
-                                to={`/messages/${currentFreelancerData.username.slice(1)}`}
+                                to={profile?.username ? `/messages/${profile.username.slice(1)}` : '#'}
+                                onClick={e => { if (!profile?.username) e.preventDefault(); }}
                               >
                                 <MessageSquare className="w-4 h-4 mr-2" />
                                 Contact Me
@@ -380,16 +192,16 @@ export default function FreelancerProfile() {
                         <div className="flex items-center justify-center space-x-1 mb-1">
                           <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                           <span className="font-bold text-lg">
-                            {currentFreelancerData.stats.rating}
+                            {profile.stats?.rating ?? '--'}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          ({currentFreelancerData.stats.totalReviews} reviews)
+                          ({profile.stats?.totalReviews ?? '--'} reviews)
                         </p>
                       </div>
                       <div className="text-center">
                         <div className="font-bold text-lg mb-1">
-                          {currentFreelancerData.stats.totalOrders}
+                          {profile.stats?.totalOrders ?? '--'}
                         </div>
                         <p className="text-xs text-muted-foreground">
                           Orders Completed
@@ -397,7 +209,7 @@ export default function FreelancerProfile() {
                       </div>
                       <div className="text-center">
                         <div className="font-bold text-lg mb-1">
-                          {currentFreelancerData.stats.responseTime}
+                          {profile.stats?.responseTime ?? '--'}
                         </div>
                         <p className="text-xs text-muted-foreground">
                           Avg. Response
@@ -405,7 +217,7 @@ export default function FreelancerProfile() {
                       </div>
                       <div className="text-center">
                         <div className="font-bold text-lg mb-1">
-                          {currentFreelancerData.stats.onTimeDelivery}%
+                          {profile.stats?.onTimeDelivery ?? '--'}%
                         </div>
                         <p className="text-xs text-muted-foreground">
                           On-time Delivery
@@ -413,7 +225,7 @@ export default function FreelancerProfile() {
                       </div>
                       <div className="text-center">
                         <div className="font-bold text-lg mb-1">
-                          {currentFreelancerData.stats.repeatClients}%
+                          {profile.stats?.repeatClients ?? '--'}%
                         </div>
                         <p className="text-xs text-muted-foreground">
                           Repeat Clients
@@ -424,7 +236,7 @@ export default function FreelancerProfile() {
                     {/* Description */}
                     <div className="mt-6">
                       <p className="text-muted-foreground leading-relaxed">
-                        {currentFreelancerData.overview}
+                        {profile.overview}
                       </p>
                     </div>
                   </div>
@@ -438,12 +250,12 @@ export default function FreelancerProfile() {
                 <TabsList className="grid w-full grid-cols-5">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="gigs">
-                    Gigs ({currentFreelancerData.gigs.length})
+                    Gigs ({profile.gigs?.length ?? 0})
                   </TabsTrigger>
                   <TabsTrigger value="reviews">
-                    Reviews ({currentFreelancerData.stats.totalReviews})
+                    Reviews ({profile.stats?.totalReviews ?? '--'})
                   </TabsTrigger>
-                  <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+                  <TabsTrigger value="portfolio">Portfolio ({profile.portfolio?.length ?? 0})</TabsTrigger>
                   <TabsTrigger value="about">About</TabsTrigger>
                 </TabsList>
 
@@ -456,7 +268,7 @@ export default function FreelancerProfile() {
                       </CardHeader>
                       <CardContent>
                         <div className="flex flex-wrap gap-2">
-                          {currentFreelancerData.skills.map((skill) => (
+                          {(profile.skills ?? []).map((skill) => (
                             <Badge key={skill} variant="secondary">
                               {skill}
                             </Badge>
@@ -475,7 +287,7 @@ export default function FreelancerProfile() {
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-2">
-                          {currentFreelancerData.languages.map((lang) => (
+                          {(profile.languages ?? []).map((lang) => (
                             <div
                               key={lang.name}
                               className="flex justify-between items-center"
@@ -498,7 +310,7 @@ export default function FreelancerProfile() {
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-4">
-                          {currentFreelancerData.education.map((edu, index) => (
+                          {(profile.education ?? []).map((edu, index) => (
                             <div key={index}>
                               <h4 className="font-medium">{edu.degree}</h4>
                               <p className="text-sm text-muted-foreground">
@@ -517,7 +329,7 @@ export default function FreelancerProfile() {
 
                 <TabsContent value="gigs" className="mt-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {currentFreelancerData.gigs.map((gig) => (
+                    {(profile.gigs ?? []).map((gig) => (
                       <Card
                         key={gig.id}
                         className="group hover:shadow-lg transition-shadow"
@@ -559,18 +371,18 @@ export default function FreelancerProfile() {
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold">
-                        Reviews ({currentFreelancerData.stats.totalReviews})
+                        Reviews ({profile.stats?.totalReviews ?? '--'})
                       </h3>
                       <div className="flex items-center space-x-2">
                         <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                         <span className="font-semibold">
-                          {currentFreelancerData.stats.rating}
+                          {profile.stats?.rating ?? '--'}
                         </span>
                       </div>
                     </div>
 
                     <div className="space-y-4">
-                      {currentFreelancerData.reviews.map((review) => (
+                      {(profile.reviews ?? []).map((review) => (
                         <Card key={review.id}>
                           <CardContent className="p-6">
                             <div className="flex items-start justify-between mb-3">
@@ -617,7 +429,7 @@ export default function FreelancerProfile() {
 
                 <TabsContent value="portfolio" className="mt-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {currentFreelancerData.portfolio.map((item) => (
+                    {(profile.portfolio ?? []).map((item) => (
                       <Card
                         key={item.id}
                         className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
@@ -676,10 +488,32 @@ export default function FreelancerProfile() {
                       </CardHeader>
                       <CardContent>
                         <p className="leading-relaxed">
-                          {currentFreelancerData.overview}
+                          {profile.overview}
                         </p>
                       </CardContent>
                     </Card>
+
+                    {/* Languages Card */}
+                    {profile.languages && profile.languages.length > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center">
+                            <Languages className="w-5 h-5 mr-2" />
+                            Languages
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            {profile.languages.map((lang: any, idx: number) => (
+                              <div key={idx} className="flex items-center gap-2">
+                                <span className="font-medium">{lang.name}</span>
+                                <span className="text-muted-foreground text-sm">{lang.level}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
 
                     <Card>
                       <CardHeader>
@@ -690,7 +524,7 @@ export default function FreelancerProfile() {
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-4">
-                          {currentFreelancerData.certifications.map(
+                          {(profile.certifications ?? []).map(
                             (cert, index) => (
                               <div
                                 key={index}
@@ -721,7 +555,7 @@ export default function FreelancerProfile() {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                           <div className="text-center">
                             <div className="font-bold text-2xl mb-1">
-                              {currentFreelancerData.stats.totalOrders}
+                              {profile.stats?.totalOrders ?? '--'}
                             </div>
                             <p className="text-sm text-muted-foreground">
                               Total Orders
@@ -729,7 +563,7 @@ export default function FreelancerProfile() {
                           </div>
                           <div className="text-center">
                             <div className="font-bold text-2xl mb-1">
-                              {currentFreelancerData.stats.onTimeDelivery}%
+                              {profile.stats?.onTimeDelivery ?? '--'}%
                             </div>
                             <p className="text-sm text-muted-foreground">
                               On-time Delivery
@@ -737,7 +571,7 @@ export default function FreelancerProfile() {
                           </div>
                           <div className="text-center">
                             <div className="font-bold text-2xl mb-1">
-                              {currentFreelancerData.stats.responseTime}
+                              {profile.stats?.responseTime ?? '--'}
                             </div>
                             <p className="text-sm text-muted-foreground">
                               Response Time
@@ -745,7 +579,7 @@ export default function FreelancerProfile() {
                           </div>
                           <div className="text-center">
                             <div className="font-bold text-2xl mb-1">
-                              {currentFreelancerData.stats.repeatClients}%
+                              {profile.stats?.repeatClients ?? '--'}%
                             </div>
                             <p className="text-sm text-muted-foreground">
                               Repeat Clients

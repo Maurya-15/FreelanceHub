@@ -25,6 +25,7 @@ import {
   CheckCircle,
   X,
   UserCheck,
+  User,
 } from "lucide-react";
 
 import useJobProposals from "@/hooks/useJobProposals"; // new hook for fetching proposals from backend
@@ -206,13 +207,15 @@ export default function JobProposals() {
                           <Heart className="w-4 h-4 mr-2" />
                           Save
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => navigate(`/messages?userId=${proposal.freelancer._id}`)}>
                           <MessageSquare className="w-4 h-4 mr-2" />
                           Message
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => navigate(`/profile/${proposal.freelancer._id}`)}>
-                          <UserCheck className="w-4 h-4 mr-2" />
-                          View Profile
+                        <Button variant="outline" size="sm" asChild>
+                          <Link to={`/freelancer/${proposal.freelancer._id}`}>
+                            <User className="w-4 h-4 mr-2" />
+                            View Profile
+                          </Link>
                         </Button>
                       </div>
                     </div>
@@ -287,11 +290,16 @@ export default function JobProposals() {
                   onClick={async () => {
                     if (!selectedProposal) return;
                     try {
-                      await fetch(`/api/jobs/${id}/proposals/${selectedProposal._id}/accept`, {
+                      const response = await fetch(`/api/jobs/${id}/proposals/${selectedProposal._id}/accept`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json', 'user-id': localStorage.getItem('userId') || '' },
                       });
-                      window.location.reload();
+                      if (response.ok) {
+                        navigate('/orders');
+                      } else {
+                        const data = await response.json();
+                        alert(data.message || 'Failed to accept proposal.');
+                      }
                     } catch (err) {
                       alert('Failed to accept proposal.');
                     }

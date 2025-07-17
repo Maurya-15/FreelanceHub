@@ -369,7 +369,7 @@ export default function OrderManagement() {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Order ID</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Client</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Freelancer</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Gig</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Job</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Amount</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Created</th>

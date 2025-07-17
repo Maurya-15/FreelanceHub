@@ -100,7 +100,7 @@ export default function ClientDashboard() {
     );
   }
 
-  const { userName, stats, activeOrders, postedJobs, recentMessages } = data;
+  const { userName, stats, orders, postedJobs, recentMessages } = data;
 
   return (
     <div className="min-h-screen">
@@ -227,7 +227,7 @@ export default function ClientDashboard() {
         {/* Main Content Tabs */}
         <Tabs defaultValue="orders" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="orders">Active Orders</TabsTrigger>
+            <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="jobs">Posted Jobs</TabsTrigger>
             <TabsTrigger value="messages">Recent Messages</TabsTrigger>
           </TabsList>
@@ -237,7 +237,7 @@ export default function ClientDashboard() {
             <Card className="border-0 bg-card/50 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  Active Orders
+                  Orders
                   <Button variant="outline" size="sm" asChild>
                     <Link to="/orders">
                       View All
@@ -248,7 +248,7 @@ export default function ClientDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {activeOrders.map((order) => (
+                  {(orders || []).map((order) => (
                     <div
                       key={order.id}
                       className="flex items-center justify-between p-4 rounded-lg border border-border/40 hover:bg-muted/20 transition-colors"
@@ -271,18 +271,6 @@ export default function ClientDashboard() {
                           <p className="text-sm text-muted-foreground">
                             {order.service}
                           </p>
-                          {/* Progress Bar */}
-                          <div className="flex items-center space-x-2 mt-2">
-                            <div className="flex-1 bg-muted rounded-full h-2">
-                              <div
-                                className="bg-brand-gradient h-2 rounded-full transition-all duration-300"
-                                style={{ width: `${order.progress}%` }}
-                              />
-                            </div>
-                            <span className="text-xs text-muted-foreground">
-                              {order.progress}%
-                            </span>
-                          </div>
                         </div>
                       </div>
                       <div className="flex items-center space-x-4 text-right">
@@ -291,9 +279,7 @@ export default function ClientDashboard() {
                             {getStatusIcon(order.status)}
                             {order.status.replace("_", " ")}
                           </Badge>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {order.lastUpdate}
-                          </p>
+
                         </div>
                         <div>
                           <p className="font-semibold">{order.amount}</p>
@@ -354,8 +340,7 @@ export default function ClientDashboard() {
                             </span>
                             <span>•</span>
                             <span>
-                              Deadline:{" "}
-                              {new Date(job.deadline).toLocaleDateString()}
+                                Duration: {job.duration ?? "N/A"}
                             </span>
                           </div>
                         </div>

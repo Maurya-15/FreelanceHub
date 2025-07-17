@@ -25,68 +25,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-// Mock data
-const stats = {
-  totalEarnings: 12450,
-  activeGigs: 8,
-  totalOrders: 156,
-  avgRating: 4.9,
-  profileViews: 1234,
-  responseTime: "2 hours",
-};
+import useFreelancerDashboard from "@/hooks/useFreelancerDashboard";
 
-const recentOrders = [
-  {
-    id: "ORD-001",
-    title: "Modern Logo Design",
-    client: "Sarah Johnson",
-    amount: 299,
-    status: "in_progress",
-    deadline: "2024-01-15",
-    avatar: "/api/placeholder/32/32",
-  },
-  {
-    id: "ORD-002",
-    title: "Website Redesign",
-    client: "Tech Startup Inc.",
-    amount: 1250,
-    status: "delivered",
-    deadline: "2024-01-10",
-    avatar: "/api/placeholder/32/32",
-  },
-  {
-    id: "ORD-003",
-    title: "Brand Identity Package",
-    client: "Local Business",
-    amount: 850,
-    status: "revision",
-    deadline: "2024-01-20",
-    avatar: "/api/placeholder/32/32",
-  },
-];
 
-const topGigs = [
-  {
-    id: "GIG-001",
-    title: "I will design a modern logo for your business",
-    image: "/api/placeholder/200/120",
-    price: 299,
-    orders: 45,
-    rating: 4.9,
-    reviews: 32,
-    impressions: 2340,
-  },
-  {
-    id: "GIG-002",
-    title: "I will create a complete brand identity",
-    image: "/api/placeholder/200/120",
-    price: 850,
-    orders: 23,
-    rating: 4.8,
-    reviews: 18,
-    impressions: 1890,
-  },
-];
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -114,7 +55,18 @@ const getStatusIcon = (status: string) => {
   }
 };
 
+import { useAuth } from "@/contexts/AuthContext";
+
 export default function FreelancerDashboard() {
+  const { user, isLoading: authLoading } = useAuth();
+  const freelancerId = user?._id;
+  // Note: Make sure backend returns 'name' and 'totalGigs' in stats for full effect.
+  // DEBUG: Log auth and user state
+  console.log('authLoading:', authLoading, 'user:', user, 'freelancerId:', freelancerId);
+  const { data, loading, error } = useFreelancerDashboard(freelancerId || "");
+  if (authLoading || !freelancerId) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -123,7 +75,7 @@ export default function FreelancerDashboard() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Welcome back, John!</h1>
+            <h1 className="text-3xl font-bold mb-2">Welcome back, {data?.stats?.name || user?.name || "Freelancer"}!</h1>
             <p className="text-muted-foreground">
               Here's what's happening with your freelance business today.
             </p>
@@ -154,7 +106,7 @@ export default function FreelancerDashboard() {
                     Total Earnings
                   </p>
                   <p className="text-2xl font-bold">
-                    ${stats.totalEarnings.toLocaleString()}
+                    {loading ? "--" : data?.stats?.totalEarnings?.toLocaleString("en-IN", { style: "currency", currency: "INR" }) ?? 0}
                   </p>
                 </div>
                 <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
@@ -173,9 +125,9 @@ export default function FreelancerDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Active Gigs
+                    Your Gigs
                   </p>
-                  <p className="text-2xl font-bold">{stats.activeGigs}</p>
+                  <p className="text-2xl font-bold">{loading ? "--" : (data?.stats?.totalGigs ?? data?.topGigs?.length ?? 0)}</p>
                 </div>
                 <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
                   <Package className="h-6 w-6 text-blue-600" />
@@ -184,7 +136,7 @@ export default function FreelancerDashboard() {
               <div className="flex items-center mt-4 text-sm">
                 <Eye className="h-4 w-4 text-blue-500 mr-1" />
                 <span className="text-blue-600">
-                  {stats.profileViews} profile views
+                  {loading ? "--" : data?.stats?.profileViews ?? 0} profile views
                 </span>
               </div>
             </CardContent>
@@ -197,7 +149,7 @@ export default function FreelancerDashboard() {
                   <p className="text-sm font-medium text-muted-foreground">
                     Total Orders
                   </p>
-                  <p className="text-2xl font-bold">{stats.totalOrders}</p>
+                  <p className="text-2xl font-bold">{loading ? "--" : data?.stats?.totalOrders ?? 0}</p>
                 </div>
                 <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
                   <MessageSquare className="h-6 w-6 text-purple-600" />
@@ -206,7 +158,7 @@ export default function FreelancerDashboard() {
               <div className="flex items-center mt-4 text-sm">
                 <Clock className="h-4 w-4 text-purple-500 mr-1" />
                 <span className="text-purple-600">
-                  {stats.responseTime} avg response
+                  {loading ? "--" : data?.stats?.responseTime ?? "-"} avg response
                 </span>
               </div>
             </CardContent>
@@ -219,7 +171,7 @@ export default function FreelancerDashboard() {
                   <p className="text-sm font-medium text-muted-foreground">
                     Rating
                   </p>
-                  <p className="text-2xl font-bold">{stats.avgRating}</p>
+                  <p className="text-2xl font-bold">{loading ? "--" : data?.stats?.avgRating ?? 0}</p>
                 </div>
                 <div className="h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/20 flex items-center justify-center">
                   <Star className="h-6 w-6 text-yellow-600" />
@@ -227,14 +179,11 @@ export default function FreelancerDashboard() {
               </div>
               <div className="flex items-center mt-4 text-sm">
                 <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                <span className="text-yellow-600">From 89 reviews</span>
+                <span className="text-yellow-600">From {loading ? "--" : (data?.topGigs?.reduce((sum, gig) => sum + (gig.reviews || 0), 0) ?? 0)} reviews</span>
               </div>
             </CardContent>
           </Card>
         </div>
-
-        {/* AI-Powered Insights */}
-        <PersonalizedDashboard userType="freelancer" userId="USER-001" />
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="orders" className="space-y-6">
@@ -260,7 +209,7 @@ export default function FreelancerDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentOrders.map((order) => (
+                  {(data?.recentOrders ?? []).map((order) => (
                     <div
                       key={order.id}
                       className="flex items-center justify-between p-4 rounded-lg border border-border/40 hover:bg-muted/20 transition-colors"
@@ -307,7 +256,7 @@ export default function FreelancerDashboard() {
           {/* Top Gigs Tab */}
           <TabsContent value="gigs">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {topGigs.map((gig) => (
+              {(data?.topGigs ?? []).map((gig) => (
                 <Card
                   key={gig.id}
                   className="border-0 bg-card/50 backdrop-blur-sm floating-card"
@@ -359,7 +308,7 @@ export default function FreelancerDashboard() {
                           className="flex-1"
                           asChild
                         >
-                          <Link to={`/gig/${gig.id}`}>View</Link>
+                          <Link to={`/gigs/detail/${gig.id}`}>View</Link>
                         </Button>
                       </div>
                     </div>
@@ -432,6 +381,9 @@ export default function FreelancerDashboard() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* AI-Powered Insights */}
+        <PersonalizedDashboard userType="freelancer" userId="USER-001" />
       </main>
 
       {/* Chatbot */}
@@ -439,5 +391,6 @@ export default function FreelancerDashboard() {
 
       <Footer />
     </div>
+    
   );
 }

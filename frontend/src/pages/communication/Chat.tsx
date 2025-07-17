@@ -50,12 +50,55 @@ export default function Chat() {
   const [searchQuery, setSearchQuery] = useState("");
   const userId = localStorage.getItem("userId"); // Or use context if available
   const messagesEndRef = useRef<HTMLDivElement>(null);
-const messagesContainerRef = useRef<HTMLDivElement>(null);
-const [isAtBottom, setIsAtBottom] = useState(true);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
   const location = useLocation();
   // Get userId from query param if present
   const searchParams = new URLSearchParams(location.search);
   const targetUserId = searchParams.get("userId");
+
+  // Real-time socket helpers must be declared before useChatSocket
+  const handleUserStatus = ({ userId: changedUserId, status }: { userId: string, status: string }) => {
+    setConversations((prev) => prev.map((conv) => {
+      // Update status in participants array
+      if (conv.participants) {
+        const updatedParticipants = conv.participants.map((p: any) =>
+          String(p._id) === String(changedUserId) ? { ...p, status } : p
+        );
+        return { ...conv, participants: updatedParticipants };
+      }
+      return conv;
+    }));
+    setSelectedConversation((prev) => {
+      if (!prev) return prev;
+      if (prev.participants) {
+        const updatedParticipants = prev.participants.map((p: any) =>
+          String(p._id) === String(changedUserId) ? { ...p, status } : p
+        );
+        return { ...prev, participants: updatedParticipants };
+      }
+      return prev;
+    });
+  };
+
+  // Real-time socket: must be declared after all state/refs, at top-level
+  const { sendMessage: emitMessage, isConnected } = useChatSocket({
+    userId: userId || undefined,
+    conversationId: selectedConversation?._id,
+    onNewMessage: (msg) => {
+      if (msg.conversationId === selectedConversation?._id) {
+        setMessages((prev) => [...prev, msg]);
+      }
+      // Optionally update conversations list for lastMessage/unread
+      setConversations((prev) => prev.map((conv) =>
+        conv._id === msg.conversationId
+          ? { ...conv, lastMessage: msg, unreadCount: (conv.unreadCount || 0) + 1 }
+          : conv
+      ));
+    },
+    onUserStatus: handleUserStatus,
+    // Optionally handle notifications here
+  });
 
   // Fetch conversations on mount
   useEffect(() => {
@@ -72,16 +115,16 @@ const [isAtBottom, setIsAtBottom] = useState(true);
           if (res.conversation) {
             // Fetch the other user's info to display in sidebar/header
             let otherUser = res.conversation.participants.find((p: any) => (p._id || p) !== userId);
-if (otherUser && typeof otherUser === 'string') {
-  // If still just an ID, fetch user info as fallback
-  try {
-    const userRes = await fetch(`/api/users/${otherUser}`);
-    if (userRes.ok) {
-      otherUser = await userRes.json();
-    }
-  } catch {}
-}
-const enrichedConversation = { ...res.conversation, participant: otherUser };
+            if (otherUser && typeof otherUser === 'string') {
+              // If still just an ID, fetch user info as fallback
+              try {
+                const userRes = await fetch(`/api/users/${otherUser}`);
+                if (userRes.ok) {
+                  otherUser = await userRes.json();
+                }
+              } catch {}
+            }
+            const enrichedConversation = { ...res.conversation, participant: otherUser };
             setSelectedConversation(enrichedConversation);
             setConversations((prev) => {
               const exists = prev.some((c) => c._id === res.conversation._id);
@@ -105,49 +148,6 @@ const enrichedConversation = { ...res.conversation, participant: otherUser };
       .catch(() => setMessages([]));
   }, [selectedConversation]);
 
-
-
-// Real-time socket
-const handleUserStatus = ({ userId: changedUserId, status }: { userId: string, status: string }) => {
-  setConversations((prev) => prev.map((conv) => {
-    // Update status in participants array
-    if (conv.participants) {
-      const updatedParticipants = conv.participants.map((p: any) =>
-        String(p._id) === String(changedUserId) ? { ...p, status } : p
-      );
-      return { ...conv, participants: updatedParticipants };
-    }
-    return conv;
-  }));
-  setSelectedConversation((prev) => {
-    if (!prev) return prev;
-    if (prev.participants) {
-      const updatedParticipants = prev.participants.map((p: any) =>
-        String(p._id) === String(changedUserId) ? { ...p, status } : p
-      );
-      return { ...prev, participants: updatedParticipants };
-    }
-    return prev;
-  });
-};
-
-const { sendMessage: emitMessage } = useChatSocket({
-  userId: userId || undefined,
-  conversationId: selectedConversation?._id,
-  onNewMessage: (msg) => {
-    if (msg.conversationId === selectedConversation?._id) {
-      setMessages((prev) => [...prev, msg]);
-    }
-    // Optionally update conversations list for lastMessage/unread
-    setConversations((prev) => prev.map((conv) =>
-      conv._id === msg.conversationId
-        ? { ...conv, lastMessage: msg, unreadCount: (conv.unreadCount || 0) + 1 }
-        : conv
-    ));
-  },
-  onUserStatus: handleUserStatus,
-  // Optionally handle notifications here
-});
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -182,8 +182,15 @@ const { sendMessage: emitMessage } = useChatSocket({
     return () => container.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const [sending, setSending] = useState(false);
+
   const sendMessage = async () => {
-    if ((!newMessage.trim() && !attachment) || !selectedConversation) return;
+    if ((!newMessage.trim() && !attachment) || !selectedConversation || sending) return;
+    if (!isConnected) {
+      alert("Message failed to send: Socket not connected");
+      return;
+    }
+    setSending(true);
     let attachmentData = null;
     if (attachment) {
       // Prepare file for upload (could be base64, or use an API endpoint for upload)
@@ -215,13 +222,24 @@ const { sendMessage: emitMessage } = useChatSocket({
       _id: Math.random().toString(36).substr(2, 9), // Temporary ID
     };
     setMessages((prev) => [...prev, optimisticMsg]);
-    emitMessage({
-      ...optimisticMsg,
-      status: "sent", // Server will overwrite this
-    });
-    setNewMessage("");
-    setAttachment(null);
+    try {
+      const ack = await emitMessage({
+        ...optimisticMsg,
+        status: "sent",
+      });
+      if (ack.status !== "ok") {
+        alert("Message failed: " + (ack.message || "Unknown error"));
+      } else {
+        setNewMessage("");
+        setAttachment(null);
+      }
+    } catch (err) {
+      alert("Client-side error");
+    } finally {
+      setSending(false);
+    }
   };
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -544,7 +562,7 @@ const { sendMessage: emitMessage } = useChatSocket({
                       <Smile className="w-4 h-4" />
                     </Button>
                   </div>
-                  <Button onClick={sendMessage} disabled={!newMessage.trim() && !attachment}>
+                  <Button onClick={sendMessage} disabled={(!newMessage.trim() && !attachment) || sending}>
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>

@@ -24,16 +24,24 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:8080', 'http://localhost:3000', 'http://localhost:8000'],
+    origin: [
+      'http://localhost:8080',
+      'http://localhost:3000',
+      'http://localhost:8000',
+      'http://localhost:8081',
+      'http://localhost:5173'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
   }
 });
 
 app.set('io', io); // Make io available in routes
+app.locals.io = io;
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join('./', 'uploads/')));
@@ -54,7 +62,8 @@ const corsOptions = {
     'http://localhost:8080',
     'http://localhost:3000',
     'http://localhost:8000',
-    'http://localhost:8081'
+    'http://localhost:8081',
+    'http://localhost:5173'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -79,6 +88,7 @@ const gigUpload = multer({
 async function logActivity({ type, user, message, status = 'info', meta = {} }) {
   await Activity.create({ type, user, message, status, meta });
 }
+app.locals.logActivity = logActivity;
 
 // Only keep the root route here
 app.get('/', (req, res) => {
@@ -134,7 +144,7 @@ io.on('connection', (socket) => {
   });
 
   // Real-time message delivery
-  socket.on('sendMessage', async (data) => {
+  socket.on('sendMessage', async (data, callback) => {
     try {
       const message = new Message({
         conversationId: data.conversationId,
@@ -165,8 +175,10 @@ io.on('connection', (socket) => {
         type: 'newMessage',
         message,
       });
+      if (typeof callback === 'function') callback({ status: 'ok' });
     } catch (err) {
-      socket.emit('error', { message: err.message });
+      if (typeof callback === 'function') callback({ status: 'error', message: err.message });
+      else socket.emit('error', { message: err.message });
     }
   });
 
@@ -197,4 +209,6 @@ io.on('connection', (socket) => {
   });
 });
 
+
+  
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

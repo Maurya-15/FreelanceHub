@@ -97,8 +97,12 @@ export default function GigDetail() {
   const faqs = Array.isArray(gigData.faqs) ? gigData.faqs : [];
 
   // Defensive fallback for freelancer fields
-  const freelancerName = typeof freelancer.name === 'string' && freelancer.name ? freelancer.name : 'User';
-  const freelancerAvatar = (typeof freelancer.profilePicture === 'string' && freelancer.profilePicture) || (typeof freelancer.avatar === 'string' && freelancer.avatar) || 'https://placehold.co/60x60';
+  const freelancerName = typeof freelancer.name === 'string' && freelancer.name.trim() ? freelancer.name : (typeof freelancer.username === 'string' && freelancer.username.trim() ? freelancer.username : '');
+  const isValidAvatar = (url?: string) => !!url && !url.includes('/api/placeholder/');
+const freelancerAvatar =
+  isValidAvatar(freelancer.profilePicture) ? freelancer.profilePicture
+  : isValidAvatar(freelancer.avatar) ? freelancer.avatar
+  : 'https://placehold.co/60x60';
   const freelancerUsername = typeof freelancer.username === 'string' && freelancer.username ? freelancer.username : '';
   const freelancerLevel = typeof freelancer.level === 'string' && freelancer.level ? freelancer.level : '';
   const freelancerRating = typeof freelancer.rating === 'number' ? freelancer.rating : 0;
@@ -123,65 +127,7 @@ export default function GigDetail() {
   // Defensive fallback for faqs
   const safeFaqs = faqs.filter(f => f && typeof f === 'object' && f.question);
 
-  // Defensive fallback for packages
-  const mockPackages = {
-    basic: {
-      name: 'Basic Logo',
-      price: 299,
-      description: 'Simple logo package with 1 concept',
-      deliveryTime: 2,
-      revisions: 2,
-      features: [
-        '1 logo concept',
-        '2 revisions',
-        'High-resolution PNG',
-        'Logo transparency',
-      ],
-    },
-    standard: {
-      name: 'Premium Logo',
-      price: 599,
-      description: 'Complete logo package with multiple concepts',
-      deliveryTime: 5,
-      revisions: 5,
-      features: [
-        '3 logo concepts',
-        '5 revisions',
-        'High-resolution PNG & JPG',
-        'Logo transparency',
-        'Vector file (AI, EPS)',
-        'Printable resolution file',
-        '3D mockup',
-        'Social media kit',
-      ],
-    },
-    premium: {
-      name: 'Brand Identity',
-      price: 1299,
-      description: 'Complete brand identity package',
-      deliveryTime: 10,
-      revisions: 'Unlimited',
-      features: [
-        '5 logo concepts',
-        'Unlimited revisions',
-        'All file formats',
-        'Logo transparency',
-        'Vector file (AI, EPS, PDF)',
-        '3D mockup',
-        'Business card design',
-        'Letterhead design',
-        'Social media kit',
-        'Brand guidelines',
-      ],
-    },
-  };
-  const mergedPackages = {
-    basic: packages.basic || mockPackages.basic,
-    standard: packages.standard || mockPackages.standard,
-    premium: packages.premium || mockPackages.premium,
-  };
   const safePackageKeys = ['basic', 'standard', 'premium'];
-  const packagesToUse = mergedPackages;
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
@@ -303,7 +249,7 @@ export default function GigDetail() {
                   <CardContent className="p-6">
                     <div className="flex items-start space-x-4 mb-6">
                       <Avatar className="w-16 h-16">
-                        <AvatarImage src={freelancerAvatar} />
+                        <AvatarImage src={freelancerAvatar} onError={e => (e.currentTarget.src = 'https://placehold.co/60x60')} />
                         <AvatarFallback>
                           {freelancerName
                             ? freelancerName.split(" ").map((n: string) => n[0]).join("")
@@ -313,7 +259,7 @@ export default function GigDetail() {
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
                           <h3 className="text-xl font-bold">
-                            {freelancerName}
+                            {freelancerName || ''}
                           </h3>
                           {freelancerLevel && (
                             <Badge className="bg-brand-gradient text-white">
@@ -405,7 +351,7 @@ export default function GigDetail() {
                       >
                         <div className="flex items-start space-x-4">
                           <Avatar className="w-10 h-10">
-                            <AvatarImage src={review.avatar || 'https://placehold.co/40x40'} />
+                            <AvatarImage src={isValidAvatar(review.avatar) ? review.avatar : 'https://placehold.co/40x40'} onError={e => (e.currentTarget.src = 'https://placehold.co/40x40')} />
                             <AvatarFallback>
                               {review.user
                                 ? review.user.split(" ").map((n: string) => n[0]).join("")
@@ -491,8 +437,9 @@ export default function GigDetail() {
                         </TabsTrigger>
                       ))}
                     </TabsList>
-                    {safePackageKeys.map(
-                      (packageType) => (
+                    {['basic', 'standard', 'premium'].map((packageType) => {
+                      const pkg = packages[packageType] || {};
+                      return (
                         <TabsContent
                           key={packageType}
                           value={packageType}
@@ -501,29 +448,29 @@ export default function GigDetail() {
                           <div className="p-6">
                             <div className="flex items-center justify-between mb-4">
                               <h3 className="text-xl font-bold">
-                                {packagesToUse[packageType]?.name}
+                                {pkg.name || '-'}
                               </h3>
                               <span className="text-2xl font-bold">
-                                ${packagesToUse[packageType]?.price}
+                                {pkg.price ? `$${pkg.price}` : '-'}
                               </span>
                             </div>
                             <p className="text-muted-foreground mb-4">
-                              {packagesToUse[packageType]?.description}
+                              {pkg.description || '-'}
                             </p>
                             <div className="flex items-center space-x-4 mb-6 text-sm">
                               <div className="flex items-center space-x-1">
                                 <Clock className="w-4 h-4" />
                                 <span>
-                                  {packagesToUse[packageType]?.deliveryTime} day delivery
+                                  {pkg.deliveryTime ? `${pkg.deliveryTime} day delivery` : '-'}
                                 </span>
                               </div>
                               <div className="flex items-center space-x-1">
                                 <RotateCcw className="w-4 h-4" />
-                                <span>{packagesToUse[packageType]?.revisions} revisions</span>
+                                <span>{pkg.revisions ? `${pkg.revisions} revisions` : '-'}</span>
                               </div>
                             </div>
                             <ul className="space-y-2 mb-6">
-                              {packagesToUse[packageType]?.features && packagesToUse[packageType]?.features.map((feature: string, index: number) => (
+                              {(pkg.features && pkg.features.length > 0 ? pkg.features : ['-']).map((feature: string, index: number) => (
                                 <li
                                   key={feature || index}
                                   className="flex items-center space-x-2 text-sm"
@@ -533,8 +480,41 @@ export default function GigDetail() {
                                 </li>
                               ))}
                             </ul>
-                            <GradientButton className="w-full mb-3">
-                              Continue (${packagesToUse[packageType]?.price})
+                            <GradientButton
+                              className="w-full mb-3"
+                              onClick={async () => {
+                                // Get user/client info (assume from localStorage or context)
+                                const userId = localStorage.getItem('userId');
+                                if (!userId) {
+                                  alert('Please log in to place an order.');
+                                  return;
+                                }
+                                try {
+                                  const res = await fetch('/api/orders', {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                      client: userId,
+                                      freelancer: freelancer?._id || freelancer?.id,
+                                      gig: gigData._id,
+                                      package: packageType,
+                                      amount: pkg.price,
+                                    }),
+                                  });
+                                  const data = await res.json();
+                                  if (data.success) {
+                                    window.location.href = '/orders';
+                                  } else {
+                                    alert(data.message || 'Failed to place order');
+                                  }
+                                } catch (err) {
+                                  alert('Failed to place order');
+                                }
+                              }}
+                            >
+                              {pkg.price ? `Continue ($${pkg.price})` : 'Continue'}
                             </GradientButton>
                             <Button variant="outline" className="w-full">
                               <MessageCircle className="w-4 h-4 mr-2" />
@@ -542,8 +522,8 @@ export default function GigDetail() {
                             </Button>
                           </div>
                         </TabsContent>
-                      ),
-                    )}
+                      );
+                    })}
                   </Tabs>
                 </CardContent>
               </Card>
@@ -552,7 +532,7 @@ export default function GigDetail() {
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-3 mb-4">
                     <Avatar className="w-12 h-12">
-                      <AvatarImage src={freelancerAvatar} />
+                      <AvatarImage src={freelancerAvatar} onError={e => (e.currentTarget.src = 'https://placehold.co/60x60')} />
                       <AvatarFallback>
                         {freelancerName
                           ? freelancerName.split(" ").map((n: string) => n[0]).join("")
@@ -560,7 +540,7 @@ export default function GigDetail() {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <h4 className="font-medium">{freelancerName}</h4>
+                      <h4 className="font-medium">{freelancerName || ''}</h4>
                       <div className="flex items-center space-x-1 text-sm">
                         <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                         <span>{freelancerRating}</span>
@@ -585,8 +565,9 @@ export default function GigDetail() {
                     </div>
                   </div>
                   <Separator className="my-4" />
+                  {/* View Profile button: links to freelancer profile page, robustly extracts freelancerId */}
                   <Button variant="outline" className="w-full" asChild>
-                    <Link to={`/freelancer/${freelancerId}`}>
+                    <Link to={`/freelancer/profile/${freelancerId}`}>
                       <User className="w-4 h-4 mr-2" />
                       View Profile
                     </Link>

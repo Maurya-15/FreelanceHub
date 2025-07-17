@@ -94,35 +94,45 @@ const budgetTypes = [
   },
 ];
 
+const LOCAL_STORAGE_KEY = "postJobFormData";
+
 export default function PostJob() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [jobData, setJobData] = useState({
-    title: "",
-    category: "",
-    subcategory: "",
-    description: "",
-    requirements: "",
-    skills: [],
-    experienceLevel: "",
-    projectLength: "",
-    budgetType: "fixed",
-    fixedBudget: {
-      min: "",
-      max: "",
-    },
-    hourlyBudget: {
-      min: "",
-      max: "",
-    },
-    deadline: null,
-    isUrgent: false,
-    attachments: [],
-    additionalQuestions: [],
+  const [jobData, setJobData] = useState(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : {
+      title: "",
+      category: "",
+      subcategory: "",
+      description: "",
+      requirements: "",
+      skills: [],
+      experienceLevel: "",
+      projectLength: "",
+      budgetType: "fixed",
+      fixedBudget: {
+        min: "",
+        max: "",
+      },
+      hourlyBudget: {
+        min: "",
+        max: "",
+      },
+      deadline: null,
+      isUrgent: false,
+      attachments: [],
+      additionalQuestions: [],
+    };
   });
 
   const [currentSkill, setCurrentSkill] = useState("");
   const [currentQuestion, setCurrentQuestion] = useState("");
+
+  // Save jobData to localStorage on every change
+  React.useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(jobData));
+  }, [jobData]);
 
   const handleInputChange = (field: string, value: any) => {
     setJobData((prev) => ({ ...prev, [field]: value }));
@@ -199,6 +209,10 @@ export default function PostJob() {
   const { toast } = useToast();
 
   const handleSubmit = async () => {
+  // ... your submit logic ...
+  // After successful post:
+  localStorage.removeItem(LOCAL_STORAGE_KEY);
+
     if (isSubmitting) return;
     
     setIsSubmitting(true);

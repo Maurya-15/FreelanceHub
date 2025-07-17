@@ -2,8 +2,11 @@ import express from 'express';
 import Activity from '../models/Activity.js';
 import Order from '../models/Order.js';
 import { User, Gig } from '../db.js';
+import Job from '../models/Job.js';
 
 const router = express.Router();
+import freelancerRoutes from './freelancer.js';
+router.use('/freelancer', freelancerRoutes);
 
 // GET /api/activities
 router.get('/activities', async (req, res) => {
@@ -40,7 +43,7 @@ router.get('/admin/stats', async (req, res) => {
     const totalUsers = await User.countDocuments();
     const activeGigs = await Gig.countDocuments();
     const totalOrders = await Order.countDocuments();
-    const totalJobs = 0; // If you have a Job model, replace with actual count
+    const totalJobs = await Job.countDocuments();
     res.json({
       success: true,
       totalUsers,

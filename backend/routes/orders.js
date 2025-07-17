@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
     const orders = await Order.find()
       .populate('client', 'name email profilePicture')
       .populate('freelancer', 'name email profilePicture')
-      .populate('gig', 'title')
+      .populate('gig')
       .sort({ createdAt: -1 });
     res.json({ success: true, orders });
   } catch (err) {
@@ -25,7 +25,7 @@ router.get('/:id', async (req, res) => {
     const order = await Order.findById(req.params.id)
       .populate('client', 'name email profilePicture')
       .populate('freelancer', 'name email profilePicture')
-      .populate('gig', 'title');
+      .populate('gig');
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
     res.json({ success: true, order });
   } catch (err) {
@@ -48,6 +48,28 @@ router.put('/:id', async (req, res) => {
     } else if (status === 'pending') {
       req.app.get('io').emit('paymentIssue', order);
     }
+    res.json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST /api/orders - Create a new order
+router.post('/', async (req, res) => {
+  try {
+    const { client, freelancer, gig, package: selectedPackage, amount } = req.body;
+    if (!client || !freelancer || !gig || !amount) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+    const order = new Order({
+      client,
+      freelancer,
+      gig,
+      amount,
+      // Optionally add package or other fields
+      // package: selectedPackage,
+    });
+    await order.save();
     res.json({ success: true, order });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

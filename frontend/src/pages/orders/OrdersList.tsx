@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -37,110 +37,6 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-// Mock orders data
-const ordersData = [
-  {
-    id: "ORD-001",
-    title: "Modern Logo Design Package",
-    gig: {
-      id: "GIG-001",
-      title: "I will design a modern logo for your business",
-      image: "/api/placeholder/80/60",
-    },
-    freelancer: {
-      id: "USER-001",
-      name: "Sarah Johnson",
-      avatar: "/api/placeholder/40/40",
-      level: "Top Rated",
-    },
-    client: {
-      id: "USER-002",
-      name: "John Smith",
-      avatar: "/api/placeholder/40/40",
-    },
-    status: "in_progress",
-    totalAmount: 1299,
-    createdAt: "2024-01-10T10:00:00Z",
-    deadline: "2024-01-20T23:59:59Z",
-    progress: 65,
-  },
-  {
-    id: "ORD-002",
-    title: "E-commerce Website Development",
-    gig: {
-      id: "GIG-002",
-      title: "I will create a complete e-commerce website",
-      image: "/api/placeholder/80/60",
-    },
-    freelancer: {
-      id: "USER-003",
-      name: "Mike Chen",
-      avatar: "/api/placeholder/40/40",
-      level: "Level 2",
-    },
-    client: {
-      id: "USER-004",
-      name: "Emily Davis",
-      avatar: "/api/placeholder/40/40",
-    },
-    status: "delivered",
-    totalAmount: 4200,
-    createdAt: "2024-01-05T14:30:00Z",
-    deadline: "2024-01-25T23:59:59Z",
-    deliveredAt: "2024-01-13T16:45:00Z",
-  },
-  {
-    id: "ORD-003",
-    title: "Social Media Graphics Package",
-    gig: {
-      id: "GIG-003",
-      title: "I will create social media graphics",
-      image: "/api/placeholder/80/60",
-    },
-    freelancer: {
-      id: "USER-005",
-      name: "Alex Rivera",
-      avatar: "/api/placeholder/40/40",
-      level: "Level 1",
-    },
-    client: {
-      id: "USER-006",
-      name: "David Wilson",
-      avatar: "/api/placeholder/40/40",
-    },
-    status: "completed",
-    totalAmount: 850,
-    createdAt: "2024-01-01T09:15:00Z",
-    deadline: "2024-01-15T23:59:59Z",
-    completedAt: "2024-01-14T11:20:00Z",
-    rating: 5,
-  },
-  {
-    id: "ORD-004",
-    title: "Content Writing for Blog",
-    gig: {
-      id: "GIG-004",
-      title: "I will write SEO-optimized blog posts",
-      image: "/api/placeholder/80/60",
-    },
-    freelancer: {
-      id: "USER-007",
-      name: "Lisa Thompson",
-      avatar: "/api/placeholder/40/40",
-      level: "Top Rated",
-    },
-    client: {
-      id: "USER-008",
-      name: "Robert Brown",
-      avatar: "/api/placeholder/40/40",
-    },
-    status: "cancelled",
-    totalAmount: 450,
-    createdAt: "2023-12-28T16:00:00Z",
-    cancelledAt: "2024-01-02T10:30:00Z",
-  },
-];
-
 const statusConfig = {
   pending: {
     color:
@@ -167,19 +63,50 @@ const statusConfig = {
 };
 
 export default function OrdersList() {
+  const [showMessageDialog, setShowMessageDialog] = useState(false);
+  const [activeMessageOrder, setActiveMessageOrder] = useState<any>(null);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
 
+  // Orders fetching state
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch('/api/orders', {
+      headers: { 'user-id': localStorage.getItem('userId') || '' },
+    })
+      .then(res => res.json())
+      .then(data => {
+        const userId = localStorage.getItem('userId');
+        const myOrders = (data.orders || []).filter(
+          (order: any) =>
+            order.client?._id === userId || order.freelancer?._id === userId
+        );
+        setOrders(myOrders);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Failed to load orders');
+        setLoading(false);
+      });
+  }, []);
+
   // Get current user role for determining back navigation
   const currentUserRole = localStorage.getItem("userRole") || "client";
 
-  const filteredOrders = ordersData.filter((order) => {
+  const filteredOrders = orders.filter((order) => {
+    const title = order?.title || order?.gig?.title || '';
+    const freelancerName = order?.freelancer?.name || '';
+    const clientName = order?.client?.name || '';
     const matchesSearch =
-      order.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.freelancer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.client.name.toLowerCase().includes(searchQuery.toLowerCase());
+      title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      freelancerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      clientName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || order.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -243,7 +170,7 @@ export default function OrdersList() {
                   <p className="text-sm font-medium text-muted-foreground">
                     Total Orders
                   </p>
-                  <p className="text-2xl font-bold">{ordersData.length}</p>
+                  <p className="text-2xl font-bold">{orders.length}</p>
                 </div>
                 <Package className="h-8 w-8 text-blue-600" />
               </div>
@@ -259,7 +186,7 @@ export default function OrdersList() {
                   </p>
                   <p className="text-2xl font-bold">
                     {
-                      ordersData.filter((o) => o.status === "in_progress")
+                      orders.filter((o) => o.status === "in_progress")
                         .length
                     }
                   </p>
@@ -277,7 +204,7 @@ export default function OrdersList() {
                     Completed
                   </p>
                   <p className="text-2xl font-bold">
-                    {ordersData.filter((o) => o.status === "completed").length}
+                    {orders.filter((o) => o.status === "completed").length}
                   </p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-600" />
@@ -294,7 +221,7 @@ export default function OrdersList() {
                   </p>
                   <p className="text-2xl font-bold">
                     ₹
-                    {ordersData
+                    {orders
                       .reduce((sum, order) => sum + order.totalAmount, 0)
                       .toLocaleString()}
                   </p>
@@ -349,7 +276,6 @@ export default function OrdersList() {
           </CardContent>
         </Card>
 
-        {/* Orders List */}
         <div className="space-y-4">
           {filteredOrders.map((order) => {
             const StatusIcon = statusConfig[order.status]?.icon || Clock;
@@ -362,11 +288,11 @@ export default function OrdersList() {
               <Card
                 key={order.id}
                 className="border-0 bg-card/50 backdrop-blur-sm floating-card cursor-pointer hover:shadow-lg transition-all duration-200"
-                onClick={() => navigate(`/order/${order.id}`)}
+                onClick={() => navigate(`/order/${order._id}`)}
               >
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
-                    {/* Gig Image */}
+                    {/* Job Image */}
                     <div className="w-20 h-15 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg flex-shrink-0" />
 
                     {/* Order Info */}
@@ -374,10 +300,10 @@ export default function OrdersList() {
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           <h3 className="font-semibold text-lg mb-1 truncate">
-                            {order.title}
+                            {order.gig?.title || 'Untitled Job'}
                           </h3>
                           <p className="text-sm text-muted-foreground">
-                            Order #{order.id}
+                            Order #{order._id}
                           </p>
                         </div>
                         <div className="flex items-center space-x-3">
@@ -397,12 +323,12 @@ export default function OrdersList() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem asChild>
-                                <Link to={`/order/${order.id}`}>
+                                <Link to={`/order/${order._id}`}>
                                   <Eye className="mr-2 h-4 w-4" />
                                   View Details
                                 </Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setActiveMessageOrder(order); setShowMessageDialog(true); }}>
                                 <MessageSquare className="mr-2 h-4 w-4" />
                                 Message
                               </DropdownMenuItem>
@@ -459,7 +385,7 @@ export default function OrdersList() {
                           <DollarSign className="w-4 h-4 text-green-500" />
                           <span className="text-muted-foreground">Amount:</span>
                           <span className="font-medium">
-                            ₹{order.totalAmount}
+                            ₹{order.amount ?? 0}
                           </span>
                         </div>
 

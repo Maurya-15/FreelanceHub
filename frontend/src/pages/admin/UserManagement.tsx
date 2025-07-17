@@ -398,35 +398,17 @@ export default function UserManagement() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-sm min-w-[200px]">
+                  <div className="grid grid-cols-1 gap-4 text-sm min-w-[120px]">
                     {user.role === "freelancer" ? (
-                      <>
-                        <div>
-                          <p className="text-muted-foreground">Earnings</p>
-                          <p className="font-medium">
-                            ₹{user.totalEarnings?.toLocaleString()}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Projects</p>
-                          <p className="font-medium">
-                            {user.completedProjects}
-                          </p>
-                        </div>
-                      </>
+                      <div>
+                        <p className="text-muted-foreground">Projects</p>
+                        <p className="font-medium">{user.projects ?? 0}</p>
+                      </div>
                     ) : (
-                      <>
-                        <div>
-                          <p className="text-muted-foreground">Spent</p>
-                          <p className="font-medium">
-                            ₹{user.totalSpent?.toLocaleString()}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Jobs Posted</p>
-                          <p className="font-medium">{user.postedJobs}</p>
-                        </div>
-                      </>
+                      <div>
+                        <p className="text-muted-foreground">Jobs Posted</p>
+                        <p className="font-medium">{user.jobsPosted ?? 0}</p>
+                      </div>
                     )}
                   </div>
 
@@ -446,7 +428,7 @@ export default function UserManagement() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
-                      onClick={() => handleUserAction("view", user.id)}
+                      onClick={() => window.location.href = `/profile/${user.id}`}
                     >
                       <User className="mr-2 h-4 w-4" />
                       View Profile

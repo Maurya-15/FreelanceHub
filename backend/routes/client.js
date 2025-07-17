@@ -33,7 +33,24 @@ router.get('/dashboard/:userId', async (req, res) => {
     const avgRating = ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : null;
     const totalSavings = 2340; // Placeholder, adjust if you have logic
 
-    // List active orders
+    // List all orders for the client
+    const allOrders = await Order.find({ client: userId })
+      .sort({ createdAt: -1 })
+      .populate('freelancer', 'name profilePicture');
+    const ordersData = allOrders.map(order => ({
+      id: order._id,
+      title: order.title,
+      freelancer: order.freelancer?.name || 'Unknown',
+      freelancerAvatar: order.freelancer?.profilePicture || '',
+      service: order.service,
+      amount: order.amount,
+      status: order.status,
+      deadline: order.deadline ? order.deadline.toISOString().split('T')[0] : '',
+      progress: order.progress || 0,
+      lastUpdate: order.updatedAt ? order.updatedAt.toLocaleString() : '',
+    }));
+
+    // List active orders (for backward compatibility)
     const activeOrders = await Order.find({ client: userId, status: { $in: ['in_progress', 'in_review', 'delivered'] } })
       .sort({ createdAt: -1 })
       .limit(5)
@@ -108,7 +125,8 @@ router.get('/dashboard/:userId', async (req, res) => {
         totalSavings,
         activeJobs,
       },
-      activeOrders: activeOrdersData,
+      orders: ordersData, // All orders for the dashboard
+      activeOrders: activeOrdersData, // Backward compatibility
       postedJobs: postedJobsData,
       recentMessages,
     });

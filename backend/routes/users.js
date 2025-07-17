@@ -1,6 +1,8 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import { User } from '../db.js';
+import Job from '../models/Job.js';
+import Order from '../models/Order.js';
 // import logActivity from '../middlewares/logActivity.js'; // removed, now in server.js
 
 const router = express.Router();
@@ -126,6 +128,21 @@ router.put('/:id/ban', async (req, res) => {
   }
 });
 
+// Update user profile by ID
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    ).select('-password');
+    if (!updatedUser) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, user: updatedUser });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Get user by ID
 router.get('/:id', async (req, res) => {
   try {
@@ -141,7 +158,22 @@ router.get('/:id', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const users = await User.find();
-    res.json({ success: true, users });
+    // Aggregate jobs/projects counts for each user
+    const userStats = await Promise.all(users.map(async (user) => {
+      let jobsPosted = undefined;
+      let projects = undefined;
+      if (user.role === 'client') {
+        jobsPosted = await Job.countDocuments({ client: user._id.toString() });
+      }
+      if (user.role === 'freelancer') {
+        projects = await Order.countDocuments({ freelancer: user._id });
+      }
+      const userObj = user.toObject();
+      if (jobsPosted !== undefined) userObj.jobsPosted = jobsPosted;
+      if (projects !== undefined) userObj.projects = projects;
+      return userObj;
+    }));
+    res.json({ success: true, users: userStats });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

@@ -54,39 +54,92 @@ const deliveryOptions = [
 export default function CreateGig() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
-  const [gigData, setGigData] = useState({
-    title: "",
-    category: "",
-    description: "",
-    tags: [],
-    images: [],
-    packages: {
-      basic: {
-        name: "Basic",
+
+  // Load initial gigData and imageFiles from localStorage if present
+  const initialGigData = (() => {
+    try {
+      const saved = localStorage.getItem('createGigData');
+      return saved ? JSON.parse(saved) : {
+        title: "",
+        category: "",
         description: "",
-        price: "",
-        deliveryTime: "7",
-        revisions: "1",
-        features: [],
-      },
-      standard: {
-        name: "Standard",
+        tags: [],
+        images: [],
+        packages: {
+          basic: {
+            name: "Basic",
+            description: "",
+            price: "",
+            deliveryTime: "7",
+            revisions: "1",
+            features: [],
+          },
+          standard: {
+            name: "Standard",
+            description: "",
+            price: "",
+            deliveryTime: "14",
+            revisions: "3",
+            features: [],
+          },
+          premium: {
+            name: "Premium",
+            description: "",
+            price: "",
+            deliveryTime: "21",
+            revisions: "Unlimited",
+            features: [],
+          },
+        },
+      };
+    } catch {
+      return {
+        title: "",
+        category: "",
         description: "",
-        price: "",
-        deliveryTime: "14",
-        revisions: "3",
-        features: [],
-      },
-      premium: {
-        name: "Premium",
-        description: "",
-        price: "",
-        deliveryTime: "21",
-        revisions: "Unlimited",
-        features: [],
-      },
-    },
-  });
+        tags: [],
+        images: [],
+        packages: {
+          basic: {
+            name: "Basic",
+            description: "",
+            price: "",
+            deliveryTime: "7",
+            revisions: "1",
+            features: [],
+          },
+          standard: {
+            name: "Standard",
+            description: "",
+            price: "",
+            deliveryTime: "14",
+            revisions: "3",
+            features: [],
+          },
+          premium: {
+            name: "Premium",
+            description: "",
+            price: "",
+            deliveryTime: "21",
+            revisions: "Unlimited",
+            features: [],
+          },
+        },
+      };
+    }
+  })();
+  const [gigData, setGigData] = useState(initialGigData);
+
+  const initialImageFiles = (() => {
+    try {
+      const saved = localStorage.getItem('createGigImages');
+      // We can't restore File objects, but we can restore previews (URLs)
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  })();
+  const [imageFiles, setImageFiles] = useState<any[]>(initialImageFiles);
 
   const [currentTag, setCurrentTag] = useState("");
   const [currentFeature, setCurrentFeature] = useState({
@@ -94,9 +147,17 @@ export default function CreateGig() {
     standard: "",
     premium: "",
   });
-
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<'basic' | 'standard' | 'premium'>('basic');
+
+  // Persist gigData and imageFiles to localStorage on every update
+  React.useEffect(() => {
+    localStorage.setItem('createGigData', JSON.stringify(gigData));
+  }, [gigData]);
+
+  React.useEffect(() => {
+    // Only store preview URLs, not File objects
+    localStorage.setItem('createGigImages', JSON.stringify(gigData.images));
+  }, [gigData.images]);
 
   const handleInputChange = (field: string, value: string) => {
     setGigData((prev) => ({ ...prev, [field]: value }));
@@ -217,6 +278,9 @@ export default function CreateGig() {
       });
       const data = await res.json();
       if (data.success) {
+        // Remove gig creation data from localStorage upon success
+        localStorage.removeItem('createGigData');
+        localStorage.removeItem('createGigImages');
         navigate('/freelancer/my-gigs');
       } else {
         alert(data.message || 'Failed to create gig');

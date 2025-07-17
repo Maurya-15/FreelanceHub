@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -37,20 +37,43 @@ import {
   Package,
 } from "lucide-react";
 
-// Mock order data
+const statusConfig = {
+  pending: {
+    color:
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400",
+    icon: Clock,
+  },
+  in_progress: {
+    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
+    icon: RefreshCw,
+  },
+  delivered: {
+    color:
+      "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
+    icon: Package,
+  },
+  completed: {
+    color: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400",
+    icon: CheckCircle,
+  },
+  cancelled: {
+    color: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
+    icon: AlertCircle,
+  },
+};
+
+// --- BEGIN MOCK DATA ---
 const orderData = {
   id: "ORD-001",
   title: "Modern Logo Design Package",
   description:
     "Create a modern, professional logo for my tech startup including multiple concepts and file formats.",
-
   gig: {
     id: "GIG-001",
     title: "I will design a modern logo for your business",
     package: "Premium Package",
     image: "/api/placeholder/400/300",
   },
-
   freelancer: {
     id: "USER-001",
     name: "Sarah Johnson",
@@ -61,26 +84,22 @@ const orderData = {
     responseTime: "1 hour",
     level: "Top Rated",
   },
-
   client: {
     id: "USER-002",
     name: "John Smith",
     username: "@johnsmith",
     avatar: "/api/placeholder/80/80",
   },
-
   status: "in_progress",
   createdAt: "2024-01-10T10:00:00Z",
   deadline: "2024-01-20T23:59:59Z",
   deliveredAt: null,
   completedAt: null,
-
   pricing: {
     gigPrice: 1299,
     serviceFee: 65,
     total: 1364,
   },
-
   requirements: [
     "Company logo with modern design aesthetic",
     "3 initial logo concepts",
@@ -89,7 +108,6 @@ const orderData = {
     "3D mockup presentation",
     "Brand guidelines document",
   ],
-
   deliverables: [
     {
       id: "DEL-001",
@@ -130,7 +148,6 @@ const orderData = {
       files: [],
     },
   ],
-
   timeline: [
     {
       id: "TL-001",
@@ -165,55 +182,39 @@ const orderData = {
       actor: "client",
     },
   ],
-
-  messages: [
-    {
-      id: "MSG-001",
-      content: "Hi! I'm excited to work on your logo design project.",
-      timestamp: "2024-01-10T10:15:00Z",
-      sender: "freelancer",
-    },
-    {
-      id: "MSG-002",
-      content: "Great! Looking forward to seeing your concepts.",
-      timestamp: "2024-01-10T10:30:00Z",
-      sender: "client",
-    },
-  ],
-
   reviews: {
     clientReview: null,
     freelancerReview: null,
   },
 };
-
-const statusConfig = {
-  pending: {
-    color:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400",
-    icon: Clock,
-  },
-  in_progress: {
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
-    icon: RefreshCw,
-  },
-  delivered: {
-    color:
-      "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
-    icon: Package,
-  },
-  completed: {
-    color: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400",
-    icon: CheckCircle,
-  },
-  cancelled: {
-    color: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
-    icon: AlertCircle,
-  },
-};
+// --- END MOCK DATA ---
 
 export default function Order() {
   const { id } = useParams();
+  const [order, setOrder] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) {
+      setError("No order ID provided.");
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    fetch(`/api/orders/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setOrder(data.order);
+        else setError("Order not found");
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError("Failed to fetch order");
+        setLoading(false);
+      });
+  }, [id]);
   const [selectedDeliverable, setSelectedDeliverable] = useState(null);
   const [revisionRequest, setRevisionRequest] = useState("");
   const [showRevisionDialog, setShowRevisionDialog] = useState(false);
@@ -222,6 +223,7 @@ export default function Order() {
   const [reviewText, setReviewText] = useState("");
 
   const formatDate = (timestamp: string) => {
+    if (!timestamp) return "-";
     return new Date(timestamp).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -240,10 +242,11 @@ export default function Order() {
   };
 
   const getProgressPercentage = () => {
-    const completedDeliverables = orderData.deliverables.filter(
-      (d) => d.status === "completed",
+    if (!order || !order.deliverables) return 0;
+    const completedDeliverables = order.deliverables.filter(
+      (d: any) => d.status === "completed"
     ).length;
-    return (completedDeliverables / orderData.deliverables.length) * 100;
+    return (completedDeliverables / order.deliverables.length) * 100;
   };
 
   const handleApproveDelivery = () => {
@@ -264,14 +267,13 @@ export default function Order() {
     setReviewText("");
   };
 
-  const StatusIcon = statusConfig[orderData.status]?.icon || Clock;
-  const daysRemaining = getDaysRemaining(orderData.deadline);
+  const StatusIcon = order && order.status ? (statusConfig[order.status]?.icon || Clock) : Clock;
+  const daysRemaining = order && order.deadline ? getDaysRemaining(order.deadline) : 0;
   const progressPercentage = getProgressPercentage();
 
   return (
     <div className="min-h-screen">
       <Navbar />
-
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -282,17 +284,17 @@ export default function Order() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Order #{orderData.id}</h1>
-              <p className="text-muted-foreground">{orderData.title}</p>
+              <h1 className="text-3xl font-bold">Order #{order && order._id}</h1>
+              <p className="text-muted-foreground">{order && order.title}</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <Badge className={statusConfig[orderData.status].color}>
+            <Badge className={order && order.status ? statusConfig[order.status].color : ''}>
               <StatusIcon className="w-3 h-3 mr-1" />
-              {orderData.status.replace("_", " ")}
+              {order && order.status ? order.status.replace("_", " ") : ''}
             </Badge>
             <Button variant="outline" asChild>
-              <Link to={`/messages/${orderData.freelancer.username.slice(1)}`}>
+              <Link to={`/messages/${order && order.freelancer && order.freelancer.username ? order.freelancer.username.slice(1) : ''}`}>
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Message
               </Link>
@@ -338,14 +340,14 @@ export default function Order() {
                     <Clock className="w-8 h-8 mx-auto mb-2 text-primary" />
                     <p className="text-sm font-medium">Started</p>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(orderData.createdAt).toLocaleDateString()}
+                      {order && new Date(order.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="p-4 bg-muted/30 rounded-lg">
                     <CreditCard className="w-8 h-8 mx-auto mb-2 text-primary" />
                     <p className="text-sm font-medium">Total Paid</p>
                     <p className="text-sm text-muted-foreground">
-                      ${orderData.pricing.total}
+                      ${order && order.pricing && order.pricing.total}
                     </p>
                   </div>
                 </div>
@@ -380,7 +382,7 @@ export default function Order() {
 
                       {deliverable.deliveredAt && (
                         <p className="text-sm text-muted-foreground mb-3">
-                          Delivered on {formatDate(deliverable.deliveredAt)}
+                          Delivered on {order && order.createdAt ? formatDate(order.createdAt) : formatDate((new Date()).toISOString())}
                         </p>
                       )}
 
@@ -477,7 +479,7 @@ export default function Order() {
                         <div className="flex items-center justify-between">
                           <h4 className="font-medium">{event.title}</h4>
                           <span className="text-sm text-muted-foreground">
-                            {formatDate(event.timestamp)}
+                            {order && order.createdAt ? formatDate(order.createdAt) : formatDate((new Date()).toISOString())}
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground">
@@ -501,60 +503,24 @@ export default function Order() {
               <CardContent>
                 <div className="flex items-center space-x-3 mb-4">
                   <Avatar className="w-16 h-16">
-                    <AvatarImage src={orderData.freelancer.avatar} />
+                    <AvatarImage src={order && order.freelancer && order.freelancer.profilePicture} />
                     <AvatarFallback>
-                      {orderData.freelancer.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
+                      {order && order.freelancer && order.freelancer.name
+                        ? order.freelancer.name.split(" ").map((n: string) => n[0]).join("")
+                        : ""}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <h3 className="font-semibold">
-                      {orderData.freelancer.name}
+                      {order && order.freelancer && order.freelancer.name}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {orderData.freelancer.username}
+                      {order && order.freelancer && order.freelancer.username}
                     </p>
                     <Badge className="bg-brand-gradient text-white mt-1">
-                      {orderData.freelancer.level}
+                      {order && order.freelancer && order.freelancer.level}
                     </Badge>
                   </div>
-                </div>
-
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Rating</span>
-                    <div className="flex items-center space-x-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span>{orderData.freelancer.rating}</span>
-                      <span className="text-muted-foreground">
-                        ({orderData.freelancer.totalReviews})
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Response Time</span>
-                    <span>{orderData.freelancer.responseTime}</span>
-                  </div>
-                </div>
-
-                <Separator className="my-4" />
-
-                <div className="space-y-2">
-                  <Button className="w-full" variant="outline" asChild>
-                    <Link
-                      to={`/messages/${orderData.freelancer.username.slice(1)}`}
-                    >
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Send Message
-                    </Link>
-                  </Button>
-                  <Button className="w-full" variant="outline" asChild>
-                    <Link to={`/freelancer/${orderData.freelancer.id}`}>
-                      View Profile
-                    </Link>
-                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -566,10 +532,8 @@ export default function Order() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-medium mb-2">Package</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {orderData.gig.package}
-                  </p>
+                  <h4 className="font-medium mb-2">Job Package</h4>
+                  <p className="text-sm text-muted-foreground">Premium Package</p>
                 </div>
 
                 <div>
@@ -588,17 +552,17 @@ export default function Order() {
 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>Gig Price</span>
-                    <span>${orderData.pricing.gigPrice}</span>
+                    <span>Job Price</span>
+                    <span>${order && order.pricing && order.pricing.gigPrice ? order.pricing.gigPrice : orderData.pricing.gigPrice}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Service Fee</span>
-                    <span>${orderData.pricing.serviceFee}</span>
+                    <span>${order && order.pricing && order.pricing.serviceFee ? order.pricing.serviceFee : orderData.pricing.serviceFee}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-medium">
                     <span>Total</span>
-                    <span>${orderData.pricing.total}</span>
+                    <span>${order && order.pricing && order.pricing.total ? order.pricing.total : orderData.pricing.total}</span>
                   </div>
                 </div>
               </CardContent>
@@ -610,8 +574,8 @@ export default function Order() {
                 <CardTitle>Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {orderData.status === "completed" &&
-                  !orderData.reviews.clientReview && (
+                {order && order.status === "completed" &&
+                  !(order.reviews && order.reviews.clientReview) && (
                     <Button
                       className="w-full"
                       onClick={() => setShowReviewDialog(true)}
@@ -630,6 +594,18 @@ export default function Order() {
                   <Flag className="w-4 h-4 mr-2" />
                   Report Issue
                 </Button>
+
+                {/* Loading and Error States */}
+                {loading && (
+                  <div className="text-center py-8 text-muted-foreground">Loading order details...</div>
+                )}
+                {error && (
+                  <div className="text-center py-8 text-red-500">{error}</div>
+                )}
+                {/* If not loading or error, render order details */}
+                {!loading && !error && !order && (
+                  <div className="text-center py-8 text-muted-foreground">Order not found.</div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -678,7 +654,7 @@ export default function Order() {
             <DialogHeader>
               <DialogTitle>Leave a Review</DialogTitle>
               <DialogDescription>
-                How was your experience working with {orderData.freelancer.name}
+                How was your experience working with {order?.freelancer?.name || "the freelancer"}
                 ?
               </DialogDescription>
             </DialogHeader>
