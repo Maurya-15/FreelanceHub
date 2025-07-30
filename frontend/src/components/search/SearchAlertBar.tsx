@@ -130,10 +130,10 @@ export function SearchAlertBar({
                       <span className="font-medium">Price:</span>
                       <span className="ml-2">
                         {filters.priceMin && filters.priceMax
-                          ? `$${filters.priceMin} - $${filters.priceMax}`
+                          ? `₹${filters.priceMin} - ₹${filters.priceMax}`
                           : filters.priceMin
-                            ? `From $${filters.priceMin}`
-                            : `Up to $${filters.priceMax}`}
+                            ? `From ₹${filters.priceMin}`
+                            : `Up to ₹${filters.priceMax}`}
                       </span>
                     </div>
                   )}

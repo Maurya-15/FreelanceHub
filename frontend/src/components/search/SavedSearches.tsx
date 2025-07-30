@@ -191,11 +191,11 @@ export function SavedSearches({ userType }: SavedSearchesProps) {
     if (filters.category) parts.push(filters.category);
     if (filters.priceMin || filters.priceMax) {
       if (filters.priceMin && filters.priceMax) {
-        parts.push(`$${filters.priceMin}-$${filters.priceMax}`);
+        parts.push(`₹${filters.priceMin}-₹${filters.priceMax}`);
       } else if (filters.priceMin) {
-        parts.push(`>$${filters.priceMin}`);
+        parts.push(`>₹${filters.priceMin}`);
       } else if (filters.priceMax) {
-        parts.push(`<$${filters.priceMax}`);
+        parts.push(`<₹${filters.priceMax}`);
       }
     }
     if (filters.deliveryTime) parts.push(`${filters.deliveryTime} delivery`);

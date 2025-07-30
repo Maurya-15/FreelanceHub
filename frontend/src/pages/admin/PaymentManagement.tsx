@@ -15,7 +15,7 @@ import {
   Search,
   Filter,
   CreditCard,
-  DollarSign,
+  IndianRupee,
   TrendingUp,
   AlertTriangle,
   Download,
@@ -57,7 +57,7 @@ export default function PaymentManagement() {
                 </p>
                 <p className="text-2xl font-bold">₹21.5L</p>
               </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
+              <IndianRupee className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>

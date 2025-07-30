@@ -20,9 +20,14 @@ export default function useChatSocket({
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    if (!userId) return;
-    const socket: Socket = io("http://localhost:5000");
-    socketRef.current = socket;
+    if (!userId) {
+      console.log('useChatSocket: No userId provided, skipping socket connection');
+      return;
+    }
+    
+    try {
+      const socket: Socket = io("http://localhost:5000");
+      socketRef.current = socket;
 
     let retryCount = 0;
     const handleConnect = () => {
@@ -51,9 +56,12 @@ export default function useChatSocket({
       socket.off("disconnect", handleDisconnect);
       socket.off("newMessage", onNewMessage);
       if (onNotification) socket.off("notification", onNotification);
-      if (onUserStatus) socket.off("userStatus", onUserStatus);
+      if (onUserStatus)       socket.off("userStatus", onUserStatus);
       socket.disconnect();
     };
+    } catch (error) {
+      console.error('useChatSocket: Error creating socket connection:', error);
+    }
   }, [userId, conversationId, onNewMessage, onNotification, onUserStatus]);
 
   // Send message with server acknowledgment

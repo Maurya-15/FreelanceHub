@@ -1,31 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { SearchAlertBar } from "@/components/search/SearchAlertBar";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
+import { Footer } from "@/components/layout/Footer";
+import { SearchAlertBar } from "@/components/search/SearchAlertBar";
 import {
-  Search,
-  Filter,
-  Star,
-  Clock,
-  Heart,
   Grid3X3,
   List,
   ChevronDown,
+  Filter as FilterIcon,
+  Star as StarIcon,
+  Clock as ClockIcon,
+  Heart as HeartIcon,
+  Grid,
+  ListIcon,
 } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api";
 
@@ -133,7 +127,6 @@ export default function BrowseGigs() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -203,7 +196,7 @@ export default function BrowseGigs() {
                     onClick={() => setShowFilters(!showFilters)}
                     className="md:hidden"
                   >
-                    <Filter className="w-4 h-4 mr-2" />
+                    <FilterIcon className="w-4 h-4 mr-2" />
                     <ChevronDown className="w-4 h-4" />
                   </Button>
                 </div>
@@ -476,7 +469,7 @@ export default function BrowseGigs() {
                                 e.stopPropagation();
                               }}
                             >
-                              <Heart className="w-4 h-4" />
+                              <HeartIcon className="w-4 h-4" />
                             </Button>
                           </div>
 
@@ -532,7 +525,7 @@ export default function BrowseGigs() {
 
                             {/* Rating & Reviews */}
                             <div className="flex items-center space-x-1 mb-2">
-                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                              <StarIcon className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                               <span className="text-xs font-medium">
                                 {gig.rating || "N/A"}
                               </span>
@@ -557,7 +550,7 @@ export default function BrowseGigs() {
                             {/* Price & Delivery */}
                             <div className="flex items-center justify-between mt-2">
                               <div className="flex items-center gap-1">
-                                <Clock className="w-4 h-4 text-muted-foreground" />
+                                <ClockIcon className="w-4 h-4 text-muted-foreground" />
                                 <span className="text-xs text-muted-foreground">
                                   {gig.deliveryTime || "N/A"}
                                 </span>

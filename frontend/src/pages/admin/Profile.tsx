@@ -27,7 +27,7 @@ import {
   Activity,
   Users,
   Package,
-  DollarSign,
+  IndianRupee,
 } from "lucide-react";
 
 // Mock admin profile data
@@ -256,7 +256,7 @@ export default function AdminProfile() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <DollarSign className="w-4 h-4 text-orange-600" />
+                                          <IndianRupee className="w-4 h-4 text-orange-600" />
                   <span className="text-sm text-muted-foreground">
                     Reports Generated
                   </span>

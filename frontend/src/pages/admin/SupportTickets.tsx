@@ -31,7 +31,7 @@ import {
   AlertCircle,
   HelpCircle,
   User,
-  DollarSign,
+  IndianRupee,
   Bug,
   Send,
 } from "lucide-react";
@@ -121,7 +121,7 @@ const ticketsData = [
 ];
 
 const categoryIcons = {
-  payment: DollarSign,
+  payment: IndianRupee,
   account: User,
   dispute: AlertCircle,
   technical: Bug,

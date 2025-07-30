@@ -118,7 +118,7 @@ export function Hero() {
               </Link>
             </GradientButton>
             <GradientButton variant="secondary" size="lg" asChild>
-              <Link to="/post-job" className="px-8">
+                              <Link to="/client/post-job" className="px-8">
                 Post a Job
                 <Briefcase className="ml-2 h-5 w-5" />
               </Link>

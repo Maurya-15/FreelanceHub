@@ -1,7 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GradientButton } from "@/components/ui/gradient-button";
@@ -29,7 +27,7 @@ import {
   Plus,
   MoreVertical,
   Calendar,
-  DollarSign,
+  IndianRupee,
   Clock,
   Star,
   MessageSquare,
@@ -42,6 +40,7 @@ import {
   Users,
   TrendingUp,
 } from "lucide-react";
+import { API_ENDPOINTS, getApiUrl } from "@/lib/api";
 
 // Mock projects data
 const projectsData = [
@@ -218,8 +217,6 @@ export default function Projects() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -314,7 +311,7 @@ export default function Projects() {
                       .toLocaleString()}
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-purple-600" />
+                                        <IndianRupee className="h-8 w-8 text-purple-600" />
               </div>
             </CardContent>
           </Card>
@@ -522,7 +519,7 @@ export default function Projects() {
                   {/* Project Stats */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div className="flex items-center space-x-2">
-                      <DollarSign className="w-4 h-4 text-green-500" />
+                                              <IndianRupee className="w-4 h-4 text-green-500" />
                       <div>
                         <span className="text-muted-foreground">Budget:</span>
                         <span className="font-medium ml-1">
@@ -644,8 +641,6 @@ export default function Projects() {
           </Card>
         )}
       </main>
-
-      <Footer />
     </div>
   );
 }

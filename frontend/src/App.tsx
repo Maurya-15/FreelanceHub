@@ -209,8 +209,9 @@ function App() {
               <Route path="create-gig" element={<CreateGig />} />
               <Route path="my-gigs" element={<MyGigs />} />
               <Route path="profile" element={<FreelancerProfile />} />
-<Route path="edit-profile" element={<EditFreelancerProfile />} />
+              <Route path="edit-profile" element={<EditFreelancerProfile />} />
               <Route path="earnings" element={<Earnings />} />
+              <Route path="orders" element={<OrdersList />} />
               {/* Default redirect for /freelancer */}
               <Route index element={<Navigate to="dashboard" replace />} />
             </Route>
@@ -231,6 +232,8 @@ function App() {
               <Route path="saved-freelancers" element={<SavedFreelancers />} />
               <Route path="payments" element={<Payments />} />
               <Route path="posted-jobs" element={<PostedJobs />} />
+              <Route path="post-job" element={<PostJob />} />
+              <Route path="orders" element={<OrdersList />} />
               {/* Default redirect for /client */}
               <Route index element={<Navigate to="dashboard" replace />} />
             </Route>
@@ -307,15 +310,7 @@ function App() {
               <Route path="profile" element={<AdminProfile />} />
             </Route>
 
-            {/* Shared Protected Routes (accessible by multiple roles) */}
-            <Route
-              path="/post-job"
-              element={
-                <ClientRoute>
-                  <PostJob />
-                </ClientRoute>
-              }
-            />
+
 
             {/* Routes accessible by both freelancers and clients */}
             <Route path="/messages" element={<Chat />} />
@@ -333,9 +328,6 @@ function App() {
 
             {/* Settings route (accessible by all authenticated users) */}
             <Route path="/settings" element={<Settings />} />
-
-            {/* Orders route accessible by both freelancers and clients */}
-            <Route path="/orders" element={<OrdersList />} />
 
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />

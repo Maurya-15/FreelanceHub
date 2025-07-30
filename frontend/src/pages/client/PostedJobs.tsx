@@ -1,26 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  ArrowLeft,
-  Plus,
-  Eye,
-  Edit,
-  Trash2,
-  Users,
-  Calendar,
-  DollarSign,
-  MapPin,
-  Star,
-  Clock,
-  MoreVertical,
-  AlertCircle,
-  CheckCircle,
-  Pause,
-  Play,
-} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -42,6 +24,24 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { fetchApi } from "@/lib/api";
 import usePostedJobsSocket from "@/hooks/usePostedJobsSocket";
+import {
+  ArrowLeft,
+  Plus,
+  Eye,
+  Edit,
+  Trash2,
+  Users,
+  Calendar,
+  IndianRupee,
+  MapPin,
+  Star,
+  Clock,
+  MoreVertical,
+  AlertCircle,
+  CheckCircle,
+  Pause,
+  Play,
+} from "lucide-react";
 
 const PostedJobs: React.FC = () => {
   const { user } = useAuth();
@@ -181,7 +181,8 @@ const PostedJobs: React.FC = () => {
   if (!jobs.length) return <div className="text-center py-12">No jobs found.</div>;
 
   return (
-    <div className="container mx-auto px-6 py-8">
+    <div className="min-h-screen">
+      <div className="container mx-auto px-6 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-4">
@@ -201,7 +202,7 @@ const PostedJobs: React.FC = () => {
           className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
           asChild
         >
-          <Link to="/post-job">
+          <Link to="/client/post-job">
             <Plus className="w-4 h-4 mr-2" />
             Post New Job
           </Link>
@@ -403,7 +404,7 @@ const PostedJobs: React.FC = () => {
               {/* Job Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <div className="flex items-center space-x-2">
-                  <DollarSign className="w-4 h-4 text-green-600" />
+                                          <IndianRupee className="w-4 h-4 text-green-600" />
                   <span className="text-sm">{formatBudget(job.budget)}</span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -476,13 +477,14 @@ const PostedJobs: React.FC = () => {
               : `No ${selectedStatus} jobs found. Try selecting a different status filter.`}
           </p>
           <Button asChild>
-            <Link to="/post-job">
+            <Link to="/client/post-job">
               <Plus className="w-4 h-4 mr-2" />
               Post Your First Job
             </Link>
           </Button>
         </div>
       )}
+      </div>
     </div>
   );
 };

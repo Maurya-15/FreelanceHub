@@ -46,8 +46,8 @@ export default function Login() {
       
       if (response.success) {
         login(response.user, response.token);
-        if (response.user && response.user._id) {
-          localStorage.setItem('userId', response.user._id);
+        if (response.user && response.user.id) {
+          localStorage.setItem('userId', response.user.id);
         }
         const redirectPath = from || getRoleBasedRedirect(response.user.role);
         navigate(redirectPath, { replace: true });

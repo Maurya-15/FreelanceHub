@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { API_ENDPOINTS, fetchApi, API_BASE_URL } from "@/lib/api";
 import { Link, useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GradientButton } from "@/components/ui/gradient-button";
@@ -33,7 +31,7 @@ import {
   Star,
   TrendingUp,
   Clock,
-  DollarSign,
+  IndianRupee,
   Package,
   BarChart3,
 } from "lucide-react";
@@ -77,7 +75,7 @@ export default function MyGigs() {
         return;
       }
       try {
-        const res = await fetch('/api/gigs/my', {
+        const res = await fetch(`${API_BASE_URL}/api/gigs/my`, {
           headers: {
             'user-id': `userId-freelancerId-${userId}`,
             'Content-Type': 'application/json',
@@ -91,7 +89,8 @@ export default function MyGigs() {
           setGigs(data.gigs);
         }
       } catch (err: any) {
-        setError(err.message || 'Failed to fetch gigs.');
+        console.error('Error fetching gigs:', err);
+        setError(err.message || 'Failed to fetch gigs. Please check if the server is running.');
         setGigs([]);
       } finally {
         setLoading(false);
@@ -101,17 +100,38 @@ export default function MyGigs() {
   }, []);
 
   useEffect(() => {
-    const socket = socketIOClient(API_BASE_URL);
-    socket.on('gigCreated', (gig) => {
-      setGigs((prev) => [gig, ...prev]);
-    });
-    socket.on('gigUpdated', (gig) => {
-      setGigs((prev) => prev.map((g) => g._id === gig._id ? gig : g));
-    });
-    socket.on('gigDeleted', (gigId) => {
-      setGigs((prev) => prev.filter((g) => g._id !== gigId));
-    });
-    return () => { socket.disconnect(); };
+    try {
+      const socket = socketIOClient(API_BASE_URL, {
+        timeout: 5000,
+        reconnection: true,
+        reconnectionAttempts: 3,
+        reconnectionDelay: 1000,
+      });
+      
+      socket.on('connect', () => {
+        console.log('Socket connected');
+      });
+      
+      socket.on('connect_error', (error) => {
+        console.warn('Socket connection error:', error);
+      });
+      
+      socket.on('gigCreated', (gig) => {
+        setGigs((prev) => [gig, ...prev]);
+      });
+      socket.on('gigUpdated', (gig) => {
+        setGigs((prev) => prev.map((g) => g._id === gig._id ? gig : g));
+      });
+      socket.on('gigDeleted', (gigId) => {
+        setGigs((prev) => prev.filter((g) => g._id !== gigId));
+      });
+      
+      return () => { 
+        socket.disconnect(); 
+      };
+    } catch (error) {
+      console.warn('Socket connection failed:', error);
+    }
   }, []);
 
   const filteredGigs = gigs.filter((gig) => {
@@ -143,8 +163,6 @@ export default function MyGigs() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
@@ -397,7 +415,7 @@ export default function MyGigs() {
 
                     {/* Price */}
                     <div className="text-2xl font-bold mb-4">
-                      ${gig.price || 0}
+                      ₹{gig.price || 0}
                     </div>
 
                     {/* Stats */}
@@ -456,8 +474,6 @@ export default function MyGigs() {
           )}
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

@@ -103,7 +103,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link
-                  to="/post-job"
+                  to="/client/post-job"
                   className="hover:text-primary transition-colors"
                 >
                   Post a Job

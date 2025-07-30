@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import moment from "moment";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -292,8 +291,6 @@ export default function Chat() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-
       <main className="container mx-auto px-4 py-8">
         <div className="h-[80vh] min-h-0 grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Conversations Sidebar */}

@@ -11,6 +11,14 @@ const router = express.Router();
 router.get("/dashboard/:freelancerId", async (req, res) => {
   try {
     const { freelancerId } = req.params;
+    
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(freelancerId)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid freelancer ID format" 
+      });
+    }
 
     // Stats
     const totalEarnings = await Order.aggregate([
@@ -18,11 +26,23 @@ router.get("/dashboard/:freelancerId", async (req, res) => {
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]);
     const activeGigs = await Gig.countDocuments({ freelancer: freelancerId, status: "active" });
+    const totalOrders = await Order.countDocuments({ freelancer: freelancerId });
 
     const user = await User.findById(freelancerId);
-    const avgRating = user ? user.rating || 0 : 0;
-    const profileViews = user ? user.profileViews || 0 : 0;
-    const responseTime = user ? user.responseTime || "-" : "-";
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Freelancer not found" 
+      });
+    }
+    const avgRating = user.rating || 0;
+    const profileViews = user.profileViews || 0;
+    const responseTime = user.responseTime || "-";
+    
+    // Map _id to id for frontend compatibility
+    const userObj = user.toObject();
+    userObj.id = userObj._id;
+    delete userObj._id;
 
     // Recent Orders
     const recentOrders = await Order.find({ freelancer: freelancerId })
@@ -64,7 +84,7 @@ router.get("/dashboard/:freelancerId", async (req, res) => {
         avgRating,
         profileViews,
         responseTime,
-        name: user ? user.name : "",
+        name: userObj.name,
         totalGigs: await Gig.countDocuments({ freelancer: freelancerId }),
       },
       recentOrders: formattedOrders,

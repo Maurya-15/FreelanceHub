@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -134,7 +133,6 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
 
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
@@ -603,11 +601,10 @@ export default function Settings() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="USD">USD ($)</SelectItem>
+                          <SelectItem value="INR">INR (₹)</SelectItem>
                           <SelectItem value="EUR">EUR (€)</SelectItem>
                           <SelectItem value="GBP">GBP (£)</SelectItem>
-                          <SelectItem value="INR">INR (₹)</SelectItem>
-                          <SelectItem value="CAD">CAD (C$)</SelectItem>
+                          <SelectItem value="USD">USD ($)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

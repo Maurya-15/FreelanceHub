@@ -100,7 +100,7 @@ const clientInsights: PersonalizedInsight[] = [
     description:
       "Jobs with detailed requirements get 60% more quality proposals. Add more details to your next post.",
     actionText: "Post Detailed Job",
-    actionUrl: "/post-job",
+    actionUrl: "/client/post-job",
     priority: "medium",
     icon: <BookOpen className="w-5 h-5 text-blue-600" />,
   },
@@ -111,7 +111,7 @@ const clientInsights: PersonalizedInsight[] = [
     description:
       "Projects in your typical range (₹10000-₹25000) are completing 25% faster this month.",
     actionText: "Post New Project",
-    actionUrl: "/post-job",
+    actionUrl: "/client/post-job",
     priority: "low",
     icon: <Zap className="w-5 h-5 text-orange-600" />,
   },

@@ -41,9 +41,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const storedToken = localStorage.getItem("authToken");
     const storedUser = localStorage.getItem("userData");
 
+    console.log('AuthContext: Initializing with stored data:', { storedToken, storedUser });
+
     if (storedToken && storedUser) {
       try {
         const userData = JSON.parse(storedUser);
+        console.log('AuthContext: Parsed user data:', userData);
         setToken(storedToken);
         setUser(userData);
       } catch (error) {
@@ -51,15 +54,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem("authToken");
         localStorage.removeItem("userData");
       }
+    } else {
+      console.log('AuthContext: No stored auth data found');
     }
     setIsLoading(false);
   }, []);
 
   const login = (userData: User, authToken: string) => {
+    console.log('AuthContext: Login called with:', { userData, authToken });
     setUser(userData);
     setToken(authToken);
     localStorage.setItem("authToken", authToken);
     localStorage.setItem("userData", JSON.stringify(userData));
+    console.log('AuthContext: User data stored in localStorage');
   };
 
   const logout = () => {

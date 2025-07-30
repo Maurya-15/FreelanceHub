@@ -136,7 +136,7 @@ const ProposalSubmission = () => {
               <div className="flex-1">
                 <label className="font-medium mb-2 block">Proposed Rate <span className="text-destructive">*</span></label>
                 <div className="flex items-center gap-2">
-                  <span className="bg-muted px-3 py-2 rounded-l">$</span>
+                  <span className="bg-muted px-3 py-2 rounded-l">₹</span>
                   <Input
                     type="number"
                     value={rate}
@@ -208,7 +208,7 @@ const ProposalSubmission = () => {
               <div className="mb-4">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-medium">Budget:</span>
-                  <span>${job.budget?.min?.toLocaleString()} - ${job.budget?.max?.toLocaleString()}</span>
+                                      <span>₹{job.budget?.min?.toLocaleString()} - ₹{job.budget?.max?.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-medium">Duration:</span>

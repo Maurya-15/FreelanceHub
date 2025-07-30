@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -148,8 +148,7 @@ export function Navbar() {
               />
             </form>
 
-            {/* Notifications */}
-            <NotificationCenter />
+
 
             {/* Theme Toggle */}
             <Button
@@ -200,60 +199,84 @@ export function Navbar() {
                     </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to={`/${user.role}/profile`}>
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to={`/${user.role}/dashboard`}>
-                      <Briefcase className="mr-2 h-4 w-4" />
-                      <span>Dashboard</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  {user.role !== "admin" && (
+                  
+                  {/* Show different menu based on current page */}
+                  {location.pathname === '/' ? (
+                    /* Full menu for home page */
                     <>
                       <DropdownMenuItem asChild>
-                        <Link to="/analytics">
-                          <BarChart3 className="mr-2 h-4 w-4" />
-                          <span>Analytics</span>
+                        <Link to={`/${user.role}/profile`}>
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Profile</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/calendar">
-                          <Calendar className="mr-2 h-4 w-4" />
-                          <span>Calendar</span>
+                        <Link to={`/${user.role}/dashboard`}>
+                          <Briefcase className="mr-2 h-4 w-4" />
+                          <span>Dashboard</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/messages">
-                          <MessageSquare className="mr-2 h-4 w-4" />
-                          <span>Messages</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/saved-searches">
-                          <Search className="mr-2 h-4 w-4" />
-                          <span>Saved Searches</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      {user.role === "client" && (
-                        <DropdownMenuItem asChild>
-                          <Link to="/client/my-likes">
-                            <Heart className="mr-2 h-4 w-4" />
-                            <span>My Likes</span>
-                          </Link>
-                        </DropdownMenuItem>
+                      {user.role !== "admin" && (
+                        <>
+                          <DropdownMenuItem asChild>
+                            <Link to="/analytics">
+                              <BarChart3 className="mr-2 h-4 w-4" />
+                              <span>Analytics</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to="/calendar">
+                              <Calendar className="mr-2 h-4 w-4" />
+                              <span>Calendar</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to="/messages">
+                              <MessageSquare className="mr-2 h-4 w-4" />
+                              <span>Messages</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to="/saved-searches">
+                              <Search className="mr-2 h-4 w-4" />
+                              <span>Saved Searches</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          {user.role === "client" && (
+                            <DropdownMenuItem asChild>
+                              <Link to="/client/my-likes">
+                                <Heart className="mr-2 h-4 w-4" />
+                                <span>My Likes</span>
+                              </Link>
+                            </DropdownMenuItem>
+                          )}
+                        </>
                       )}
+                      <DropdownMenuItem asChild>
+                        <Link to="/settings">
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Settings</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    /* Simple menu for other pages */
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to={`/${user.role}/profile`}>
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Profile</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/settings">
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Settings</span>
+                        </Link>
+                      </DropdownMenuItem>
                     </>
                   )}
-                  <DropdownMenuItem asChild>
-                    <Link to="/settings">
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
-                    </Link>
-                  </DropdownMenuItem>
+                  
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />

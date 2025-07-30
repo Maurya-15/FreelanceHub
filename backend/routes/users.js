@@ -42,6 +42,9 @@ router.post('/register', async (req, res) => {
     // });
     const userObj = user.toObject();
     delete userObj.password;
+    // Map _id to id for frontend compatibility
+    userObj.id = userObj._id;
+    delete userObj._id;
     const token = 'mock-token-' + user._id;
     res.status(201).json({ success: true, user: userObj, token });
   } catch (err) {
@@ -71,6 +74,9 @@ router.post('/login', async (req, res) => {
       }
       const userObj = user.toObject();
       delete userObj.password;
+      // Map _id to id for frontend compatibility
+      userObj.id = userObj._id;
+      delete userObj._id;
       const token = 'mock-token-' + user._id;
       return res.json({ success: true, user: userObj, token });
     }
@@ -87,6 +93,9 @@ router.post('/login', async (req, res) => {
     }
     const userObj = user.toObject();
     delete userObj.password;
+    // Map _id to id for frontend compatibility
+    userObj.id = userObj._id;
+    delete userObj._id;
     const token = 'mock-token-' + user._id;
     res.json({ success: true, user: userObj, token });
   } catch (err) {
@@ -148,7 +157,31 @@ router.get('/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    res.json(user);
+    
+    // If user is a freelancer, fetch their gigs
+    if (user.role === 'freelancer') {
+      const Gig = (await import('../models/Gig.js')).default;
+      const gigs = await Gig.find({ freelancer: user._id }).sort({ createdAt: -1 });
+      
+      // Transform gigs to include price from active package
+      const transformedGigs = gigs.map(gig => {
+        const gigObj = gig.toObject();
+        // Get price from the active package
+        if (gig.packages && gig.packages.length > 0) {
+          const activePackage = gig.packages.find(pkg => pkg.activePackage === gig.activePackage) || gig.packages[0];
+          gigObj.price = activePackage?.price || '0';
+        } else {
+          gigObj.price = '0';
+        }
+        return gigObj;
+      });
+      
+      const userObj = user.toObject();
+      userObj.gigs = transformedGigs;
+      res.json(userObj);
+    } else {
+      res.json(user);
+    }
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

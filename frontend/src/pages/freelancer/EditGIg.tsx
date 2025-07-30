@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { FileUpload } from "@/components/upload/FileUpload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,7 +25,7 @@ import {
   Save,
   ImageIcon,
   Clock,
-  DollarSign,
+  IndianRupee,
   Package,
 } from "lucide-react";
 
@@ -268,7 +266,6 @@ export default function EditGig() {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">Loading gig data...</div>
         </div>
@@ -279,8 +276,6 @@ export default function EditGig() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -496,9 +491,9 @@ export default function EditGig() {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label>Price ($)</Label>
+                                                      <Label>Price (₹)</Label>
                           <div className="relative mt-1">
-                            <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                            <IndianRupee className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                             <Input
                               type="number"
                               value={formData[packageType].price}
@@ -698,8 +693,6 @@ export default function EditGig() {
           </TabsContent>
         </Tabs>
       </main>
-
-      <Footer />
     </div>
   );
 }

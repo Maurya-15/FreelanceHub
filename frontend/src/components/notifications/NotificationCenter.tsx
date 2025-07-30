@@ -46,7 +46,10 @@ export function NotificationCenter() {
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : undefined;
 
   // Listen for real-time notifications
-  useChatSocket(userId || undefined, {
+  useChatSocket({
+    userId: userId || undefined,
+    conversationId: undefined,
+    onNewMessage: () => {}, // Empty function since we're only listening for notifications
     onNotification: (notif) => {
       setNotifications((prev) => [notif, ...prev]);
     },

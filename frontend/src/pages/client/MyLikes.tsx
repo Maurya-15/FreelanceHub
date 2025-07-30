@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -192,7 +190,6 @@ export default function MyLikes() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
 
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
@@ -505,8 +502,6 @@ export default function MyLikes() {
           </div>
         )}
       </main>
-
-      <Footer />
     </div>
   );
 }

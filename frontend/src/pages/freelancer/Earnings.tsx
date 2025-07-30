@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GradientButton } from "@/components/ui/gradient-button";
@@ -17,7 +15,7 @@ import {
 import {
   ArrowLeft,
   TrendingUp,
-  DollarSign,
+  IndianRupee,
   Calendar,
   Download,
   CreditCard,
@@ -203,7 +201,6 @@ export default function Earnings() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
 
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
@@ -250,7 +247,7 @@ export default function Earnings() {
                     {earningsData.monthlyGrowth}% this month
                   </div>
                 </div>
-                <DollarSign className="h-8 w-8 text-green-600" />
+                                        <IndianRupee className="h-8 w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
@@ -391,7 +388,7 @@ export default function Earnings() {
 
               <Card className="border-0 bg-card/50 backdrop-blur-sm">
                 <CardContent className="p-6 text-center">
-                  <DollarSign className="w-8 h-8 mx-auto mb-3 text-blue-600" />
+                                          <IndianRupee className="w-8 h-8 mx-auto mb-3 text-blue-600" />
                   <h3 className="text-2xl font-bold mb-1">
                     ₹{earningsData.averageOrderValue}
                   </h3>
@@ -657,8 +654,6 @@ export default function Earnings() {
           </TabsContent>
         </Tabs>
       </main>
-
-      <Footer />
     </div>
   );
 }

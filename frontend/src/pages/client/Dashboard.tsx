@@ -1,30 +1,30 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { PersonalizedDashboard } from "@/components/dashboard/PersonalizedDashboard";
-import { Chatbot } from "@/components/chatbot/Chatbot";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { GradientButton } from "@/components/ui/gradient-button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { API_ENDPOINTS, getApiUrl } from "@/lib/api";
 import {
-  Briefcase,
   TrendingUp,
-  Clock,
-  MessageSquare,
-  Star,
-  Plus,
-  ArrowUpRight,
-  Calendar,
-  DollarSign,
+  IndianRupee,
   Users,
+  Star,
+  Eye,
+  MessageSquare,
+  Plus,
+  Calendar,
+  Clock,
   CheckCircle,
   AlertCircle,
-  Eye,
+  ArrowRight,
+  Briefcase,
+  Heart,
 } from "lucide-react";
+
+import { PersonalizedDashboard } from "@/components/dashboard/PersonalizedDashboard";
+import { Chatbot } from "@/components/chatbot/Chatbot";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import useClientDashboard from "@/hooks/useClientDashboard";
 // Remove all mock data. Use the hook for real data.
@@ -103,10 +103,8 @@ export default function ClientDashboard() {
   const { userName, stats, orders, postedJobs, recentMessages } = data;
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-
-      <main className="container mx-auto px-4 py-8">
+    <div className="flex-1">
+      <main className="p-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
@@ -124,12 +122,12 @@ export default function ClientDashboard() {
                 Messages
               </Link>
             </Button>
-            <GradientButton asChild>
-              <Link to="/post-job">
+            <Button variant="outline" asChild>
+              <Link to="/client/post-job">
                 <Plus className="w-4 h-4 mr-2" />
                 Post a Job
               </Link>
-            </GradientButton>
+            </Button>
           </div>
         </div>
 
@@ -162,19 +160,19 @@ export default function ClientDashboard() {
                   <p className="text-sm font-medium text-muted-foreground">
                     Total Spent
                   </p>
-                  <p className="text-2xl font-bold">
-                    {stats.totalSpent.toLocaleString()}
-                  </p>
+                                     <p className="text-2xl font-bold">
+                     ₹{stats.totalSpent.toLocaleString('en-IN')}
+                   </p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-green-600" />
-                </div>
+                                 <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                   <IndianRupee className="h-6 w-6 text-green-600" />
+                 </div>
               </div>
               <div className="flex items-center mt-4 text-sm">
-                <DollarSign className="h-4 w-4 text-blue-500 mr-1" />
-                <span className="text-blue-600">
-                  Saved {stats.totalSavings}
-                </span>
+                                 <IndianRupee className="h-4 w-4 text-blue-500 mr-1" />
+                                 <span className="text-blue-600">
+                   Saved ₹{stats.totalSavings.toLocaleString('en-IN')}
+                 </span>
               </div>
             </CardContent>
           </Card>
@@ -239,9 +237,9 @@ export default function ClientDashboard() {
                 <CardTitle className="flex items-center justify-between">
                   Orders
                   <Button variant="outline" size="sm" asChild>
-                    <Link to="/orders">
+                    <Link to="/client/orders">
                       View All
-                      <ArrowUpRight className="w-4 h-4 ml-1" />
+                      <ArrowRight className="w-4 h-4 ml-1" />
                     </Link>
                   </Button>
                 </CardTitle>
@@ -282,10 +280,12 @@ export default function ClientDashboard() {
 
                         </div>
                         <div>
-                          <p className="font-semibold">{order.amount}</p>
-                          <p className="text-xs text-muted-foreground">
-                            Due {new Date(order.deadline).toLocaleDateString()}
-                          </p>
+                          <p className="font-semibold">₹{(order.amount || 0).toLocaleString('en-IN')}</p>
+                          {order.deadline && (
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(order.deadline).toLocaleDateString('en-IN')}
+                            </p>
+                          )}
                         </div>
                         <Button variant="ghost" size="sm" asChild>
                           <Link to={`/order/${order.id}`}>View</Link>
@@ -305,7 +305,7 @@ export default function ClientDashboard() {
                 <CardTitle className="flex items-center justify-between">
                   Posted Jobs
                   <Button variant="outline" size="sm" asChild>
-                    <Link to="/post-job">
+                    <Link to="/client/post-job">
                       Post New Job
                       <Plus className="w-4 h-4 ml-1" />
                     </Link>
@@ -384,7 +384,7 @@ export default function ClientDashboard() {
                   <Button variant="outline" size="sm" asChild>
                     <Link to="/messages">
                       View All
-                      <ArrowUpRight className="w-4 h-4 ml-1" />
+                      <ArrowRight className="w-4 h-4 ml-1" />
                     </Link>
                   </Button>
                 </CardTitle>
@@ -447,8 +447,6 @@ export default function ClientDashboard() {
 
       {/* Chatbot */}
       <Chatbot />
-
-      <Footer />
     </div>
   );
 }

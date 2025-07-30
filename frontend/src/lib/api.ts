@@ -73,9 +73,7 @@ export const fetchApi = async <T>(endpoint: string, options: RequestInit = {}): 
   
   const response = await fetch(url, fetchOptions);
   
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.statusText}`);
-  }
-  
+  // Return the JSON response even for error status codes
+  // Let the calling component handle the error response
   return response.json() as Promise<T>;
 };

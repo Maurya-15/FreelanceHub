@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GradientButton } from "@/components/ui/gradient-button";
@@ -29,7 +27,7 @@ import {
   Star,
   MapPin,
   Clock,
-  DollarSign,
+  IndianRupee,
   MessageSquare,
   Eye,
   Heart,
@@ -302,7 +300,6 @@ export default function SavedFreelancers() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
 
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
@@ -565,7 +562,7 @@ export default function SavedFreelancers() {
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <DollarSign className="w-4 h-4 text-green-500" />
+                                            <IndianRupee className="w-4 h-4 text-green-500" />
                     <span className="font-medium">
                       ₹{freelancer.hourlyRate}
                     </span>
@@ -701,8 +698,6 @@ export default function SavedFreelancers() {
           </Card>
         )}
       </main>
-
-      <Footer />
     </div>
   );
 }

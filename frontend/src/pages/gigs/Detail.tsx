@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SmartRecommendations } from "@/components/recommendations/SmartRecommendations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -138,7 +137,6 @@ const freelancerAvatar =
 
   return (
     <div className="min-h-screen">
-      <Navbar />
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Gig Details */}
@@ -451,7 +449,7 @@ const freelancerAvatar =
                                 {pkg.name || '-'}
                               </h3>
                               <span className="text-2xl font-bold">
-                                {pkg.price ? `$${pkg.price}` : '-'}
+                                {pkg.price ? `₹${pkg.price}` : '-'}
                               </span>
                             </div>
                             <p className="text-muted-foreground mb-4">
@@ -505,7 +503,7 @@ const freelancerAvatar =
                                   });
                                   const data = await res.json();
                                   if (data.success) {
-                                    window.location.href = '/orders';
+                                    window.location.href = '/client/orders';
                                   } else {
                                     alert(data.message || 'Failed to place order');
                                   }
@@ -514,7 +512,7 @@ const freelancerAvatar =
                                 }
                               }}
                             >
-                              {pkg.price ? `Continue ($${pkg.price})` : 'Continue'}
+                              {pkg.price ? `Continue (₹${pkg.price})` : 'Continue'}
                             </GradientButton>
                             <Button variant="outline" className="w-full">
                               <MessageCircle className="w-4 h-4 mr-2" />

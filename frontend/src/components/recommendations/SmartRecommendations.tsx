@@ -218,7 +218,7 @@ export function SmartRecommendations({
                               ({gig.reviews})
                             </span>
                           </div>
-                          <span className="font-bold">${gig.price}</span>
+                          <span className="font-bold">₹{gig.price}</span>
                         </div>
                       </div>
                     </Link>

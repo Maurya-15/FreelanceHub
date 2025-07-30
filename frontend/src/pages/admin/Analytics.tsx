@@ -31,7 +31,7 @@ import {
   TrendingUp,
   TrendingDown,
   Users,
-  DollarSign,
+  IndianRupee,
   Package,
   Activity,
   Download,
@@ -128,7 +128,7 @@ export default function Analytics() {
                   +12.5% vs last month
                 </div>
               </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
+                                      <IndianRupee className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>

@@ -42,7 +42,7 @@ import {
   Users,
   UserPlus,
   Activity,
-  DollarSign,
+  IndianRupee,
 } from "lucide-react";
 
 // Mock users data
@@ -292,7 +292,7 @@ export default function UserManagement() {
                   {users.filter((u) => u.role === "client").length}
                 </p>
               </div>
-              <DollarSign className="h-8 w-8 text-orange-600" />
+                                      <IndianRupee className="h-8 w-8 text-orange-600" />
             </div>
           </CardContent>
         </Card>

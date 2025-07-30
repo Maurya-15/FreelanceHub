@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GradientButton } from "@/components/ui/gradient-button";
@@ -30,7 +28,7 @@ import {
   Plus,
   CreditCard,
   Calendar,
-  DollarSign,
+  IndianRupee,
   Download,
   ArrowUpRight,
   ArrowDownRight,
@@ -246,7 +244,6 @@ export default function Payments() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
 
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
@@ -310,7 +307,7 @@ export default function Payments() {
                     Last payment: {formatDate(paymentData.lastPayment)}
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-green-600" />
+                                        <IndianRupee className="h-8 w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
@@ -768,8 +765,6 @@ export default function Payments() {
           </TabsContent>
         </Tabs>
       </main>
-
-      <Footer />
     </div>
   );
 }

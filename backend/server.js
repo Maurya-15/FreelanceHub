@@ -14,6 +14,7 @@ import ordersRouter from './routes/orders.js';
 import jobsRouter from './routes/jobs.js';
 import adminRouter from './routes/admin.js';
 import clientRouter from './routes/client.js';
+import freelancerRouter from './routes/freelancer.js';
 import Activity from './models/Activity.js';
 import mongoose from "mongoose";
 import dotenv from 'dotenv';
@@ -105,6 +106,7 @@ app.use('/api/orders', ordersRouter);
 app.use('/api/jobs', jobsRouter);
 app.use('/api', adminRouter);
 app.use('/api/client', clientRouter);
+app.use('/api/freelancer', freelancerRouter);
 
 // Remove any remaining direct definitions of /api/activities, /api/pending-actions, and /api/admin/stats from server.js
 
@@ -211,4 +213,4 @@ io.on('connection', (socket) => {
 
 
   
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {});

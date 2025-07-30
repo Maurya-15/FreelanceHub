@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import {
   ArrowLeft,
   Calendar,
   Clock,
-  DollarSign,
+  IndianRupee,
   MapPin,
   User,
   Users,
@@ -74,7 +73,6 @@ export default function JobDetail() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
 
       <main className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
@@ -171,11 +169,11 @@ export default function JobDetail() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="text-center p-3 bg-muted/30 rounded-lg">
-                    <DollarSign className="w-6 h-6 mx-auto mb-2 text-primary" />
+                                            <IndianRupee className="w-6 h-6 mx-auto mb-2 text-primary" />
                     <p className="text-sm font-medium">Budget</p>
                     <p className="text-sm text-muted-foreground">
                       {typeof jobData.budget?.min !== "undefined" && typeof jobData.budget?.max !== "undefined"
-                        ? `${jobData.budget.min} - ${jobData.budget.max}`
+                        ? `₹${jobData.budget.min} - ₹${jobData.budget.max}`
                         : "N/A"}
                     </p>
                   </div>
@@ -385,8 +383,8 @@ export default function JobDetail() {
                     <span className="text-muted-foreground">Total spent</span>
                     <span>
                       {typeof jobData.client?.totalSpent === "number"
-                        ? `$${jobData.client.totalSpent.toLocaleString()}`
-                        : "$0"}
+                        ? `₹${jobData.client.totalSpent.toLocaleString()}`
+                        : "₹0"}
                     </span>
                   </div>
                 </div>

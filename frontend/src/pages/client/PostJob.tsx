@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { API_ENDPOINTS, getApiUrl } from "@/lib/api";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -35,7 +33,7 @@ import {
   Eye,
   Save,
   Calendar as CalendarIcon,
-  DollarSign,
+  IndianRupee,
   Clock,
   Users,
   FileText,
@@ -284,9 +282,7 @@ export default function PostJob() {
   return (
     <div className="min-h-screen">
       <Toaster />
-      <Navbar />
-
-      <main className="container mx-auto px-4 py-8">
+      <main className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
@@ -558,7 +554,7 @@ export default function PostJob() {
             <Card className="border-0 bg-card/50 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <DollarSign className="w-5 h-5 mr-2" />
+                                          <IndianRupee className="w-5 h-5 mr-2" />
                   Budget
                 </CardTitle>
               </CardHeader>
@@ -885,8 +881,6 @@ export default function PostJob() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

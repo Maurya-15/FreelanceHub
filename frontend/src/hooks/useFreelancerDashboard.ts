@@ -5,9 +5,11 @@ export interface FreelancerDashboardStats {
   totalEarnings: number;
   activeGigs: number;
   totalOrders: number;
+  totalGigs: number;
   avgRating: number;
   profileViews: number;
   responseTime: string;
+  name: string;
 }
 
 export interface RecentOrder {
@@ -47,10 +49,11 @@ export default function useFreelancerDashboard(userId: string) {
     async function fetchDashboard() {
       setLoading(true);
       try {
-        const res = await axios.get(`/api/freelancer/dashboard/${userId}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/freelancer/dashboard/${userId}`);
         setData(res.data);
         setError(null);
       } catch (err: any) {
+        console.error('Error fetching dashboard data:', err);
         setError(err.response?.data?.message || err.message);
       } finally {
         setLoading(false);

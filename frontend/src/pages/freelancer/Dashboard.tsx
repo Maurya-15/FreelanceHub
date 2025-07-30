@@ -1,28 +1,24 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { PersonalizedDashboard } from "@/components/dashboard/PersonalizedDashboard";
-import { Chatbot } from "@/components/chatbot/Chatbot";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { GradientButton } from "@/components/ui/gradient-button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { API_ENDPOINTS, getApiUrl } from "@/lib/api";
 import {
-  DollarSign,
   TrendingUp,
-  Package,
-  MessageSquare,
+  IndianRupee,
+  Users,
   Star,
   Eye,
-  Clock,
+  MessageSquare,
   Plus,
-  ArrowUpRight,
   Calendar,
+  Clock,
   CheckCircle,
   AlertCircle,
+  ArrowRight,
 } from "lucide-react";
 
 import useFreelancerDashboard from "@/hooks/useFreelancerDashboard";
@@ -59,19 +55,69 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function FreelancerDashboard() {
   const { user, isLoading: authLoading } = useAuth();
-  const freelancerId = user?._id;
-  // Note: Make sure backend returns 'name' and 'totalGigs' in stats for full effect.
-  // DEBUG: Log auth and user state
-  console.log('authLoading:', authLoading, 'user:', user, 'freelancerId:', freelancerId);
+  const freelancerId = user?.id;
+  
+  // Debug: Log authentication state
+  console.log('Dashboard - Auth State:', { user, authLoading, freelancerId });
+  console.log('localStorage authToken:', localStorage.getItem('authToken'));
+  console.log('localStorage userData:', localStorage.getItem('userData'));
+  
   const { data, loading, error } = useFreelancerDashboard(freelancerId || "");
-  if (authLoading || !freelancerId) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  
+  // Show loading only if auth is still loading
+  if (authLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading authentication...</div>;
   }
-  return (
-    <div className="min-h-screen">
-      <Navbar />
+  
+  // Check if user is logged in via localStorage as fallback
+  const storedUser = localStorage.getItem('userData');
+  const storedToken = localStorage.getItem('authToken');
+  
+  if (!user && storedUser && storedToken) {
+    try {
+      const parsedUser = JSON.parse(storedUser);
+      console.log('Dashboard: Found stored user, using it:', parsedUser);
+      // Force a page reload to update the auth context
+      window.location.reload();
+      return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    } catch (error) {
+      console.error('Error parsing stored user:', error);
+    }
+  }
+  
+  // Show error if no user or no freelancerId
+  if (!user || !freelancerId) {
+    console.log('Dashboard: No user or freelancerId found. User:', user, 'FreelancerId:', freelancerId);
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Authentication Required</h2>
+          <p className="text-muted-foreground mb-4">Please log in to access your dashboard.</p>
+          <Button asChild>
+            <Link to="/login">Go to Login</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  // Show error if API call failed
+  if (error) {
+    return (
+      <div className="flex-1">
+        <main className="p-6">
+          <div className="text-center py-8">
+            <h2 className="text-2xl font-bold mb-4">Dashboard Error</h2>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()}>Retry</Button>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
-      <main className="container mx-auto px-4 py-8">
+  return (
+    <div className="flex-1">
+      <main className="p-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
@@ -87,12 +133,12 @@ export default function FreelancerDashboard() {
                 Messages
               </Link>
             </Button>
-            <GradientButton asChild>
+            <Button asChild>
               <Link to="/freelancer/create-gig">
                 <Plus className="w-4 h-4 mr-2" />
                 Create New Gig
               </Link>
-            </GradientButton>
+            </Button>
           </div>
         </div>
 
@@ -109,9 +155,9 @@ export default function FreelancerDashboard() {
                     {loading ? "--" : data?.stats?.totalEarnings?.toLocaleString("en-IN", { style: "currency", currency: "INR" }) ?? 0}
                   </p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-green-600" />
-                </div>
+                                 <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                   <IndianRupee className="h-6 w-6 text-green-600" />
+                 </div>
               </div>
               <div className="flex items-center mt-4 text-sm">
                 <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
@@ -127,10 +173,10 @@ export default function FreelancerDashboard() {
                   <p className="text-sm font-medium text-muted-foreground">
                     Your Gigs
                   </p>
-                  <p className="text-2xl font-bold">{loading ? "--" : (data?.stats?.totalGigs ?? data?.topGigs?.length ?? 0)}</p>
+                  <p className="text-2xl font-bold">{loading ? "--" : (data?.stats?.totalGigs ?? data?.stats?.activeGigs ?? 0)}</p>
                 </div>
                 <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                  <Package className="h-6 w-6 text-blue-600" />
+                  <Users className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
               <div className="flex items-center mt-4 text-sm">
@@ -185,31 +231,43 @@ export default function FreelancerDashboard() {
           </Card>
         </div>
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="orders">Recent Orders</TabsTrigger>
-            <TabsTrigger value="gigs">Top Gigs</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          </TabsList>
+                 {/* Main Content Tabs */}
+         <div className="space-y-6">
+           <div className="grid w-full grid-cols-3">
+             <Button variant="outline" asChild>
+               <Link to="/freelancer/orders">
+                 Recent Orders
+               </Link>
+             </Button>
+             <Button variant="outline" asChild>
+               <Link to="/freelancer/gigs">
+                 Top Gigs
+               </Link>
+             </Button>
+             <Button variant="outline" asChild>
+               <Link to="/freelancer/analytics">
+                 Analytics
+               </Link>
+             </Button>
+           </div>
 
           {/* Recent Orders Tab */}
-          <TabsContent value="orders">
-            <Card className="border-0 bg-card/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Recent Orders
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to="/orders">
-                      View All
-                      <ArrowUpRight className="w-4 h-4 ml-1" />
-                    </Link>
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {(data?.recentOrders ?? []).map((order) => (
+          <Card className="border-0 bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                Recent Orders
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/freelancer/orders">
+                    View All
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Link>
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+                              <div className="space-y-4">
+                {(data?.recentOrders ?? []).length > 0 ? (
+                  (data?.recentOrders ?? []).map((order) => (
                     <div
                       key={order.id}
                       className="flex items-center justify-between p-4 rounded-lg border border-border/40 hover:bg-muted/20 transition-colors"
@@ -237,7 +295,7 @@ export default function FreelancerDashboard() {
                           {order.status.replace("_", " ")}
                         </Badge>
                         <div className="text-right">
-                          <p className="font-semibold">${order.amount}</p>
+                          <p className="font-semibold">₹{order.amount}</p>
                           <p className="text-xs text-muted-foreground">
                             Due {new Date(order.deadline).toLocaleDateString()}
                           </p>
@@ -247,16 +305,34 @@ export default function FreelancerDashboard() {
                         </Button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium mb-2">No orders yet</h3>
+                    <p className="text-muted-foreground mb-4">
+                      When you receive orders, they'll appear here
+                    </p>
+                    <Button variant="outline" asChild>
+                      <Link to="/freelancer/create-gig">
+                        Create Your First Gig
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+              </div>
               </CardContent>
             </Card>
-          </TabsContent>
 
           {/* Top Gigs Tab */}
-          <TabsContent value="gigs">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {(data?.topGigs ?? []).map((gig) => (
+          <Card className="border-0 bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>Top Gigs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {(data?.topGigs ?? []).length > 0 ? (
+                  (data?.topGigs ?? []).map((gig) => (
                 <Card
                   key={gig.id}
                   className="border-0 bg-card/50 backdrop-blur-sm floating-card"
@@ -277,7 +353,7 @@ export default function FreelancerDashboard() {
                             ({gig.reviews})
                           </span>
                         </div>
-                        <span className="text-lg font-bold">${gig.price}</span>
+                        <span className="text-lg font-bold">₹{gig.price}</span>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mb-4">
                         <div>
@@ -314,83 +390,88 @@ export default function FreelancerDashboard() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                ))
+              ) : (
+                <div className="col-span-2 text-center py-8">
+                  <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No gigs yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Create your first gig to start earning
+                  </p>
+                  <Button variant="outline" asChild>
+                    <Link to="/freelancer/create-gig">
+                      Create Your First Gig
+                    </Link>
+                  </Button>
+                </div>
+              )}
             </div>
-          </TabsContent>
+            </CardContent>
+          </Card>
 
           {/* Analytics Tab */}
-          <TabsContent value="analytics">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="border-0 bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle>Earnings Overview</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">This Month</span>
-                      <span className="font-semibold">₹2,450</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">Last Month</span>
-                      <span className="font-semibold">₹2,180</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">Avg per Gig</span>
-                      <span className="font-semibold">₹285</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          <Card className="border-0 bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>Earnings Overview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">This Month</span>
+                  <span className="font-semibold">₹2,450</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Last Month</span>
+                  <span className="font-semibold">₹2,180</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Avg per Gig</span>
+                  <span className="font-semibold">₹285</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-              <Card className="border-0 bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle>Performance Metrics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">
-                        Response Rate
-                      </span>
-                      <span className="font-semibold text-green-600">100%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">
-                        On-time Delivery
-                      </span>
-                      <span className="font-semibold text-green-600">95%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">
-                        Repeat Clients
-                      </span>
-                      <span className="font-semibold">65%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">
-                        Profile Rank
-                      </span>
-                      <Badge className="bg-brand-gradient text-white">
-                        Top Rated
-                      </Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
+          <Card className="border-0 bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>Performance Metrics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">
+                    Response Rate
+                  </span>
+                  <span className="font-semibold text-green-600">100%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">
+                    On-time Delivery
+                  </span>
+                  <span className="font-semibold text-green-600">95%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">
+                    Repeat Clients
+                  </span>
+                  <span className="font-semibold">65%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">
+                    Profile Rank
+                  </span>
+                  <Badge className="bg-brand-gradient text-white">
+                    Top Rated
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* AI-Powered Insights */}
-        <PersonalizedDashboard userType="freelancer" userId="USER-001" />
-      </main>
-
-      {/* Chatbot */}
-      <Chatbot />
-
-      <Footer />
-    </div>
+                  {/* AI-Powered Insights */}
+        </main>
+      </div>
     
   );
 }

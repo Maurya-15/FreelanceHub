@@ -4,7 +4,7 @@ import {
   Search,
   Filter,
   MapPin,
-  DollarSign,
+  IndianRupee,
   Clock,
   Briefcase,
   Star,
@@ -46,7 +46,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
-import { Navbar } from "@/components/layout/Navbar.tsx";
 
 const FindWork = () => {
   const { user } = useAuth();
@@ -99,11 +98,11 @@ const FindWork = () => {
   ];
 
   const budgetRanges = [
-    { value: "under-500", label: "Under $500" },
-    { value: "500-1000", label: "$500 - $1,000" },
-    { value: "1000-2500", label: "$1,000 - $2,500" },
-    { value: "2500-5000", label: "$2,500 - $5,000" },
-    { value: "over-5000", label: "$5,000+" },
+    { value: "under-500", label: "Under ₹50,000" },
+    { value: "500-1000", label: "₹50,000 - ₹1,00,000" },
+    { value: "1000-2500", label: "₹1,00,000 - ₹2,50,000" },
+    { value: "2500-5000", label: "₹2,50,000 - ₹5,00,000" },
+    { value: "over-5000", label: "₹5,00,000+" },
   ];
 
   const durations = [
@@ -246,9 +245,9 @@ const FindWork = () => {
 
   const formatBudget = (budget) => {
     if (budget.type === "fixed") {
-      return `$${budget.min.toLocaleString()} - $${budget.max.toLocaleString()}`;
+      return `₹${budget.min.toLocaleString()} - ₹${budget.max.toLocaleString()}`;
     } else {
-      return `$${budget.min} - $${budget.max}/hr`;
+      return `₹${budget.min} - ₹${budget.max}/hr`;
     }
   };
 
@@ -289,7 +288,7 @@ const FindWork = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar */}
@@ -577,7 +576,7 @@ const FindWork = () => {
                         {/* Job Details */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                           <div className="flex items-center text-sm">
-                            <DollarSign className="w-4 h-4 mr-2 text-green-600" />
+                            <IndianRupee className="w-4 h-4 mr-2 text-green-600" />
                             <span className="font-medium">
                               {formatBudget(job.budget)}
                             </span>

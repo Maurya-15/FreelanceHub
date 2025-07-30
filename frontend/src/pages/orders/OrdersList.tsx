@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +24,7 @@ import {
   Filter,
   MoreVertical,
   Calendar,
-  DollarSign,
+  IndianRupee,
   Clock,
   Star,
   MessageSquare,
@@ -113,19 +111,32 @@ export default function OrdersList() {
   });
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "N/A";
+      return date.toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (error) {
+      return "N/A";
+    }
   };
 
   const getDaysRemaining = (deadline: string) => {
-    const now = new Date();
-    const deadlineDate = new Date(deadline);
-    const diffTime = deadlineDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    if (!deadline) return null;
+    try {
+      const now = new Date();
+      const deadlineDate = new Date(deadline);
+      if (isNaN(deadlineDate.getTime())) return null;
+      const diffTime = deadlineDate.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    } catch (error) {
+      return null;
+    }
   };
 
   const getBackRoute = () => {
@@ -140,10 +151,8 @@ export default function OrdersList() {
   };
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-
-      <main className="container mx-auto px-4 py-8">
+    <div className="flex-1"> {/* This div will be the main content area within LayoutClient/LayoutFreelancer */}
+      <main className="p-6"> {/* Adjusted padding for content within the layout */}
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
@@ -222,242 +231,206 @@ export default function OrdersList() {
                   <p className="text-2xl font-bold">
                     ₹
                     {orders
-                      .reduce((sum, order) => sum + order.totalAmount, 0)
-                      .toLocaleString()}
+                      .reduce((sum, order) => sum + (order.amount || 0), 0)
+                      .toLocaleString('en-IN')}
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-purple-600" />
+                                        <IndianRupee className="h-8 w-8 text-purple-600" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Filters and Search */}
-        <Card className="border-0 bg-card/50 backdrop-blur-sm mb-6">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-              <div className="flex gap-4 w-full md:w-auto">
-                <div className="relative flex-1 md:w-80">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="Search orders..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40">
-                    <Filter className="h-4 w-4 mr-2" />
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="delivered">Delivered</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="recent">Most Recent</SelectItem>
-                  <SelectItem value="deadline">By Deadline</SelectItem>
-                  <SelectItem value="amount">By Amount</SelectItem>
-                  <SelectItem value="status">By Status</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Search and Filters */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search orders..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem key="all" value="all">All Status</SelectItem>
+                <SelectItem key="pending" value="pending">Pending</SelectItem>
+                <SelectItem key="in_progress" value="in_progress">In Progress</SelectItem>
+                <SelectItem key="delivered" value="delivered">Delivered</SelectItem>
+                <SelectItem key="completed" value="completed">Completed</SelectItem>
+                <SelectItem key="cancelled" value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem key="recent" value="recent">Most Recent</SelectItem>
+                <SelectItem key="deadline" value="deadline">By Deadline</SelectItem>
+                <SelectItem key="amount" value="amount">By Amount</SelectItem>
+                <SelectItem key="status" value="status">By Status</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
+        {/* Orders List */}
         <div className="space-y-4">
-          {filteredOrders.map((order) => {
-            const StatusIcon = statusConfig[order.status]?.icon || Clock;
-            const daysRemaining =
-              order.status === "in_progress"
-                ? getDaysRemaining(order.deadline)
-                : null;
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-2 text-muted-foreground">Loading orders...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+              <p className="text-red-600">{error}</p>
+            </div>
+          ) : (
+            filteredOrders.map((order, index) => {
+              const StatusIcon = statusConfig[order.status as keyof typeof statusConfig]?.icon || Clock;
+              const statusColor = statusConfig[order.status as keyof typeof statusConfig]?.color || "bg-gray-100 text-gray-800";
+              const daysRemaining = order.deadline ? getDaysRemaining(order.deadline) : null;
 
-            return (
-              <Card
-                key={order.id}
-                className="border-0 bg-card/50 backdrop-blur-sm floating-card cursor-pointer hover:shadow-lg transition-all duration-200"
-                onClick={() => navigate(`/order/${order._id}`)}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    {/* Job Image */}
-                    <div className="w-20 h-15 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg flex-shrink-0" />
-
-                    {/* Order Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h3 className="font-semibold text-lg mb-1 truncate">
-                            {order.gig?.title || 'Untitled Job'}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            Order #{order._id}
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <Badge className={statusConfig[order.status].color}>
+              return (
+                <Card
+                  key={order.id || order._id || `order-${index}`}
+                  className="border-0 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/order/${order._id}`)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={order.freelancer?.avatar || order.client?.avatar} />
+                            <AvatarFallback className="bg-brand-gradient text-white">
+                              {(order.freelancer?.name || order.client?.name || "U").charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <h3 className="font-semibold">
+                              {order.title || "Untitled Order"}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {order.freelancer?.name || order.client?.name || "Unknown User"}
+                            </p>
+                          </div>
+                          <Badge className={statusColor}>
                             <StatusIcon className="w-3 h-3 mr-1" />
                             {order.status.replace("_", " ")}
                           </Badge>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem asChild>
-                                <Link to={`/order/${order._id}`}>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  View Details
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setActiveMessageOrder(order); setShowMessageDialog(true); }}>
-                                <MessageSquare className="mr-2 h-4 w-4" />
-                                Message
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-
-                      {/* People involved */}
-                      <div className="flex items-center space-x-6 mb-3">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-muted-foreground">
-                            Freelancer:
-                          </span>
-                          <Avatar className="w-6 h-6">
-                            <AvatarImage src={order.freelancer.avatar} />
-                            <AvatarFallback>
-                              {order.freelancer.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-sm font-medium">
-                            {order.freelancer.name}
-                          </span>
-                          <Badge variant="outline" className="text-xs">
-                            {order.freelancer.level}
-                          </Badge>
                         </div>
 
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-muted-foreground">
-                            Client:
-                          </span>
-                          <Avatar className="w-6 h-6">
-                            <AvatarImage src={order.client.avatar} />
-                            <AvatarFallback>
-                              {order.client.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-sm font-medium">
-                            {order.client.name}
-                          </span>
-                        </div>
-                      </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                          <div className="flex items-center space-x-2">
+                            <IndianRupee className="w-4 h-4 text-green-500" />
+                            <span className="text-muted-foreground">Amount:</span>
+                            <span className="font-medium">
+                              ₹{(order.amount ?? 0).toLocaleString('en-IN')}
+                            </span>
+                          </div>
 
-                      {/* Order details */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div className="flex items-center space-x-2">
-                          <DollarSign className="w-4 h-4 text-green-500" />
-                          <span className="text-muted-foreground">Amount:</span>
-                          <span className="font-medium">
-                            ₹{order.amount ?? 0}
-                          </span>
-                        </div>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4 text-blue-500" />
+                            <span className="text-muted-foreground">
+                              Created:
+                            </span>
+                            <span className="font-medium">
+                              {formatDate(order.createdAt)}
+                            </span>
+                          </div>
 
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4 text-blue-500" />
-                          <span className="text-muted-foreground">
-                            Created:
-                          </span>
-                          <span className="font-medium">
-                            {formatDate(order.createdAt)}
-                          </span>
-                        </div>
+                          {order.status === "in_progress" &&
+                            order.deadline && daysRemaining !== null && (
+                              <div className="flex items-center space-x-2">
+                                <Clock className="w-4 h-4 text-orange-500" />
+                                <span className="text-muted-foreground">
+                                  Deadline:
+                                </span>
+                                <span
+                                  className={`font-medium ${daysRemaining < 3 ? "text-red-600" : ""}`}
+                                >
+                                  {daysRemaining > 0
+                                    ? `${daysRemaining} days`
+                                    : "Overdue"}
+                                </span>
+                              </div>
+                            )}
 
-                        {order.status === "in_progress" &&
-                          daysRemaining !== null && (
+                          {order.status === "completed" && order.rating && (
                             <div className="flex items-center space-x-2">
-                              <Clock className="w-4 h-4 text-orange-500" />
+                              <Star className="w-4 h-4 text-yellow-500" />
                               <span className="text-muted-foreground">
-                                Deadline:
+                                Rating:
                               </span>
-                              <span
-                                className={`font-medium ${daysRemaining < 3 ? "text-red-600" : ""}`}
-                              >
-                                {daysRemaining > 0
-                                  ? `${daysRemaining} days`
-                                  : "Overdue"}
+                              <span className="font-medium">
+                                {order.rating}/5
                               </span>
                             </div>
                           )}
 
-                        {order.status === "completed" && order.rating && (
-                          <div className="flex items-center space-x-2">
-                            <Star className="w-4 h-4 text-yellow-500" />
-                            <span className="text-muted-foreground">
-                              Rating:
-                            </span>
-                            <span className="font-medium">
-                              {order.rating}/5
-                            </span>
-                          </div>
-                        )}
+                          {order.progress && (
+                            <div className="flex items-center space-x-2">
+                              <RefreshCw className="w-4 h-4 text-purple-500" />
+                              <span className="text-muted-foreground">
+                                Progress:
+                              </span>
+                              <span className="font-medium">
+                                {order.progress}%
+                              </span>
+                            </div>
+                          )}
+                        </div>
 
-                        {order.progress && (
-                          <div className="flex items-center space-x-2">
-                            <RefreshCw className="w-4 h-4 text-purple-500" />
-                            <span className="text-muted-foreground">
-                              Progress:
-                            </span>
-                            <span className="font-medium">
-                              {order.progress}%
-                            </span>
+                        {/* Progress bar for active orders */}
+                        {order.status === "in_progress" && order.progress && (
+                          <div className="mt-3">
+                            <div className="w-full bg-muted rounded-full h-2">
+                              <div
+                                className="bg-primary h-2 rounded-full"
+                                style={{ width: `${order.progress}%` }}
+                              />
+                            </div>
                           </div>
                         )}
                       </div>
 
-                      {/* Progress bar for active orders */}
-                      {order.status === "in_progress" && order.progress && (
-                        <div className="mt-3">
-                          <div className="w-full bg-muted rounded-full h-2">
-                            <div
-                              className="bg-primary h-2 rounded-full"
-                              style={{ width: `${order.progress}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem key="view-details" asChild>
+                            <Link to={`/order/${order._id}`}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem key="message" onClick={(e) => { e.stopPropagation(); setActiveMessageOrder(order); setShowMessageDialog(true); }}>
+                            <MessageSquare className="mr-2 h-4 w-4" />
+                            Message
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                  </CardContent>
+                </Card>
+              );
+            })
+          )}
         </div>
 
         {/* Empty State */}
@@ -478,8 +451,6 @@ export default function OrdersList() {
           </Card>
         )}
       </main>
-
-      <Footer />
     </div>
   );
 }

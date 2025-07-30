@@ -1,6 +1,5 @@
 import React from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ import {
   Star,
   MessageSquare,
   Calendar,
-  DollarSign,
+  IndianRupee,
   Clock,
   Award,
   Heart,
@@ -52,7 +51,6 @@ export default function JobProposals() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
       <main className="max-w-5xl mx-auto px-4 py-8"> {/* wider main container */}
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -156,7 +154,7 @@ export default function JobProposals() {
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-bold text-primary mb-1">
-                          ${proposal.bid}
+                          ₹{proposal.bid}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           in {proposal.deliveryTime}
@@ -249,7 +247,7 @@ export default function JobProposals() {
           <DialogHeader>
             <DialogTitle>Accept Proposal</DialogTitle>
             <DialogDescription>
-              You're about to accept {selectedProposal?.freelancer?.name}'s proposal for ${selectedProposal?.bid}. This will create an order and start the project.
+              You're about to accept {selectedProposal?.freelancer?.name}'s proposal for ₹{selectedProposal?.bid}. This will create an order and start the project.
             </DialogDescription>
           </DialogHeader>
           {selectedProposal && (
@@ -270,7 +268,7 @@ export default function JobProposals() {
                       {selectedProposal.freelancer.name}
                     </h4>
                     <p className="text-sm text-muted-foreground">
-                      ${selectedProposal.bid} in {selectedProposal.deliveryTime}
+                      ₹{selectedProposal.bid} in {selectedProposal.deliveryTime}
                     </p>
                   </div>
                 </div>
@@ -295,7 +293,7 @@ export default function JobProposals() {
                         headers: { 'Content-Type': 'application/json', 'user-id': localStorage.getItem('userId') || '' },
                       });
                       if (response.ok) {
-                        navigate('/orders');
+                        navigate('/client/orders');
                       } else {
                         const data = await response.json();
                         alert(data.message || 'Failed to accept proposal.');
@@ -342,7 +340,7 @@ export default function JobProposals() {
                       {selectedProposal.freelancer.name}
                     </h4>
                     <p className="text-sm text-muted-foreground">
-                      ${selectedProposal.bid} in {selectedProposal.deliveryTime}
+                      ₹{selectedProposal.bid} in {selectedProposal.deliveryTime}
                     </p>
                   </div>
                 </div>

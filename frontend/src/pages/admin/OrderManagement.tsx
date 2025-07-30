@@ -25,7 +25,7 @@ import {
   MoreVertical,
   Eye,
   Package,
-  DollarSign,
+  IndianRupee,
   Clock,
   CheckCircle,
   AlertCircle,
@@ -318,7 +318,7 @@ export default function OrderManagement() {
               <p className="text-sm font-medium text-muted-foreground">Total Value</p>
               <p className="text-2xl font-bold">₹{totalValue.toLocaleString()}</p>
             </div>
-            <DollarSign className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                                    <IndianRupee className="h-8 w-8 text-purple-600 dark:text-purple-400" />
           </CardContent>
         </Card>
       </div>

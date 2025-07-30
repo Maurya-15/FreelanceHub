@@ -1,41 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { GradientButton } from "@/components/ui/gradient-button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { API_ENDPOINTS, getApiUrl } from "@/lib/api";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  ArrowLeft,
-  Edit3,
+  Edit,
   Save,
-  Camera,
+  X,
   MapPin,
-  Calendar,
-  Building,
   Globe,
+  Phone,
+  Mail,
+  Calendar,
   Star,
-  Briefcase,
   Users,
   DollarSign,
-  TrendingUp,
-  Award,
-  Eye,
   CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 
 import useClientProfile from "@/hooks/useClientProfile";
@@ -119,15 +105,13 @@ export default function ClientProfile() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Button variant="ghost" asChild>
               <Link to="/client/dashboard">
-                <ArrowLeft className="w-4 h-4" />
+                <X className="w-4 h-4" />
               </Link>
             </Button>
             <div>
@@ -143,14 +127,14 @@ export default function ClientProfile() {
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
                   Cancel
                 </Button>
-                <GradientButton onClick={handleSaveChanges}>
+                <Button onClick={handleSaveChanges}>
                   <Save className="w-4 h-4 mr-2" />
                   Save Changes
-                </GradientButton>
+                </Button>
               </>
             ) : (
               <Button onClick={() => setIsEditing(true)}>
-                <Edit3 className="w-4 h-4 mr-2" />
+                <Edit className="w-4 h-4 mr-2" />
                 Edit Profile
               </Button>
             )}
@@ -177,7 +161,7 @@ export default function ClientProfile() {
                       size="sm"
                       className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 p-0"
                     >
-                      <Camera className="w-4 h-4" />
+                      <Edit className="w-4 h-4" />
                     </Button>
                   )}
                 </div>
@@ -194,10 +178,6 @@ export default function ClientProfile() {
                 </div>
 
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-center space-x-2">
-                    <Building className="w-4 h-4 text-muted-foreground" />
-                    <span>{profileData.company}</span>
-                  </div>
                   <div className="flex items-center justify-center space-x-2">
                     <MapPin className="w-4 h-4 text-muted-foreground" />
                     <span>{profileData.location}</span>
@@ -252,16 +232,24 @@ export default function ClientProfile() {
 
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="projects">Projects</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
-              </TabsList>
+            <div className="grid grid-cols-4 gap-4 mb-6">
+              <Button variant="outline" onClick={() => setActiveTab("overview")} className={`${activeTab === "overview" ? "bg-primary text-white" : ""}`}>
+                Overview
+              </Button>
+              <Button variant="outline" onClick={() => setActiveTab("projects")} className={`${activeTab === "projects" ? "bg-primary text-white" : ""}`}>
+                Projects
+              </Button>
+              <Button variant="outline" onClick={() => setActiveTab("reviews")} className={`${activeTab === "reviews" ? "bg-primary text-white" : ""}`}>
+                Reviews
+              </Button>
+              <Button variant="outline" onClick={() => setActiveTab("settings")} className={`${activeTab === "settings" ? "bg-primary text-white" : ""}`}>
+                Settings
+              </Button>
+            </div>
 
-              {/* Overview Tab */}
-              <TabsContent value="overview" className="space-y-6">
+            {/* Overview Tab */}
+            {activeTab === "overview" && (
+              <div className="space-y-6">
                 {/* About Section */}
                 <Card className="border-0 bg-card/50 backdrop-blur-sm">
                   <CardHeader>
@@ -342,7 +330,7 @@ export default function ClientProfile() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <Card className="border-0 bg-card/50 backdrop-blur-sm">
                     <CardContent className="p-6 text-center">
-                      <Briefcase className="w-8 h-8 mx-auto mb-3 text-blue-600" />
+                      <Users className="w-8 h-8 mx-auto mb-3 text-blue-600" />
                       <h3 className="text-2xl font-bold mb-1">
                         {profileData.stats?.activeProjects ?? 0}
                       </h3>
@@ -406,10 +394,12 @@ export default function ClientProfile() {
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </div>
+            )}
 
-              {/* Projects Tab */}
-              <TabsContent value="projects" className="space-y-6">
+            {/* Projects Tab */}
+            {activeTab === "projects" && (
+              <div className="space-y-6">
                 <Card className="border-0 bg-card/50 backdrop-blur-sm">
                   <CardHeader>
                     <CardTitle>Recent Projects</CardTitle>
@@ -481,10 +471,12 @@ export default function ClientProfile() {
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </div>
+            )}
 
-              {/* Reviews Tab */}
-              <TabsContent value="reviews" className="space-y-6">
+            {/* Reviews Tab */}
+            {activeTab === "reviews" && (
+              <div className="space-y-6">
                 <Card className="border-0 bg-card/50 backdrop-blur-sm">
                   <CardHeader>
                     <CardTitle>Reviews from Freelancers</CardTitle>
@@ -532,10 +524,12 @@ export default function ClientProfile() {
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </div>
+            )}
 
-              {/* Settings Tab */}
-              <TabsContent value="settings" className="space-y-6">
+            {/* Settings Tab */}
+            {activeTab === "settings" && (
+              <div className="space-y-6">
                 <Card className="border-0 bg-card/50 backdrop-blur-sm">
                   <CardHeader>
                     <CardTitle>Account Settings</CardTitle>
@@ -653,13 +647,11 @@ export default function ClientProfile() {
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
-            </Tabs>
+              </div>
+            )}
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

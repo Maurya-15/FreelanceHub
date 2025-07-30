@@ -160,7 +160,7 @@ export function HowItWorks() {
                 </li>
               </ul>
               <GradientButton variant="secondary" className="w-full" asChild>
-                <Link to="/post-job">
+                <Link to="/client/post-job">
                   Post a Project
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>

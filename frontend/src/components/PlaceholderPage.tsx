@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,7 +18,7 @@ export function PlaceholderPage({
 }: PlaceholderPageProps) {
   return (
     <div className="min-h-screen">
-      <Navbar />
+
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto text-center">
           <Card className="border-0 bg-card/50 backdrop-blur-sm shadow-lg">

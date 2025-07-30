@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { API_ENDPOINTS, getApiUrl } from "@/lib/api";
 import { Link, useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { FileUpload } from "@/components/upload/FileUpload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,7 +26,7 @@ import {
   Save,
   ImageIcon,
   Clock,
-  DollarSign,
+  IndianRupee,
   Package,
 } from "lucide-react";
 
@@ -294,8 +292,6 @@ export default function CreateGig() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -503,9 +499,9 @@ export default function CreateGig() {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>Price ($)</Label>
+                                                      <Label>Price (₹)</Label>
                           <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                            <IndianRupee className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                             <Input
                               type="number"
                               value={packageData.price}
@@ -699,7 +695,7 @@ export default function CreateGig() {
                             </p>
                             <div className="flex items-center justify-between">
                               <span className="text-2xl font-bold">
-                                ${packageData.price || "0"}
+                                ₹{packageData.price || "0"}
                               </span>
                               <div className="flex items-center text-sm text-muted-foreground">
                                 <Clock className="w-4 h-4 mr-1" />
@@ -753,8 +749,6 @@ export default function CreateGig() {
           )}
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }
