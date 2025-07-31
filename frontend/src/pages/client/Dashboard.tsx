@@ -262,7 +262,7 @@ export default function ClientDashboard() {
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <h4 className="font-medium">{order.title}</h4>
+                          <h4 className="font-medium">{order.title || "Untitled Order"}</h4>
                           <p className="text-sm text-muted-foreground">
                             by {order.freelancer}
                           </p>

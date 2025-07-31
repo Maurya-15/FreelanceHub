@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import moment from "moment";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,16 +26,14 @@ import {
   Clock,
   Check,
   CheckCheck,
-  Image as ImageIcon,
-  FileText,
-  Download,
   Smile,
+  FileText
 } from "lucide-react";
 
 import useChatSocket from "@/hooks/useChatSocket";
 import { fetchApi } from "@/lib/api";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Chat() {
   // --- Attachment State ---
@@ -44,30 +42,43 @@ export default function Chat() {
   // --- Real-time Chat State ---
   const [conversations, setConversations] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
-  const [selectedConversation, setSelectedConversation] = useState<any | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<any | null>(
+    null
+  );
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const userId = localStorage.getItem("userId"); // Or use context if available
+  const [sending, setSending] = useState(false);
+  const userId = localStorage.getItem("userId");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // --- Refs for Scrolling Logic ---
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const [isAtBottom, setIsAtBottom] = useState(true);
-  const location = useLocation();
-  // Get userId from query param if present
+  const userScrolledUp = useRef(false);
+  const isInitialLoad = useRef(true);
+
   const searchParams = new URLSearchParams(location.search);
   const targetUserId = searchParams.get("userId");
 
-  // Real-time socket helpers must be declared before useChatSocket
-  const handleUserStatus = ({ userId: changedUserId, status }: { userId: string, status: string }) => {
-    setConversations((prev) => prev.map((conv) => {
-      // Update status in participants array
-      if (conv.participants) {
-        const updatedParticipants = conv.participants.map((p: any) =>
-          String(p._id) === String(changedUserId) ? { ...p, status } : p
-        );
-        return { ...conv, participants: updatedParticipants };
-      }
-      return conv;
-    }));
+  const handleUserStatus = ({
+    userId: changedUserId,
+    status,
+  }: {
+    userId: string;
+    status: string;
+  }) => {
+    setConversations((prev) =>
+      prev.map((conv) => {
+        if (conv.participants) {
+          const updatedParticipants = conv.participants.map((p: any) =>
+            String(p._id) === String(changedUserId) ? { ...p, status } : p
+          );
+          return { ...conv, participants: updatedParticipants };
+        }
+        return conv;
+      })
+    );
     setSelectedConversation((prev) => {
       if (!prev) return prev;
       if (prev.participants) {
@@ -80,7 +91,6 @@ export default function Chat() {
     });
   };
 
-  // Real-time socket: must be declared after all state/refs, at top-level
   const { sendMessage: emitMessage, isConnected } = useChatSocket({
     userId: userId || undefined,
     conversationId: selectedConversation?._id,
@@ -88,34 +98,41 @@ export default function Chat() {
       if (msg.conversationId === selectedConversation?._id) {
         setMessages((prev) => [...prev, msg]);
       }
-      // Optionally update conversations list for lastMessage/unread
-      setConversations((prev) => prev.map((conv) =>
-        conv._id === msg.conversationId
-          ? { ...conv, lastMessage: msg, unreadCount: (conv.unreadCount || 0) + 1 }
-          : conv
-      ));
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv._id === msg.conversationId
+            ? {
+                ...conv,
+                lastMessage: msg,
+                unreadCount: (conv.unreadCount || 0) + 1,
+              }
+            : conv
+        )
+      );
     },
     onUserStatus: handleUserStatus,
-    // Optionally handle notifications here
   });
 
-  // Fetch conversations on mount
   useEffect(() => {
     if (!userId) return;
-    // If a targetUserId is present, fetch or create the conversation with that user
-    if (targetUserId) {
-      fetch('/api/messages/conversation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId1: userId, userId2: targetUserId }),
-      })
-        .then((res) => res.json())
-        .then(async (res: any) => {
-          if (res.conversation) {
-            // Fetch the other user's info to display in sidebar/header
-            let otherUser = res.conversation.participants.find((p: any) => (p._id || p) !== userId);
+
+    const loadData = async () => {
+      try {
+        const res = await fetchApi(`/api/messages/conversations/${userId}`);
+        let allConversations = res.conversations || [];
+
+        if (targetUserId) {
+          const convRes = await fetch('/api/messages/conversation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId1: userId, userId2: targetUserId }),
+          });
+          const data = await convRes.json();
+          if (data.conversation) {
+            let otherUser = data.conversation.participants.find(
+              (p: any) => (p._id || p) !== userId
+            );
             if (otherUser && typeof otherUser === 'string') {
-              // If still just an ID, fetch user info as fallback
               try {
                 const userRes = await fetch(`/api/users/${otherUser}`);
                 if (userRes.ok) {
@@ -123,65 +140,60 @@ export default function Chat() {
                 }
               } catch {}
             }
-            const enrichedConversation = { ...res.conversation, participant: otherUser };
+            const enrichedConversation = { ...data.conversation, participant: otherUser };
             setSelectedConversation(enrichedConversation);
-            setConversations((prev) => {
-              const exists = prev.some((c) => c._id === res.conversation._id);
-              return exists ? prev : [enrichedConversation, ...prev];
-            });
+            
+            const exists = allConversations.some((c) => c._id === data.conversation._id);
+            if (!exists) {
+              allConversations = [enrichedConversation, ...allConversations];
+            }
+            // Clean up URL query param
+            navigate(location.pathname, { replace: true });
           }
-        })
-        .catch(() => {});
-    }
-    // Always fetch all conversations
-    fetchApi(`/api/messages/conversations/${userId}`)
-      .then((res: any) => setConversations(res.conversations || []))
-      .catch(() => setConversations([]));
-  }, [userId, targetUserId]);
+        }
+        setConversations(allConversations);
+      } catch (error) {
+        console.error("Error loading conversations:", error);
+        setConversations([]);
+      }
+    };
+    loadData();
+  }, [userId, targetUserId, location.pathname, navigate]);
 
-  // Fetch messages when a conversation is selected
   useEffect(() => {
-    if (!selectedConversation) return;
+    if (!selectedConversation?._id) return;
+    isInitialLoad.current = true;
+    userScrolledUp.current = false;
     fetchApi(`/api/messages/${selectedConversation._id}`)
       .then((res: any) => setMessages(res.messages || []))
       .catch(() => setMessages([]));
-  }, [selectedConversation]);
+  }, [selectedConversation?._id]);
 
+  const scrollToBottom = useCallback((behavior: 'smooth' | 'auto' = 'auto') => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  }, []);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  // Track previous messages length and last sender
-  const prevMessagesRef = useRef<any[]>([]);
   useEffect(() => {
-    const prevMessages = prevMessagesRef.current;
-    const newMsg = messages[messages.length - 1];
-    const prevMsg = prevMessages[prevMessages.length - 1];
-    // Only scroll if:
-    // 1. User is at bottom, or
-    // 2. The new message is sent by current user
-    if (
-      isAtBottom ||
-      (newMsg && newMsg.sender === userId && (!prevMsg || newMsg._id !== prevMsg._id))
-    ) {
-      scrollToBottom();
+    if (!userScrolledUp.current) {
+      scrollToBottom(isInitialLoad.current ? 'auto' : 'smooth');
+      if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+      }
     }
-    prevMessagesRef.current = messages;
-  }, [messages, isAtBottom, userId]);
+  }, [messages, scrollToBottom]);
 
   useEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
+
     const handleScroll = () => {
-      // 20px threshold
-      setIsAtBottom(container.scrollHeight - container.scrollTop - container.clientHeight < 20);
+      const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 20;
+      userScrolledUp.current = !isAtBottom;
     };
+
     container.addEventListener('scroll', handleScroll);
     return () => container.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const [sending, setSending] = useState(false);
 
   const sendMessage = async () => {
     if ((!newMessage.trim() && !attachment) || !selectedConversation || sending) return;
@@ -189,11 +201,12 @@ export default function Chat() {
       alert("Message failed to send: Socket not connected");
       return;
     }
+    
+    userScrolledUp.current = false;
     setSending(true);
+    
     let attachmentData = null;
     if (attachment) {
-      // Prepare file for upload (could be base64, or use an API endpoint for upload)
-      // Here, we use base64 for demo; in production, upload to server/cloud
       const toBase64 = (file: File) =>
         new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -218,27 +231,37 @@ export default function Chat() {
       attachment: attachmentData,
       timestamp: new Date().toISOString(),
       status: "sending",
-      _id: Math.random().toString(36).substr(2, 9), // Temporary ID
+      _id: Math.random().toString(36).substr(2, 9),
     };
+
     setMessages((prev) => [...prev, optimisticMsg]);
+    
     try {
-      const ack = await emitMessage({
-        ...optimisticMsg,
-        status: "sent",
-      });
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Message send timeout')), 5000)
+      );
+
+      const ack: any = await Promise.race([
+        emitMessage({
+          ...optimisticMsg,
+          status: "sent",
+        }),
+        timeoutPromise
+      ]);
+      
       if (ack.status !== "ok") {
         alert("Message failed: " + (ack.message || "Unknown error"));
       } else {
         setNewMessage("");
         setAttachment(null);
       }
-    } catch (err) {
-      alert("Client-side error");
+    } catch (err: any) {
+      console.error('Message send error:', err);
+      alert("Message failed to send: " + (err.message || "Client-side error"));
     } finally {
       setSending(false);
     }
   };
-
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -248,22 +271,21 @@ export default function Chat() {
 
   const clearAttachment = () => setAttachment(null);
 
-  
   const formatTimestamp = (timestamp: string) => {
-  if (!timestamp) return "";
-  return moment(timestamp).format('h:mm A');
-};
+    if (!timestamp) return "";
+    return moment(timestamp).format('h:mm A');
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "sending":
-        return <Clock className="w-3 h-3 text-muted-foreground" />;
+        return <Clock className="w-3 h-3" />;
       case "delivered":
-        return <Check className="w-3 h-3 text-muted-foreground" />;
+        return <Check className="w-3 h-3" />;
       case "read":
-        return <CheckCheck className="w-3 h-3 text-blue-500" />;
+        return <CheckCheck className="w-3 h-3 text-blue-400" />;
       default:
-        return null;
+        return <Check className="w-3 h-3" />; // Default to sent
     }
   };
 
@@ -283,11 +305,11 @@ export default function Chat() {
 
   const filteredConversations = conversations.filter(
     (conv) =>
-      conv.participant &&
-      typeof conv.participant.name === 'string' &&
-      conv.participant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (conv.participant &&
+        typeof conv.participant.name === 'string' &&
+        conv.participant.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (typeof conv.project === 'string' && conv.project.toLowerCase().includes(searchQuery.toLowerCase()))
-  )
+  );
 
   return (
     <div className="min-h-screen">
@@ -317,10 +339,10 @@ export default function Chat() {
                 <div className="space-y-1 overflow-y-auto h-full px-6 pb-6">
                   {filteredConversations.filter(Boolean).map((conversation) => (
                     <div
-                      key={conversation.id || conversation._id} // fallback to _id if id is missing
+                      key={conversation.id || conversation._id}
                       onClick={() => setSelectedConversation(conversation)}
                       className={`p-3 rounded-lg cursor-pointer transition-colors hover:bg-muted/50 ${
-                        selectedConversation?.id === conversation.id || selectedConversation?._id === conversation._id
+                        selectedConversation?._id === conversation._id
                           ? "bg-primary/10 border border-primary/20"
                           : ""
                       }`}
@@ -333,11 +355,11 @@ export default function Chat() {
                             />
                             <AvatarFallback>
                               {conversation?.participant?.name
-  ? conversation.participant.name.split(" ").map((n) => n[0]).join("")
-  : (conversation?.participants && Array.isArray(conversation.participants) && conversation.participants.find((p: any) => p._id !== userId)?.name
-    ? conversation.participants.find((p: any) => p._id !== userId).name.split(" ").map((n: string) => n[0]).join("")
-    : "?")
-}
+                                ? conversation.participant.name.split(" ").map((n: string) => n[0]).join("")
+                                : (conversation?.participants?.find((p: any) => p._id !== userId)?.name
+                                  ? conversation.participants.find((p: any) => p._id !== userId).name.split(" ").map((n: string) => n[0]).join("")
+                                  : "?")
+                              }
                             </AvatarFallback>
                           </Avatar>
                           <div
@@ -348,7 +370,7 @@ export default function Chat() {
                           <div className="flex items-center justify-between">
                             <h4 className="font-medium text-sm truncate">
                               {conversation?.participant?.name ? conversation.participant.name : (conversation?.participants && Array.isArray(conversation.participants) ?
-  (conversation.participants.find((p: any) => p._id !== userId)?.name || "Unknown") : "Unknown")}
+                                (conversation.participants.find((p: any) => p._id !== userId)?.name || "Unknown") : "Unknown")}
                             </h4>
                             {conversation.unreadCount > 0 && (
                               <Badge className="bg-primary text-primary-foreground text-xs">
@@ -381,7 +403,6 @@ export default function Chat() {
           {/* Chat Area */}
           <div className="lg:col-span-3">
             <Card className="border-0 bg-card/50 backdrop-blur-sm h-full flex flex-col">
-              {/* Chat Header */}
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
@@ -391,8 +412,8 @@ export default function Chat() {
                           src={selectedConversation?.participant?.avatar || ""}
                         />
                         <AvatarFallback>
-                          {(selectedConversation?.participant?.name || selectedConversation?.participants?.find((p: any) => p._id !== userId)?.name) 
-                            ? (selectedConversation?.participant?.name || selectedConversation?.participants?.find((p: any) => p._id !== userId)?.name).split(" ").map((n) => n[0]).join("")
+                          {(selectedConversation?.participant?.name || selectedConversation?.participants?.find((p: any) => p._id !== userId)?.name)
+                            ? (selectedConversation?.participant?.name || selectedConversation?.participants?.find((p: any) => p._id !== userId)?.name).split(" ").map((n: string) => n[0]).join("")
                             : "?"
                           }
                         </AvatarFallback>
@@ -406,14 +427,14 @@ export default function Chat() {
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-sm truncate">
                         {selectedConversation?.participant?.name ? selectedConversation.participant.name : (selectedConversation?.participants && Array.isArray(selectedConversation.participants) ?
-  (selectedConversation.participants.find((p: any) => p._id !== userId)?.name || "Unknown") : "Unknown")}
+                          (selectedConversation.participants.find((p: any) => p._id !== userId)?.name || "Unknown") : "Unknown")}
                       </h4>
                       <p className="text-sm text-muted-foreground">
                         {(selectedConversation?.participant?.status || (selectedConversation?.participants && selectedConversation.participants.find((p: any) => p._id !== userId)?.status)) === "online"
-  ? "Online"
-  : selectedConversation?.participant?.lastSeen
-  ? `Last seen ${formatTimestamp(selectedConversation.participant.lastSeen)}`
-  : "Offline"}
+                          ? "Online"
+                          : selectedConversation?.participant?.lastSeen
+                            ? `Last seen ${formatTimestamp(selectedConversation.participant.lastSeen)}`
+                            : "Offline"}
                       </p>
                     </div>
                   </div>
@@ -469,10 +490,9 @@ export default function Chat() {
                             isSender
                               ? 'bg-primary text-white rounded-br-none'
                               : 'bg-muted/80 text-foreground rounded-bl-none'
-                          }`}
+                            }`}
                           style={{ borderRadius: isSender ? '18px 18px 4px 18px' : '18px 18px 18px 4px' }}
                         >
-                          {/* Attachment rendering */}
                           {message.attachment && message.attachment.type === 'image' && (
                             <img
                               src={message.attachment.data}
@@ -492,24 +512,21 @@ export default function Chat() {
                               {message.attachment.name}
                             </a>
                           )}
-                          {/* Message content */}
                           {message.content && (
-                            <div className="whitespace-pre-line mb-1 text-base">
+                            <div className="whitespace-pre-line mb-1 text-base text-left">
                               {message.content}
                             </div>
                           )}
-                          {/* Time and status */}
-                          <div className={`flex items-center gap-1 text-[11px] mt-1 ${isSender ? 'text-white' : 'text-gray-700'}`} style={{ opacity: 0.8 }}>
+                          <div className={`flex items-center gap-1.5 text-[11px] mt-1 self-end ${isSender ? 'text-white/70' : 'text-muted-foreground'}`} style={{ opacity: 0.8 }}>
                             <span>{timeString}</span>
+                            {isSender && getStatusIcon(message.status)}
                           </div>
-                          {/* Bubble tail (WhatsApp style) */}
                           <span
-                            className={`absolute bottom-0 ${isSender ? 'right-0' : 'left-0'} w-3 h-3 ${isSender ? 'bg-primary' : 'bg-muted/80'}`}
+                            className={`absolute bottom-0 ${isSender ? 'right-[-6px]' : 'left-[-6px]'} w-3 h-3 ${isSender ? 'bg-primary' : 'bg-muted/80'}`}
                             style={{
-                              borderBottomLeftRadius: isSender ? 0 : '8px',
-                              borderBottomRightRadius: isSender ? '8px' : 0,
-                              transform: isSender ? 'translateY(50%) rotate(45deg)' : 'translateY(50%) rotate(-45deg)',
-                              zIndex: 0,
+                              clipPath: isSender
+                                ? 'polygon(100% 0, 0 100%, 100% 100%)'
+                                : 'polygon(0 0, 0 100%, 100% 100%)'
                             }}
                           />
                         </div>
@@ -548,7 +565,12 @@ export default function Chat() {
                       placeholder="Type a message..."
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          sendMessage();
+                        }
+                      }}
                       className="pr-10"
                     />
                     <Button
@@ -568,7 +590,6 @@ export default function Chat() {
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   );

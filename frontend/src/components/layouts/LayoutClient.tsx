@@ -48,39 +48,14 @@ const sidebarItems = [
     icon: Briefcase,
   },
   {
-    title: "My Projects",
-    href: "/client/projects",
-    icon: FolderOpen,
-  },
-  {
     title: "My Orders",
     href: "/client/orders",
     icon: ShoppingBag,
   },
   {
-    title: "Saved Freelancers",
-    href: "/client/saved-freelancers",
-    icon: Users,
-  },
-  {
-    title: "My Likes",
-    href: "/client/my-likes",
-    icon: Heart,
-  },
-  {
     title: "Messages",
     href: "/messages",
     icon: MessageSquare,
-  },
-  {
-    title: "Saved Searches",
-    href: "/saved-searches",
-    icon: Bookmark,
-  },
-  {
-    title: "Payments",
-    href: "/client/payments",
-    icon: CreditCard,
   },
 ];
 

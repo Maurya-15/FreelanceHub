@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Footer } from "@/components/layout/Footer";
+import { Navbar } from "@/components/layout/Navbar";
 import { SearchAlertBar } from "@/components/search/SearchAlertBar";
 import {
   Grid3X3,
@@ -20,6 +21,7 @@ import {
   Heart as HeartIcon,
   Grid,
   ListIcon,
+  Search,
 } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api";
 
@@ -125,8 +127,31 @@ export default function BrowseGigs() {
     return '/default-image.png';
   }
 
+  // Helper to get relative time from creation date
+  function getRelativeTimeFromDate(createdAt: string) {
+    const now = new Date();
+    const created = new Date(createdAt);
+    const diffTime = Math.abs(now.getTime() - created.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "1 day ago";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) {
+      const weeks = Math.floor(diffDays / 7);
+      return weeks === 1 ? "1 week ago" : `${weeks} weeks ago`;
+    }
+    if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30);
+      return months === 1 ? "1 month ago" : `${months} months ago`;
+    }
+    const years = Math.floor(diffDays / 365);
+    return years === 1 ? "1 year ago" : `${years} years ago`;
+  }
+
   return (
     <div className="min-h-screen">
+      <Navbar />
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -475,28 +500,30 @@ export default function BrowseGigs() {
 
                           {/* Content */}
                           <div className="p-4 flex-1 min-w-0">
-                            {/* Seller Info */}
-                            <div className="flex items-center gap-2 mb-2">
-                              <Avatar className="w-5 h-5 border">
-                                <AvatarImage src={gig.freelancer?.avatar || '/default-avatar.png'} />
-                                <AvatarFallback className="text-[10px]">
-                                  {gig.freelancer
-                                    ? (gig.freelancer.name?.split(' ').map((n: string) => n[0]).join('') ||
-                                       gig.freelancer.username?.[0]?.toUpperCase() ||
-                                       '?')
-                                    : '?'}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="text-xs font-medium truncate max-w-[80px]">
-                                {gig.freelancer?.name || gig.freelancer?.username || "Unknown"}
-                              </span>
-                              <Badge
-                                variant={gig.freelancer?.isTopRated ? "default" : "secondary"}
-                                className="text-[10px] px-1.5 py-0.5"
-                              >
-                                {gig.freelancer?.level || "N/A"}
-                              </Badge>
-                            </div>
+                                                         {/* Seller Info */}
+                             {gig.freelancer && (
+                               <div className="flex items-center gap-2 mb-2">
+                                 <Avatar className="w-5 h-5 border">
+                                   <AvatarImage src={gig.freelancer?.profilePicture || '/default-avatar.png'} />
+                                   <AvatarFallback className="text-[10px]">
+                                     {gig.freelancer.name?.split(' ').map((n: string) => n[0]).join('') ||
+                                      gig.freelancer.username?.[0]?.toUpperCase() ||
+                                      'U'}
+                                   </AvatarFallback>
+                                 </Avatar>
+                                 <span className="text-xs font-medium truncate max-w-[80px]">
+                                   {gig.freelancer.name || gig.freelancer.username}
+                                 </span>
+                                 {gig.freelancer.level && (
+                                   <Badge
+                                     variant={gig.freelancer.isTopRated ? "default" : "secondary"}
+                                     className="text-[10px] px-1.5 py-0.5"
+                                   >
+                                     {gig.freelancer.level}
+                                   </Badge>
+                                 )}
+                               </div>
+                             )}
 
                             {/* Title */}
                             <h3 className="font-semibold mb-1 line-clamp-2 group-hover:text-primary transition-colors text-base">
@@ -523,16 +550,7 @@ export default function BrowseGigs() {
                               </div>
                             )}
 
-                            {/* Rating & Reviews */}
-                            <div className="flex items-center space-x-1 mb-2">
-                              <StarIcon className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-xs font-medium">
-                                {gig.rating || "N/A"}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                ({gig.reviews || 0})
-                              </span>
-                            </div>
+                            
 
                             {/* Tags */}
                             <div className="flex flex-wrap gap-1 mb-2">
@@ -547,25 +565,24 @@ export default function BrowseGigs() {
                               ))}
                             </div>
 
-                            {/* Price & Delivery */}
-                            <div className="flex items-center justify-between mt-2">
-                              <div className="flex items-center gap-1">
-                                <ClockIcon className="w-4 h-4 text-muted-foreground" />
-                                <span className="text-xs text-muted-foreground">
-                                  {gig.deliveryTime || "N/A"}
-                                </span>
-                              </div>
-                              <div className="text-right">
-                                {gig.originalPrice && (
-                                  <span className="text-xs text-muted-foreground line-through mr-1">
-                                    ₹{gig.originalPrice}
-                                  </span>
-                                )}
-                                <span className="text-lg font-bold text-primary">
-                                  ₹{gig.price || "N/A"}
-                                </span>
-                              </div>
-                            </div>
+                                                         {/* Price & Upload Time */}
+                             <div className="flex items-center justify-between mt-2">
+                               {gig.createdAt && (
+                                 <div className="flex items-center gap-1">
+                                   <ClockIcon className="w-4 h-4 text-muted-foreground" />
+                                   <span className="text-xs text-muted-foreground">
+                                     {getRelativeTimeFromDate(gig.createdAt)}
+                                   </span>
+                                 </div>
+                               )}
+                               {gig.packages?.basic?.price && (
+                                 <div className="text-right">
+                                   <span className="text-lg font-bold text-primary">
+                                     ₹{gig.packages.basic.price}
+                                   </span>
+                                 </div>
+                               )}
+                             </div>
                           </div>
                         </Link>
                       </CardContent>

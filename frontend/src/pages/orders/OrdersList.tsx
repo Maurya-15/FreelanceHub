@@ -316,7 +316,7 @@ export default function OrdersList() {
                           </Avatar>
                           <div className="flex-1">
                             <h3 className="font-semibold">
-                              {order.title || "Untitled Order"}
+                              {order.gig?.title || order.gig?.jobTitle || "Untitled Order"}
                             </h3>
                             <p className="text-sm text-muted-foreground">
                               {order.freelancer?.name || order.client?.name || "Unknown User"}

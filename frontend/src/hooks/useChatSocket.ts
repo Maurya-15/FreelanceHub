@@ -75,8 +75,10 @@ export default function useChatSocket({
         resolve({ status: "error", message: "Socket not connected" });
       }
     });
+
   };
 
   return { sendMessage, isConnected };
 }
+
 

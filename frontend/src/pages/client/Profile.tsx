@@ -22,6 +22,7 @@ import {
   DollarSign,
   CheckCircle,
   AlertCircle,
+  TrendingUp,
 } from "lucide-react";
 
 import useClientProfile from "@/hooks/useClientProfile";
@@ -34,7 +35,6 @@ export default function ClientProfile() {
   const userId = user?.id || user?._id;
   const { data, loading, error } = useClientProfile(userId);
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
   const [profileData, setProfileData] = useState<any>(null);
 
   // Keep local state in sync with fetched profile data
@@ -220,36 +220,15 @@ export default function ClientProfile() {
                     </span>
                   </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Response Rate</span>
-                  <span className="font-medium">
-                    {profileData.stats?.responseRate ?? 0}%
-                  </span>
-                </div>
+
               </CardContent>
             </Card>
           </div>
 
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            <div className="grid grid-cols-4 gap-4 mb-6">
-              <Button variant="outline" onClick={() => setActiveTab("overview")} className={`${activeTab === "overview" ? "bg-primary text-white" : ""}`}>
-                Overview
-              </Button>
-              <Button variant="outline" onClick={() => setActiveTab("projects")} className={`${activeTab === "projects" ? "bg-primary text-white" : ""}`}>
-                Projects
-              </Button>
-              <Button variant="outline" onClick={() => setActiveTab("reviews")} className={`${activeTab === "reviews" ? "bg-primary text-white" : ""}`}>
-                Reviews
-              </Button>
-              <Button variant="outline" onClick={() => setActiveTab("settings")} className={`${activeTab === "settings" ? "bg-primary text-white" : ""}`}>
-                Settings
-              </Button>
-            </div>
+                     {/* Main Content */}
+           <div className="lg:col-span-3">
 
-            {/* Overview Tab */}
-            {activeTab === "overview" && (
-              <div className="space-y-6">
+                         <div className="space-y-6">
                 {/* About Section */}
                 <Card className="border-0 bg-card/50 backdrop-blur-sm">
                   <CardHeader>
@@ -394,264 +373,10 @@ export default function ClientProfile() {
                     </div>
                   </CardContent>
                 </Card>
-              </div>
-            )}
-
-            {/* Projects Tab */}
-            {activeTab === "projects" && (
-              <div className="space-y-6">
-                <Card className="border-0 bg-card/50 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle>Recent Projects</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {(profileData.recentProjects ?? []).map((project: any) => (
-                        <div
-                          key={project.id}
-                          className="p-4 border border-border/40 rounded-lg"
-                        >
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <h4 className="font-medium">{project.title}</h4>
-                              <p className="text-sm text-muted-foreground">
-                                with {project.freelancer}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <Badge className={getStatusColor(project.status)}>
-                                {typeof project.status === 'string' ? project.status.replace("_", " ") : (project.status ?? '-')}
-                              </Badge>
-                              <p className="text-sm font-medium mt-1">
-                                ₹{project.budget}
-                              </p>
-                            </div>
-                          </div>
-
-                          {project.status === "completed" && project.rating && (
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm text-muted-foreground">
-                                Rating given:
-                              </span>
-                              <div className="flex items-center space-x-1">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`w-4 h-4 ${
-                                      i < project.rating
-                                        ? "fill-yellow-400 text-yellow-400"
-                                        : "text-muted-foreground"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-sm text-muted-foreground">
-                                • Completed {formatDate(project.completedDate)}
-                              </span>
-                            </div>
-                          )}
-
-                          {project.status === "in_progress" &&
-                            project.progress && (
-                              <div className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                  <span>Progress</span>
-                                  <span>{project.progress}%</span>
-                                </div>
-                                <div className="w-full bg-muted rounded-full h-2">
-                                  <div
-                                    className="bg-primary h-2 rounded-full"
-                                    style={{ width: `${project.progress}%` }}
-                                  />
-                                </div>
-                              </div>
-                            )}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Reviews Tab */}
-            {activeTab === "reviews" && (
-              <div className="space-y-6">
-                <Card className="border-0 bg-card/50 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle>Reviews from Freelancers</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      {(profileData.reviews ?? []).map((review: any) => (
-                        <div key={review.id} className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h4 className="font-medium">
-                                {review.freelancer}
-                              </h4>
-                              <p className="text-sm text-muted-foreground">
-                                {review.project}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <div className="flex items-center space-x-1 mb-1">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`w-4 h-4 ${
-                                      i < review.rating
-                                        ? "fill-yellow-400 text-yellow-400"
-                                        : "text-muted-foreground"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <p className="text-sm text-muted-foreground">
-                                {formatDate(review.date)}
-                              </p>
-                            </div>
-                          </div>
-                          <p className="text-muted-foreground leading-relaxed">
-                            "{review.comment}"
-                          </p>
-                          {review !==
-                            profileData.reviews[
-                              profileData.reviews.length - 1
-                            ] && <Separator />}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Settings Tab */}
-            {activeTab === "settings" && (
-              <div className="space-y-6">
-                <Card className="border-0 bg-card/50 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle>Account Settings</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Full Name</Label>
-                        <Input
-                          id="name"
-                          value={profileData.name}
-                          onChange={(e) =>
-                            handleInputChange("name", e.target.value)
-                          }
-                          disabled={!isEditing}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email Address</Label>
-                        <Input
-                          id="email"
-                          value={profileData.email}
-                          onChange={(e) =>
-                            handleInputChange("email", e.target.value)
-                          }
-                          disabled={!isEditing}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="title">Job Title</Label>
-                        <Input
-                          id="title"
-                          value={profileData.title}
-                          onChange={(e) =>
-                            handleInputChange("title", e.target.value)
-                          }
-                          disabled={!isEditing}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="company">Company</Label>
-                        <Input
-                          id="company"
-                          value={profileData.company}
-                          onChange={(e) =>
-                            handleInputChange("company", e.target.value)
-                          }
-                          disabled={!isEditing}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="location">Location</Label>
-                        <Input
-                          id="location"
-                          value={profileData.location}
-                          onChange={(e) =>
-                            handleInputChange("location", e.target.value)
-                          }
-                          disabled={!isEditing}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="timezone">Timezone</Label>
-                        <Select disabled={!isEditing}>
-                          <SelectTrigger>
-                            <SelectValue placeholder={profileData.timezone} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pst">PST (UTC-8)</SelectItem>
-                            <SelectItem value="est">EST (UTC-5)</SelectItem>
-                            <SelectItem value="utc">UTC (UTC+0)</SelectItem>
-                            <SelectItem value="ist">IST (UTC+5:30)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-0 bg-card/50 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle>Notification Preferences</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-medium">Email Notifications</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Receive email updates about your projects
-                          </p>
-                        </div>
-                        <Button variant="outline" size="sm">
-                          Configure
-                        </Button>
-                      </div>
-                      <Separator />
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-medium">SMS Notifications</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Get text messages for urgent updates
-                          </p>
-                        </div>
-                        <Button variant="outline" size="sm">
-                          Configure
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-}
+                             </div>
+           </div>
+         </div>
+       </main>
+     </div>
+   );
+ }

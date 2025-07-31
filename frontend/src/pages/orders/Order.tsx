@@ -283,7 +283,7 @@ export default function Order() {
             </Button>
             <div>
               <h1 className="text-3xl font-bold">Order #{order && order._id}</h1>
-              <p className="text-muted-foreground">{order && order.title}</p>
+              <p className="text-muted-foreground">{order && (order.gig?.title || order.gig?.jobTitle || "Untitled Order")}</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">

@@ -136,25 +136,53 @@ const FindWork = () => {
 
     // Job type filter
     if (selectedJobType !== "all") {
-      filtered = filtered.filter((job) => job.jobType === selectedJobType);
+      filtered = filtered.filter((job) => {
+        // Determine job type from budget structure or jobType field
+        const budget = job.budget || {};
+        const jobType = job.jobType || job.type || job.job_type;
+        
+        // If jobType field exists, use it
+        if (jobType) {
+          if (selectedJobType === "hourly") {
+            return jobType === "hourly" || jobType === "Hourly" || jobType === "hourly_rate" || jobType === "hourly-rate";
+          } else if (selectedJobType === "fixed") {
+            return jobType === "fixed" || jobType === "Fixed" || jobType === "fixed_price" || jobType === "fixed-price";
+          }
+        }
+        
+        // Otherwise, determine from budget structure
+        const budgetType = budget.type || budget.budgetType;
+        if (selectedJobType === "hourly") {
+          return budgetType === "hourly" || budgetType === "Hourly";
+        } else if (selectedJobType === "fixed") {
+          return budgetType === "fixed" || budgetType === "Fixed";
+        }
+        
+        return false;
+      });
     }
 
     // Budget filter
     if (selectedBudget !== "all") {
       filtered = filtered.filter((job) => {
-        const budget =
-          job.budget.type === "fixed" ? job.budget.max : job.budget.max * 40; // Assume 40 hours/week for hourly
+        // Handle different budget field structures
+        const budget = job.budget || job.budgetRange || {};
+        const budgetType = budget.type || budget.budgetType || "fixed";
+        const budgetMax = budget.max || budget.maxAmount || budget.maximum || 0;
+        
+        const budgetValue = budgetType === "fixed" ? budgetMax : budgetMax * 40; // Assume 40 hours/week for hourly
+        
         switch (selectedBudget) {
           case "under-500":
-            return budget < 500;
+            return budgetValue < 50000;
           case "500-1000":
-            return budget >= 500 && budget <= 1000;
+            return budgetValue >= 50000 && budgetValue <= 100000;
           case "1000-2500":
-            return budget >= 1000 && budget <= 2500;
+            return budgetValue >= 100000 && budgetValue <= 250000;
           case "2500-5000":
-            return budget >= 2500 && budget <= 5000;
+            return budgetValue >= 250000 && budgetValue <= 500000;
           case "over-5000":
-            return budget > 5000;
+            return budgetValue > 500000;
           default:
             return true;
         }
@@ -252,11 +280,20 @@ const FindWork = () => {
   };
 
   const getTimeAgo = (date) => {
+    if (!date) return "Recently";
+    
     const now = new Date();
     const jobDate = new Date(date);
+    
+    // Check if the date is valid
+    if (isNaN(jobDate.getTime())) {
+      return "Recently";
+    }
+    
     const diffTime = Math.abs(now - jobDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
+    if (diffDays === 0) return "Today";
     if (diffDays === 1) return "1 day ago";
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
@@ -525,7 +562,7 @@ const FindWork = () => {
                             <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
   <span className="flex items-center">
     <Clock className="w-4 h-4 mr-1" />
-    {getTimeAgo(job.postedDate)}
+    {getTimeAgo(job.postedDate || job.createdAt || job.updatedAt)}
   </span>
   <span className="flex items-center">
     <Users className="w-4 h-4 mr-1 text-primary" />
@@ -609,14 +646,6 @@ const FindWork = () => {
                             </Avatar>
                             <div>
                               <p className="font-medium">{job.client.name}</p>
-                              <div className="flex items-center text-sm text-muted-foreground">
-                                <Star className="w-4 h-4 mr-1 text-yellow-500" />
-                                {job.client.rating} ({job.client.reviewsCount}{" "}
-                                reviews)
-                                <span className="mx-2">•</span>
-                                <MapPin className="w-4 h-4 mr-1" />
-                                {job.client.location}
-                              </div>
                             </div>
                           </div>
 
@@ -648,14 +677,7 @@ const FindWork = () => {
               ))}
             </div>
 
-            {/* Load More Button */}
-            {filteredJobs.length > 0 && (
-              <div className="text-center mt-8">
-                <Button variant="outline" size="lg">
-                  Load More Jobs
-                </Button>
-              </div>
-            )}
+
 
             {/* No Results */}
             {filteredJobs.length === 0 && (

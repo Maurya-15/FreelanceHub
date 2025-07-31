@@ -219,37 +219,11 @@ export function Navbar() {
                       {user.role !== "admin" && (
                         <>
                           <DropdownMenuItem asChild>
-                            <Link to="/analytics">
-                              <BarChart3 className="mr-2 h-4 w-4" />
-                              <span>Analytics</span>
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link to="/calendar">
-                              <Calendar className="mr-2 h-4 w-4" />
-                              <span>Calendar</span>
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
                             <Link to="/messages">
                               <MessageSquare className="mr-2 h-4 w-4" />
                               <span>Messages</span>
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link to="/saved-searches">
-                              <Search className="mr-2 h-4 w-4" />
-                              <span>Saved Searches</span>
-                            </Link>
-                          </DropdownMenuItem>
-                          {user.role === "client" && (
-                            <DropdownMenuItem asChild>
-                              <Link to="/client/my-likes">
-                                <Heart className="mr-2 h-4 w-4" />
-                                <span>My Likes</span>
-                              </Link>
-                            </DropdownMenuItem>
-                          )}
                         </>
                       )}
                       <DropdownMenuItem asChild>
