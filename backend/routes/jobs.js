@@ -199,7 +199,7 @@ router.patch('/:jobId/proposals/:proposalId/accept', async (req, res) => {
         proposal.status = 'accepted';
         proposalFound = proposal;
         // Simulate notification
-        console.log(`[NOTIFY] Freelancer ${proposal.freelancer}: Your proposal was ACCEPTED for job ${jobId}`);
+        // Notification: Freelancer proposal accepted
       } else {
         proposal.status = 'rejected';
       }
@@ -240,7 +240,7 @@ router.patch('/:jobId/proposals/:proposalId/reject', async (req, res) => {
     }
     proposal.status = 'rejected';
     // Simulate notification
-    console.log(`[NOTIFY] Freelancer ${proposal.freelancer}: Your proposal was REJECTED for job ${jobId}`);
+          // Notification: Freelancer proposal rejected
     await job.save();
     res.json({ success: true, message: 'Proposal rejected.' });
   } catch (err) {

@@ -2,7 +2,7 @@ import { Job, User } from '../db.js';
 
 export const createJob = async (req, res) => {
   try {
-    const { title, description, category, skills, budget, duration, experience, location } = req.body;
+    const { title, description, category, skills, budget, duration, experience, location, jobType } = req.body;
     const clientId = req.headers['user-id'];
     if (!title || !description || !category || !skills || !budget || !duration || !experience) {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
@@ -25,6 +25,7 @@ export const createJob = async (req, res) => {
       category,
       skills: parsedSkills,
       budget: typeof budget === 'string' ? JSON.parse(budget) : budget,
+      jobType: jobType || 'fixed',
       duration,
       experience,
       location: location || 'Remote',

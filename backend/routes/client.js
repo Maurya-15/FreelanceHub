@@ -36,41 +36,44 @@ router.get('/dashboard/:userId', async (req, res) => {
     // List all orders for the client
     const allOrders = await Order.find({ client: userId })
       .sort({ createdAt: -1 })
-      .populate('freelancer', 'name profilePicture');
+      .populate('freelancer', 'name profilePicture')
+      .populate('gig', 'title jobType category');
     const ordersData = allOrders.map(order => ({
       id: order._id,
-      title: order.title,
+      title: order.gig?.title || 'Untitled Order',
       freelancer: order.freelancer?.name || 'Unknown',
       freelancerAvatar: order.freelancer?.profilePicture || '',
-      service: order.service,
+      service: order.gig?.category || 'General',
       amount: order.amount,
       status: order.status,
       deadline: order.deadline ? order.deadline.toISOString().split('T')[0] : '',
       progress: order.progress || 0,
       lastUpdate: order.updatedAt ? order.updatedAt.toLocaleString() : '',
+      gig: order.gig, // Include the full gig object for frontend access
     }));
 
     // List active orders (for backward compatibility)
     const activeOrders = await Order.find({ client: userId, status: { $in: ['in_progress', 'in_review', 'delivered'] } })
       .sort({ createdAt: -1 })
       .limit(5)
-      .populate('freelancer', 'name profilePicture');
+      .populate('freelancer', 'name profilePicture')
+      .populate('gig', 'title jobType category');
     const activeOrdersData = activeOrders.map(order => ({
       id: order._id,
-      title: order.title,
+      title: order.gig?.title || 'Untitled Order',
       freelancer: order.freelancer?.name || 'Unknown',
       freelancerAvatar: order.freelancer?.profilePicture || '',
-      service: order.service,
+      service: order.gig?.category || 'General',
       amount: order.amount,
       status: order.status,
       deadline: order.deadline ? order.deadline.toISOString().split('T')[0] : '',
       progress: order.progress || 0,
       lastUpdate: order.updatedAt ? order.updatedAt.toLocaleString() : '',
+      gig: order.gig, // Include the full gig object for frontend access
     }));
 
     // List posted jobs
     let postedJobs = [];
-    console.log('Fetching posted jobs for userId:', userId);
     try {
       postedJobs = await Job.find({ client: new mongoose.Types.ObjectId(userId) })
         .sort({ createdAt: -1 }); // fetch all jobs, not limited to 5
@@ -87,7 +90,6 @@ router.get('/dashboard/:userId', async (req, res) => {
         return res.status(400).json({ message: 'Invalid userId for posted jobs.' });
       }
     }
-    console.log('Fetched postedJobs:', postedJobs);
     const postedJobsData = postedJobs.map(job => ({
       id: job._id,
       title: job.title,

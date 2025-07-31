@@ -102,7 +102,9 @@ router.get('/my', async (req, res) => {
 // Get all gigs in the system
 router.get('/', async (req, res) => {
   try {
-    const gigs = await Gig.find().sort({ createdAt: -1 });
+    const gigs = await Gig.find()
+      .populate('freelancer', 'name username email profilePicture')
+      .sort({ createdAt: -1 });
     res.json({ success: true, gigs });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

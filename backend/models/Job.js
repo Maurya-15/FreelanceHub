@@ -5,6 +5,7 @@ const JobSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
   budget: String,
+  jobType: { type: String, enum: ['fixed', 'hourly'], default: 'fixed' },
   status: { type: String, enum: ['active', 'in_progress', 'completed'], default: 'active' },
   category: String,
   deadline: Date,

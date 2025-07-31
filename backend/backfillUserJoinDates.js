@@ -19,10 +19,10 @@ async function backfillJoinDates() {
     if (!user.joinDate) user.joinDate = createdDate;
     if (!user.lastActive) user.lastActive = createdDate;
     await user.save();
-    console.log(`Updated user: ${user.email}`);
+    // Updated user: ${user.email}
   }
 
-  console.log('Backfill complete!');
+  // Backfill complete!
   mongoose.disconnect();
 }
 
