@@ -253,7 +253,15 @@ const PostedJobs: React.FC = () => {
                   Total Proposals
                 </p>
                 <p className="text-2xl font-bold">
-                  {jobs.reduce((sum, job) => sum + (typeof job.proposals === 'number' ? job.proposals : 0), 0)}
+                  {jobs.reduce((sum, job) => {
+                    if (Array.isArray(job.proposals)) {
+                      return sum + job.proposals.length;
+                    } else if (typeof job.proposals === 'number') {
+                      return sum + job.proposals;
+                    } else {
+                      return sum + 0;
+                    }
+                  }, 0)}
                 </p>
               </div>
               <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">

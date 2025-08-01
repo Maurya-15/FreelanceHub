@@ -189,22 +189,19 @@ export default function UserManagement() {
 
   const handleUserAction = async (action: string, userId: string) => {
     let endpoint = '';
-    let method = 'PUT';
-    if (action === 'activate') endpoint = `/api/users/${userId}/activate`;
-    else if (action === 'verify') endpoint = `/api/users/${userId}/verify`;
-    else if (action === 'ban') endpoint = `/api/users/${userId}/ban`;
-    else if (action === 'view') {
-      window.open(`/profile/${userId}`, '_blank');
-      return;
-    } else {
+    let method = 'DELETE';
+    if (action === 'delete') endpoint = `/api/users/${userId}`;
+    else {
       return;
     }
     try {
-      await fetch(endpoint, { method, headers: { 'Content-Type': 'application/json' } });
-      // Refresh users
-      const res = await fetch('/api/users');
-      const data = await res.json();
-      setUsers(data);
+      const response = await fetch(endpoint, { method, headers: { 'Content-Type': 'application/json' } });
+      if (response.ok) {
+        // Remove user from local state
+        setUsers(users.filter(user => user.id !== userId));
+      } else {
+        alert('Failed to delete user');
+      }
     } catch (err) {
       alert('Action failed');
     }
@@ -426,64 +423,41 @@ export default function UserManagement() {
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => window.location.href = `/profile/${user.id}`}
-                    >
-                      <User className="mr-2 h-4 w-4" />
-                      View Profile
-                    </DropdownMenuItem>
-                    {user.status === "active" ? (
-                      <DropdownMenuItem
-                        onClick={() => handleUserAction("suspend", user.id)}
-                      >
-                        <Ban className="mr-2 h-4 w-4" />
-                        Suspend User
-                      </DropdownMenuItem>
-                    ) : (
-                      <DropdownMenuItem
-                        onClick={() => handleUserAction("activate", user.id)}
-                      >
-                        <CheckCircle className="mr-2 h-4 w-4" />
-                        Activate User
-                      </DropdownMenuItem>
-                    )}
-                    {!user.verified && (
-                      <DropdownMenuItem
-                        onClick={() => handleUserAction("verify", user.id)}
-                      >
-                        <Shield className="mr-2 h-4 w-4" />
-                        Verify User
-                      </DropdownMenuItem>
-                    )}
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                          <Ban className="mr-2 h-4 w-4 text-red-500" />
-                          <span className="text-red-500">Ban User</span>
-                        </DropdownMenuItem>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Ban User</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to ban {user.name}? This
-                            action cannot be undone and will immediately revoke
-                            their access to the platform.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleUserAction("ban", user.id)}
-                            className="bg-destructive hover:bg-destructive/90"
-                          >
-                            Ban User
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </DropdownMenuContent>
+                                     <DropdownMenuContent align="end">
+                     <DropdownMenuItem
+                       onClick={() => window.location.href = `/profile/${user.id}`}
+                     >
+                       <User className="mr-2 h-4 w-4" />
+                       View Profile
+                     </DropdownMenuItem>
+                     <AlertDialog>
+                       <AlertDialogTrigger asChild>
+                         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                           <Ban className="mr-2 h-4 w-4 text-red-500" />
+                           <span className="text-red-500">Ban User</span>
+                         </DropdownMenuItem>
+                       </AlertDialogTrigger>
+                       <AlertDialogContent>
+                         <AlertDialogHeader>
+                           <AlertDialogTitle>Delete User</AlertDialogTitle>
+                           <AlertDialogDescription>
+                             Are you sure you want to delete {user.name}? This
+                             action cannot be undone and will permanently remove
+                             the user from the platform.
+                           </AlertDialogDescription>
+                         </AlertDialogHeader>
+                         <AlertDialogFooter>
+                           <AlertDialogCancel>Cancel</AlertDialogCancel>
+                           <AlertDialogAction
+                             onClick={() => handleUserAction("delete", user.id)}
+                             className="bg-destructive hover:bg-destructive/90"
+                           >
+                             Delete User
+                           </AlertDialogAction>
+                         </AlertDialogFooter>
+                       </AlertDialogContent>
+                     </AlertDialog>
+                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             ))}

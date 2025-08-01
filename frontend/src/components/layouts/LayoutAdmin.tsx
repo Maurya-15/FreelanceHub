@@ -55,41 +55,6 @@ const sidebarItems = [
     href: "/admin/orders",
     icon: ShoppingBag,
   },
-  {
-    title: "Payments",
-    href: "/admin/payments",
-    icon: CreditCard,
-  },
-  {
-    title: "Reports",
-    href: "/admin/reports",
-    icon: FileText,
-  },
-  {
-    title: "Analytics",
-    href: "/admin/analytics",
-    icon: BarChart3,
-  },
-  {
-    title: "Support Tickets",
-    href: "/admin/support",
-    icon: MessageSquare,
-  },
-  {
-    title: "Moderation",
-    href: "/admin/moderation",
-    icon: Shield,
-  },
-  {
-    title: "Disputes",
-    href: "/admin/disputes",
-    icon: Flag,
-  },
-  {
-    title: "Security",
-    href: "/admin/security",
-    icon: AlertTriangle,
-  },
 ];
 
 export const LayoutAdmin: React.FC = () => {

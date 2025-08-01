@@ -415,23 +415,7 @@ export default function MyGigs() {
 
                     {/* Price */}
                     <div className="text-2xl font-bold mb-4">
-                      ₹{gig.price || 0}
-                    </div>
-
-                    {/* Stats */}
-                    <div className="flex items-center justify-between mb-4 text-sm text-muted-foreground">
-                      <div className="flex items-center">
-                        <Star className="w-4 h-4 mr-1 text-yellow-500" />
-                        {gig.rating > 0 ? gig.rating.toFixed(1) : "N/A"}
-                      </div>
-                      <div className="flex items-center">
-                        <TrendingUp className="w-4 h-4 mr-1 text-green-500" />
-                        Orders: {gig.orders || 0}
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="w-4 h-4 mr-1 text-blue-500" />
-                        Queue: {gig.queue || 0}
-                      </div>
+                      ₹{gig.packages?.basic?.price || 0}
                     </div>
 
                     {/* Action Buttons */}
@@ -457,14 +441,6 @@ export default function MyGigs() {
                           <Edit3 className="w-4 h-4 mr-2" />
                           Edit
                         </Link>
-                      </Button>
-                      <Button 
-                        variant={gig.status === "active" ? "secondary" : "default"}
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => handleToggleStatus(gig._id, gig.status)}
-                      >
-                        {gig.status === "active" ? "Pause" : "Activate"}
                       </Button>
                     </div>
                   </div>

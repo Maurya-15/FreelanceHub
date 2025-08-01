@@ -47,11 +47,6 @@ const sidebarItems = [
     icon: ShoppingBag,
   },
   {
-    title: "Analytics",
-    href: "/analytics",
-    icon: BarChart3,
-  },
-  {
     title: "Portfolio",
     href: "/freelancer/profile",
     icon: User,
@@ -65,11 +60,6 @@ const sidebarItems = [
     title: "Calendar",
     href: "/calendar",
     icon: Calendar,
-  },
-  {
-    title: "Earnings",
-    href: "/freelancer/earnings",
-    icon: Wallet,
   },
 ];
 
@@ -109,16 +99,10 @@ export const LayoutFreelancer: React.FC = () => {
                 Find Work
               </Link>
               <Link
-                to="/browse"
-                className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
-              >
-                Find Talent
-              </Link>
-              <Link
                 to="/freelancer/create-gig"
                 className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
               >
-                Sell Services
+                Upload Gig
               </Link>
             </div>
 

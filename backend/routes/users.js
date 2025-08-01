@@ -137,6 +137,17 @@ router.put('/:id/ban', async (req, res) => {
   }
 });
 
+// Delete user
+router.delete('/:id', async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Update user profile by ID
 router.put('/:id', async (req, res) => {
   try {
@@ -177,10 +188,17 @@ router.get('/:id', async (req, res) => {
       });
       
       const userObj = user.toObject();
+      // Map _id to id for frontend compatibility
+      userObj.id = userObj._id;
+      delete userObj._id;
       userObj.gigs = transformedGigs;
       res.json(userObj);
     } else {
-      res.json(user);
+      const userObj = user.toObject();
+      // Map _id to id for frontend compatibility
+      userObj.id = userObj._id;
+      delete userObj._id;
+      res.json(userObj);
     }
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -202,6 +220,9 @@ router.get('/', async (req, res) => {
         projects = await Order.countDocuments({ freelancer: user._id });
       }
       const userObj = user.toObject();
+      // Map _id to id for frontend compatibility
+      userObj.id = userObj._id;
+      delete userObj._id;
       if (jobsPosted !== undefined) userObj.jobsPosted = jobsPosted;
       if (projects !== undefined) userObj.projects = projects;
       return userObj;

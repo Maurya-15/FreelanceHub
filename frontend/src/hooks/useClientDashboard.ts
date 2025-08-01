@@ -8,6 +8,7 @@ export interface DashboardStats {
   avgRating: number;
   totalSavings: number;
   activeJobs: number;
+  totalProposals: number;
 }
 
 export interface Order {

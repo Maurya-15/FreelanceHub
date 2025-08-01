@@ -33,7 +33,10 @@ export default function useJobProposals(jobId: string | undefined) {
     axios
       .get(`/api/jobs/${jobId}`)
       .then((res) => {
-        setProposals(res.data.job.proposals || []);
+        // Filter out rejected proposals
+        const allProposals = res.data.job.proposals || [];
+        const activeProposals = allProposals.filter((proposal: any) => proposal.status !== 'rejected');
+        setProposals(activeProposals);
         setLoading(false);
       })
       .catch((err) => {
@@ -47,8 +50,13 @@ export default function useJobProposals(jobId: string | undefined) {
     setProposals((prev) => [proposal, ...prev]);
   }, []);
 
+  // Callback to remove rejected proposal
+  const handleRejectProposal = useCallback((proposalId: string) => {
+    setProposals((prev) => prev.filter(proposal => proposal._id !== proposalId));
+  }, []);
+
   useJobProposalsSocket(jobId, handleNewProposal);
 
-  return { proposals, loading, error };
+  return { proposals, loading, error, handleRejectProposal };
 }
 

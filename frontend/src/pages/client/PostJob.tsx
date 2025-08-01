@@ -33,7 +33,6 @@ import {
   Eye,
   Save,
   Calendar as CalendarIcon,
-  IndianRupee,
   Clock,
   Users,
   FileText,
@@ -529,6 +528,7 @@ export default function PostJob() {
                         mode="single"
                         selected={jobData.deadline}
                         onSelect={(date) => handleInputChange("deadline", date)}
+                        disabled={(date) => date < new Date()}
                         initialFocus
                       />
                     </PopoverContent>
@@ -553,10 +553,9 @@ export default function PostJob() {
             {/* Budget */}
             <Card className="border-0 bg-card/50 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                                          <IndianRupee className="w-5 h-5 mr-2" />
-                  Budget
-                </CardTitle>
+                                 <CardTitle className="flex items-center">
+                   Budget
+                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
@@ -597,33 +596,35 @@ export default function PostJob() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Minimum Budget</Label>
-                      <Input
-                        type="number"
-                        placeholder="500"
-                        value={jobData.fixedBudget.min}
-                        onChange={(e) =>
-                          handleNestedInputChange(
-                            "fixedBudget",
-                            "min",
-                            e.target.value,
-                          )
-                        }
-                      />
+                                             <Input
+                         type="number"
+                         placeholder="500"
+                         value={jobData.fixedBudget.min}
+                         onChange={(e) =>
+                           handleNestedInputChange(
+                             "fixedBudget",
+                             "min",
+                             e.target.value,
+                           )
+                         }
+                         className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                       />
                     </div>
                     <div className="space-y-2">
                       <Label>Maximum Budget</Label>
-                      <Input
-                        type="number"
-                        placeholder="1500"
-                        value={jobData.fixedBudget.max}
-                        onChange={(e) =>
-                          handleNestedInputChange(
-                            "fixedBudget",
-                            "max",
-                            e.target.value,
-                          )
-                        }
-                      />
+                                             <Input
+                         type="number"
+                         placeholder="1500"
+                         value={jobData.fixedBudget.max}
+                         onChange={(e) =>
+                           handleNestedInputChange(
+                             "fixedBudget",
+                             "max",
+                             e.target.value,
+                           )
+                         }
+                         className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                       />
                     </div>
                   </div>
                 )}
@@ -632,33 +633,35 @@ export default function PostJob() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Minimum Rate ($/hour)</Label>
-                      <Input
-                        type="number"
-                        placeholder="25"
-                        value={jobData.hourlyBudget.min}
-                        onChange={(e) =>
-                          handleNestedInputChange(
-                            "hourlyBudget",
-                            "min",
-                            e.target.value,
-                          )
-                        }
-                      />
+                                             <Input
+                         type="number"
+                         placeholder="25"
+                         value={jobData.hourlyBudget.min}
+                         onChange={(e) =>
+                           handleNestedInputChange(
+                             "hourlyBudget",
+                             "min",
+                             e.target.value,
+                           )
+                         }
+                         className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                       />
                     </div>
                     <div className="space-y-2">
                       <Label>Maximum Rate ($/hour)</Label>
-                      <Input
-                        type="number"
-                        placeholder="75"
-                        value={jobData.hourlyBudget.max}
-                        onChange={(e) =>
-                          handleNestedInputChange(
-                            "hourlyBudget",
-                            "max",
-                            e.target.value,
-                          )
-                        }
-                      />
+                                             <Input
+                         type="number"
+                         placeholder="75"
+                         value={jobData.hourlyBudget.max}
+                         onChange={(e) =>
+                           handleNestedInputChange(
+                             "hourlyBudget",
+                             "max",
+                             e.target.value,
+                           )
+                         }
+                         className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                       />
                     </div>
                   </div>
                 )}

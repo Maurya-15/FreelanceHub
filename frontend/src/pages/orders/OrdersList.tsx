@@ -316,16 +316,18 @@ export default function OrdersList() {
                           </Avatar>
                           <div className="flex-1">
                             <h3 className="font-semibold">
-                              {order.gig?.title || order.gig?.jobTitle || "Untitled Order"}
+                              {order.title || "Untitled Order"}
                             </h3>
                             <p className="text-sm text-muted-foreground">
                               {order.freelancer?.name || order.client?.name || "Unknown User"}
                             </p>
                           </div>
-                          <Badge className={statusColor}>
-                            <StatusIcon className="w-3 h-3 mr-1" />
-                            {order.status.replace("_", " ")}
-                          </Badge>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4 text-blue-500" />
+                            <span className="text-sm text-muted-foreground">
+                              {formatDate(order.createdAt)}
+                            </span>
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
@@ -334,16 +336,6 @@ export default function OrdersList() {
                             <span className="text-muted-foreground">Amount:</span>
                             <span className="font-medium">
                               ₹{(order.amount ?? 0).toLocaleString('en-IN')}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center space-x-2">
-                            <Calendar className="w-4 h-4 text-blue-500" />
-                            <span className="text-muted-foreground">
-                              Created:
-                            </span>
-                            <span className="font-medium">
-                              {formatDate(order.createdAt)}
                             </span>
                           </div>
 

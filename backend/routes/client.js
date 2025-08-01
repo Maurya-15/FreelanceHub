@@ -32,6 +32,11 @@ router.get('/dashboard/:userId', async (req, res) => {
     const ratings = jobs.flatMap(job => job.reviews?.map(r => r.rating) || []);
     const avgRating = ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : null;
     const totalSavings = 2340; // Placeholder, adjust if you have logic
+    
+    // Calculate total proposals across all jobs
+    const totalProposals = jobs.reduce((total, job) => {
+      return total + (Array.isArray(job.proposals) ? job.proposals.length : 0);
+    }, 0);
 
     // List all orders for the client
     const allOrders = await Order.find({ client: userId })
@@ -40,7 +45,7 @@ router.get('/dashboard/:userId', async (req, res) => {
       .populate('gig', 'title jobType category');
     const ordersData = allOrders.map(order => ({
       id: order._id,
-      title: order.gig?.title || 'Untitled Order',
+      title: order.title || 'Untitled Order',
       freelancer: order.freelancer?.name || 'Unknown',
       freelancerAvatar: order.freelancer?.profilePicture || '',
       service: order.gig?.category || 'General',
@@ -60,7 +65,7 @@ router.get('/dashboard/:userId', async (req, res) => {
       .populate('gig', 'title jobType category');
     const activeOrdersData = activeOrders.map(order => ({
       id: order._id,
-      title: order.gig?.title || 'Untitled Order',
+      title: order.title || 'Untitled Order',
       freelancer: order.freelancer?.name || 'Unknown',
       freelancerAvatar: order.freelancer?.profilePicture || '',
       service: order.gig?.category || 'General',
@@ -126,6 +131,7 @@ router.get('/dashboard/:userId', async (req, res) => {
         avgRating,
         totalSavings,
         activeJobs,
+        totalProposals,
       },
       orders: ordersData, // All orders for the dashboard
       activeOrders: activeOrdersData, // Backward compatibility

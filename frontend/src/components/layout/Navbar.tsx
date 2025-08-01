@@ -100,39 +100,59 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link
-              to="/find-work"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                isActive("/find-work") ? "text-primary" : "text-muted-foreground",
+          {isAuthenticated && (
+            <div className="hidden md:flex items-center space-x-8">
+              {user?.role === 'client' ? (
+                <>
+                  <Link
+                    to="/browse"
+                    className={cn(
+                      "text-sm font-medium transition-colors hover:text-primary",
+                      isActive("/browse")
+                        ? "text-primary"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    Find Talent
+                  </Link>
+                  <Link
+                    to="/client/post-job"
+                    className={cn(
+                      "text-sm font-medium transition-colors hover:text-primary",
+                      isActive("/client/post-job")
+                        ? "text-primary"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    Post a Job
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/find-work"
+                    className={cn(
+                      "text-sm font-medium transition-colors hover:text-primary",
+                      isActive("/find-work") ? "text-primary" : "text-muted-foreground",
+                    )}
+                  >
+                    Find Work
+                  </Link>
+                  <Link
+                    to="/freelancer/create-gig"
+                    className={cn(
+                      "text-sm font-medium transition-colors hover:text-primary",
+                      isActive("/freelancer/create-gig")
+                        ? "text-primary"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    Upload Gig
+                  </Link>
+                </>
               )}
-            >
-              Find Work
-            </Link>
-            <Link
-              to="/browse"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                isActive("/browse")
-                  ? "text-primary"
-                  : "text-muted-foreground",
-              )}
-            >
-              Find Talent
-            </Link>
-            <Link
-              to="/freelancer/create-gig"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                isActive("/freelancer/create-gig")
-                  ? "text-primary"
-                  : "text-muted-foreground",
-              )}
-            >
-              Sell Services
-            </Link>
-          </div>
+            </div>
+          )}
 
           {/* Right Side */}
           <div className="hidden md:flex items-center space-x-4">
@@ -290,27 +310,45 @@ export function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-border/40">
-              <Link
-                to="/find-work"
-                className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-primary"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Find Work
-              </Link>
-              <Link
-                to="/browse"
-                className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-primary"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Find Talent
-              </Link>
-              <Link
-                to="/freelancer/create-gig"
-                className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-primary"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Sell Services
-              </Link>
+              {isAuthenticated && (
+                <>
+                  {user?.role === 'client' ? (
+                    <>
+                      <Link
+                        to="/browse"
+                        className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-primary"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Find Talent
+                      </Link>
+                      <Link
+                        to="/client/post-job"
+                        className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-primary"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Post a Job
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/find-work"
+                        className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-primary"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Find Work
+                      </Link>
+                      <Link
+                        to="/freelancer/create-gig"
+                        className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-primary"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Upload Gig
+                      </Link>
+                    </>
+                  )}
+                </>
+              )}
               <div className="pt-4 pb-3 border-t border-border/40">
                 {user ? (
                   <div className="space-y-1">

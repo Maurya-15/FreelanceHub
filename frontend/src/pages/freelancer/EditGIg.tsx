@@ -140,6 +140,8 @@ export default function EditGig() {
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState("overview");
   const [loading, setLoading] = useState(true);
+  
+
 
   // Form state
   const [formData, setFormData] = useState({
@@ -172,17 +174,85 @@ export default function EditGig() {
   });
 
   const [newTag, setNewTag] = useState("");
+  const [error, setError] = useState("");
 
   // Load gig data on component mount
   useEffect(() => {
-    const gigData = mockGigsData[id];
-    if (gigData) {
-      setFormData(gigData);
-      setLoading(false);
-    } else {
-      // Gig not found, redirect to my gigs
+    if (!id) {
       navigate("/freelancer/my-gigs");
+      return;
     }
+
+    const fetchGigData = async () => {
+      try {
+        setLoading(true);
+        setError("");
+                 // Add timeout to prevent infinite loading
+         const controller = new AbortController();
+         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+         
+         const response = await fetch(`/api/gigs/${id}`, {
+           signal: controller.signal
+         });
+         
+         clearTimeout(timeoutId);
+         if (response.ok) {
+           const gigData = await response.json();
+          if (gigData.success && gigData.gig) {
+            // Transform API data to match form structure
+            const transformedData = {
+              id: gigData.gig._id,
+              title: gigData.gig.title,
+              description: gigData.gig.description,
+              category: gigData.gig.category,
+              tags: gigData.gig.tags || [],
+              images: gigData.gig.images || [],
+              basicPackage: {
+                title: "Basic",
+                description: gigData.gig.packages?.basic?.description || "",
+                price: parseInt(gigData.gig.packages?.basic?.price) || 0,
+                deliveryTime: gigData.gig.packages?.basic?.deliveryTime || "7",
+                features: gigData.gig.packages?.basic?.features || [""],
+              },
+              standardPackage: {
+                title: "Standard",
+                description: gigData.gig.packages?.standard?.description || "",
+                price: parseInt(gigData.gig.packages?.standard?.price) || 0,
+                deliveryTime: gigData.gig.packages?.standard?.deliveryTime || "14",
+                features: gigData.gig.packages?.standard?.features || [""],
+              },
+              premiumPackage: {
+                title: "Premium",
+                description: gigData.gig.packages?.premium?.description || "",
+                price: parseInt(gigData.gig.packages?.premium?.price) || 0,
+                deliveryTime: gigData.gig.packages?.premium?.deliveryTime || "21",
+                features: gigData.gig.packages?.premium?.features || [""],
+              },
+            };
+                         setFormData(transformedData);
+           } else {
+             console.error("Gig not found in response");
+             navigate("/freelancer/my-gigs");
+           }
+         } else {
+           console.error("Failed to fetch gig data, status:", response.status);
+           const errorText = await response.text();
+           console.error("Error response:", errorText);
+          setError(`Failed to load gig: ${response.status} ${response.statusText}`);
+        }
+              } catch (error) {
+          console.error("Error fetching gig data:", error);
+          if (error.name === 'AbortError') {
+            setError("Request timed out. Please try again.");
+          } else {
+            setError(`Network error: ${error.message}`);
+          }
+        } finally {
+          setLoading(false);
+        }
+    };
+
+    fetchGigData();
   }, [id, navigate]);
 
   const handleInputChange = (field, value) => {
@@ -251,11 +321,68 @@ export default function EditGig() {
     }));
   };
 
-  const handleSave = () => {
-    // In a real app, this would make an API call to update the gig
-    console.log("Saving gig changes:", formData);
-    alert("Gig updated successfully!");
-    navigate("/freelancer/my-gigs");
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      
+      // Transform form data back to API format
+      const packages = {
+        basic: {
+          name: formData.basicPackage.title,
+          description: formData.basicPackage.description,
+          price: formData.basicPackage.price.toString(),
+          deliveryTime: formData.basicPackage.deliveryTime,
+          revisions: "1",
+          features: formData.basicPackage.features.filter(f => f.trim() !== ""),
+        },
+        standard: {
+          name: formData.standardPackage.title,
+          description: formData.standardPackage.description,
+          price: formData.standardPackage.price.toString(),
+          deliveryTime: formData.standardPackage.deliveryTime,
+          revisions: "3",
+          features: formData.standardPackage.features.filter(f => f.trim() !== ""),
+        },
+        premium: {
+          name: formData.premiumPackage.title,
+          description: formData.premiumPackage.description,
+          price: formData.premiumPackage.price.toString(),
+          deliveryTime: formData.premiumPackage.deliveryTime,
+          revisions: "Unlimited",
+          features: formData.premiumPackage.features.filter(f => f.trim() !== ""),
+        },
+      };
+
+      const apiData = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        packages: JSON.stringify(packages),
+        activePackage: "basic", // Default to basic
+      };
+
+      const response = await fetch(`/api/gigs/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'user-id': localStorage.getItem('userId') || '',
+        },
+        body: JSON.stringify(apiData),
+      });
+
+      if (response.ok) {
+        alert("Gig updated successfully!");
+        navigate("/freelancer/my-gigs");
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to update gig: ${errorData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error("Error updating gig:", error);
+      alert("Failed to update gig. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePreview = () => {
@@ -265,18 +392,49 @@ export default function EditGig() {
 
   if (loading) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
-          <div className="text-center">Loading gig data...</div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-lg font-medium">Loading gig data...</p>
+            <p className="text-sm text-muted-foreground mt-2">ID: {id}</p>
+            <p className="text-xs text-muted-foreground mt-1">Please wait while we fetch your gig details</p>
+          </div>
         </div>
-        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="text-red-500 mb-4">
+              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold text-red-600 mb-2">Failed to Load Gig</h2>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <div className="space-x-4">
+              <Button onClick={() => window.location.reload()}>
+                Try Again
+              </Button>
+              <Button variant="outline" onClick={() => navigate("/freelancer/my-gigs")}>
+                Back to My Gigs
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
+        
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
@@ -411,35 +569,56 @@ export default function EditGig() {
                   <CardHeader>
                     <CardTitle>Gig Preview</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="aspect-video bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg flex items-center justify-center">
-                        {formData.images.length > 0 ? (
-                          <img
-                            src={formData.images[0]}
-                            alt="Gig preview"
-                            className="w-full h-full object-cover rounded-lg"
-                          />
-                        ) : (
-                          <div className="text-center">
-                            <ImageIcon className="w-12 h-12 mx-auto mb-2 text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">
-                              No images uploaded
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">
-                          {formData.title || "Your gig title"}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {formData.description ||
-                            "Your gig description will appear here"}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
+                                     <CardContent>
+                     <div className="space-y-4">
+                       <div className="aspect-video bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg flex items-center justify-center">
+                         {formData.images.length > 0 ? (
+                           <img
+                             src={formData.images[0]}
+                             alt="Gig preview"
+                             className="w-full h-full object-cover rounded-lg"
+                           />
+                         ) : (
+                           <div className="text-center">
+                             <ImageIcon className="w-12 h-12 mx-auto mb-2 text-muted-foreground" />
+                             <p className="text-sm text-muted-foreground">
+                               No images uploaded
+                             </p>
+                           </div>
+                         )}
+                       </div>
+                       <div>
+                         <h3 className="font-semibold text-lg">
+                           {formData.title || "Your gig title"}
+                         </h3>
+                         <p className="text-sm text-muted-foreground mt-1 line-clamp-3">
+                           {formData.description ||
+                             "Your gig description will appear here"}
+                         </p>
+                         {formData.category && (
+                           <div className="mt-2">
+                             <Badge variant="outline" className="text-xs">
+                               {formData.category}
+                             </Badge>
+                           </div>
+                         )}
+                         {formData.tags.length > 0 && (
+                           <div className="mt-2 flex flex-wrap gap-1">
+                             {formData.tags.slice(0, 3).map((tag) => (
+                               <Badge key={tag} variant="secondary" className="text-xs">
+                                 {tag}
+                               </Badge>
+                             ))}
+                             {formData.tags.length > 3 && (
+                               <Badge variant="secondary" className="text-xs">
+                                 +{formData.tags.length - 3} more
+                               </Badge>
+                             )}
+                           </div>
+                         )}
+                       </div>
+                     </div>
+                   </CardContent>
                 </Card>
               </div>
             </div>

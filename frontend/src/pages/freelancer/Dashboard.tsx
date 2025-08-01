@@ -290,15 +290,8 @@ export default function FreelancerDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-4">
-                        <Badge className={getStatusColor(order.status)}>
-                          {getStatusIcon(order.status)}
-                          {order.status.replace("_", " ")}
-                        </Badge>
                         <div className="text-right">
                           <p className="font-semibold">₹{order.amount}</p>
-                          <p className="text-xs text-muted-foreground">
-                            Due {new Date(order.deadline).toLocaleDateString()}
-                          </p>
                         </div>
                         <Button variant="ghost" size="sm" asChild>
                           <Link to={`/order/${order.id}`}>View</Link>

@@ -31,6 +31,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   ArrowLeft,
   Search,
   Filter,
@@ -65,6 +73,8 @@ export default function GigManagement() {
   const [gigsData, setGigsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedGig, setSelectedGig] = useState(null);
+  const [showGigDetails, setShowGigDetails] = useState(false);
 
   // Fetch gigs from API
   useEffect(() => {
@@ -88,22 +98,19 @@ export default function GigManagement() {
             title: gig.title,
             description: gig.description,
             category: gig.category,
-            price: gig.packages && gig.packages.length > 0 ? gig.packages[0].price : 0,
+            price: gig.packages && gig.packages.basic ? gig.packages.basic.price : 0,
             status: gig.status || 'active',
             featured: gig.featured || false,
             freelancer: {
-              name: gig.freelancer || "Unknown Freelancer",
-              avatar: "/api/placeholder/40/40",
-              rating: gig.rating || 0,
-              level: gig.level || "Level 1",
+              name: gig.freelancer?.name || gig.freelancer?.username || "Unknown Freelancer",
+              avatar: gig.freelancer?.profilePicture || gig.freelancer?.avatar || "/api/placeholder/40/40",
+              level: gig.freelancer?.level || "Level 1",
             },
             orders: gig.orders || 0,
-            rating: gig.rating || 0,
             reviews: gig.reviews || 0,
             createdAt: gig.createdAt,
             lastModified: gig.updatedAt || gig.createdAt,
             flags: gig.flags || 0,
-            earnings: gig.earnings || 0,
           }));
           setGigsData(transformedGigs);
         } else {
@@ -130,12 +137,17 @@ export default function GigManagement() {
   });
 
   const handleGigAction = async (action: string, gigId: string) => {
+    if (action === 'view') {
+      const gig = gigsData.find(g => g.id === gigId);
+      setSelectedGig(gig);
+      setShowGigDetails(true);
+      return;
+    }
+    
     let endpoint = '';
     let method = 'PUT';
     let body = null;
     if (action === 'approve') endpoint = `/api/gigs/${gigId}/approve`;
-    else if (action === 'suspend') endpoint = `/api/gigs/${gigId}/suspend`;
-    else if (action === 'feature') endpoint = `/api/gigs/${gigId}/feature`;
     else if (action === 'delete') { endpoint = `/api/gigs/${gigId}`; method = 'DELETE'; }
     else return;
     setLoading(true);
@@ -152,22 +164,19 @@ export default function GigManagement() {
           title: gig.title,
           description: gig.description,
           category: gig.category,
-          price: gig.packages && gig.packages.length > 0 ? gig.packages[0].price : 0,
+          price: gig.packages && gig.packages.basic ? gig.packages.basic.price : 0,
           status: gig.status || 'active',
           featured: gig.featured || false,
           freelancer: {
-            name: gig.freelancer || "Unknown Freelancer",
-            avatar: "/api/placeholder/40/40",
-            rating: gig.rating || 0,
-            level: gig.level || "Level 1",
+            name: gig.freelancer?.name || gig.freelancer?.username || "Unknown Freelancer",
+            avatar: gig.freelancer?.profilePicture || gig.freelancer?.avatar || "/api/placeholder/40/40",
+            level: gig.freelancer?.level || "Level 1",
           },
           orders: gig.orders || 0,
-          rating: gig.rating || 0,
           reviews: gig.reviews || 0,
           createdAt: gig.createdAt,
           lastModified: gig.updatedAt || gig.createdAt,
           flags: gig.flags || 0,
-          earnings: gig.earnings || 0,
         }));
         setGigsData(transformedGigs);
       }
@@ -463,25 +472,18 @@ export default function GigManagement() {
                         <AvatarImage src={gig.freelancer.avatar} />
                         <AvatarFallback>
                           {gig.freelancer.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
+                            ? gig.freelancer.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                            : "U"}
                         </AvatarFallback>
                       </Avatar>
                       <div>
                         <p className="text-sm font-medium">
                           {gig.freelancer.name}
                         </p>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="outline" className="text-xs">
-                            {gig.freelancer.level}
-                          </Badge>
-                          {gig.freelancer.rating > 0 && (
-                            <span className="text-xs text-muted-foreground">
-                              ⭐ {gig.freelancer.rating}
-                            </span>
-                          )}
-                        </div>
+
                       </div>
                     </div>
 
@@ -494,18 +496,6 @@ export default function GigManagement() {
                       <div>
                         <p className="text-muted-foreground">Orders</p>
                         <p className="font-medium">{gig.orders}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Earnings</p>
-                        <p className="font-medium">
-                          ₹{gig.earnings.toLocaleString()}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Rating</p>
-                        <p className="font-medium">
-                          {gig.rating > 0 ? `⭐ ${gig.rating}` : "No rating"}
-                        </p>
                       </div>
                     </div>
                   </div>
@@ -539,30 +529,7 @@ export default function GigManagement() {
                           </DropdownMenuItem>
                         </>
                       )}
-                      {gig.status === "active" && (
-                        <>
-                          <DropdownMenuItem
-                            onClick={() => handleGigAction("feature", gig.id)}
-                          >
-                            <Star className="mr-2 h-4 w-4" />
-                            {gig.featured ? "Unfeature" : "Feature"}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleGigAction("suspend", gig.id)}
-                          >
-                            <Flag className="mr-2 h-4 w-4 text-orange-500" />
-                            Suspend Gig
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                      {gig.status === "suspended" && (
-                        <DropdownMenuItem
-                          onClick={() => handleGigAction("activate", gig.id)}
-                        >
-                          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                          Activate Gig
-                        </DropdownMenuItem>
-                      )}
+
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -598,6 +565,124 @@ export default function GigManagement() {
           )}
         </CardContent>
       </Card>
+
+      {/* Gig Details Modal */}
+      <Dialog open={showGigDetails} onOpenChange={setShowGigDetails}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {selectedGig && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  {selectedGig.title}
+                </DialogTitle>
+                <DialogDescription>
+                  Gig details and information
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-6">
+                {/* Gig Header */}
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-16 h-12 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg flex items-center justify-center">
+                      <Package className="w-6 h-6 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold">{selectedGig.title}</h3>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <Badge className={statusColors[selectedGig.status]}>
+                          {selectedGig.status.replace("_", " ")}
+                        </Badge>
+                        {selectedGig.featured && (
+                          <Badge className="bg-gradient-to-r from-purple-500 to-blue-500 text-white">
+                            Featured
+                          </Badge>
+                        )}
+                        <Badge variant="outline">{selectedGig.category}</Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-green-600">₹{selectedGig.price}</p>
+                    <p className="text-sm text-muted-foreground">Starting price</p>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <h4 className="font-semibold mb-2">Description</h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {selectedGig.description}
+                  </p>
+                </div>
+
+                {/* Freelancer Info */}
+                <div className="border-t pt-4">
+                  <h4 className="font-semibold mb-3">Freelancer</h4>
+                  <div className="flex items-center space-x-4 p-4 bg-muted/50 rounded-lg">
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage src={selectedGig.freelancer.avatar} />
+                      <AvatarFallback>
+                        {selectedGig.freelancer.name
+                          ? selectedGig.freelancer.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                          : "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{selectedGig.freelancer.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Level {selectedGig.freelancer.level}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="p-4 border rounded-lg text-center">
+                    <p className="text-2xl font-bold text-blue-600">{selectedGig.orders}</p>
+                    <p className="text-sm text-muted-foreground">Orders</p>
+                  </div>
+                  <div className="p-4 border rounded-lg text-center">
+                    <p className="text-2xl font-bold text-yellow-600">{selectedGig.reviews}</p>
+                    <p className="text-sm text-muted-foreground">Reviews</p>
+                  </div>
+                  <div className="p-4 border rounded-lg text-center">
+                    <p className="text-2xl font-bold text-green-600">₹{selectedGig.price}</p>
+                    <p className="text-sm text-muted-foreground">Price</p>
+                  </div>
+                  <div className="p-4 border rounded-lg text-center">
+                    <p className="text-2xl font-bold text-purple-600">
+                      {selectedGig.flags || 0}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Flags</p>
+                  </div>
+                </div>
+
+                {/* Dates */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">Created</h4>
+                    <p className="text-muted-foreground">
+                      {formatDate(selectedGig.createdAt)}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">Last Modified</h4>
+                    <p className="text-muted-foreground">
+                      {formatDate(selectedGig.lastModified)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

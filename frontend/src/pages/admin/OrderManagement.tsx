@@ -46,19 +46,12 @@ function formatDate(date: string) {
   });
 }
 
-const statusColors: Record<string, string> = {
-  pending: "bg-orange-500 text-white",
-  in_progress: "bg-blue-500 text-white",
-  completed: "bg-green-600 text-white",
-  cancelled: "bg-gray-500 text-white",
-  disputed: "bg-red-700 text-white",
-};
+
 
 export default function OrderManagement() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [draftOrder, setDraftOrder] = useState<any | null>(null);
@@ -164,10 +157,8 @@ export default function OrderManagement() {
       order._id.includes(searchQuery) ||
       order.client?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.freelancer?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.gig?.title?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || order.status === statusFilter;
-    return matchesSearch && matchesStatus;
+      order.title?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
   });
 
   const handleViewDetails = (order: any) => {
@@ -182,65 +173,7 @@ export default function OrderManagement() {
     if (!open) setDraftOrder(null);
   };
 
-  // Handle status change for mock data
-  const handleStatusChange = (newStatus: string) => {
-    setDraftOrder((prev: any) =>
-      prev
-        ? {
-            ...prev,
-            status: newStatus,
-            timeline: [
-              ...(prev.timeline || []),
-              {
-                type: "status",
-                label: `Status: ${newStatus.replace("_", " ")}`,
-                date: new Date().toISOString(),
-              },
-            ],
-          }
-        : prev
-    );
-  };
 
-  // Handle refund for mock data
-  const handleRefund = () => {
-    setDraftOrder((prev: any) =>
-      prev
-        ? {
-            ...prev,
-            paymentStatus: "Refunded",
-            timeline: [
-              ...(prev.timeline || []),
-              {
-                type: "refund",
-                label: "Order Refunded",
-                date: new Date().toISOString(),
-              },
-            ],
-          }
-        : prev
-    );
-  };
-
-  // Handle resolve dispute for mock data
-  const handleResolveDispute = () => {
-    setDraftOrder((prev: any) =>
-      prev
-        ? {
-            ...prev,
-            status: "completed",
-            timeline: [
-              ...(prev.timeline || []),
-              {
-                type: "dispute_resolved",
-                label: "Dispute Resolved (Marked Completed)",
-                date: new Date().toISOString(),
-              },
-            ],
-          }
-        : prev
-    );
-  };
 
   // Save changes from draftOrder to real order
   const handleSave = () => {
@@ -335,20 +268,7 @@ export default function OrderManagement() {
                 className="pl-10"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-40">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="in_progress">In Progress</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-                <SelectItem value="disputed">Disputed</SelectItem>
-              </SelectContent>
-            </Select>
+
           </div>
         </CardContent>
       </Card>
@@ -371,7 +291,6 @@ export default function OrderManagement() {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Freelancer</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Job</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Amount</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Created</th>
                   <th className="px-4 py-3"></th>
                 </tr>
@@ -399,12 +318,9 @@ export default function OrderManagement() {
                       </Link>
                     </td>
                     <td className="px-4 py-3">
-                      <span>{order.gig?.title}</span>
+                      <span>{order.title}</span>
                     </td>
                     <td className="px-4 py-3 font-semibold">₹{order.amount.toLocaleString()}</td>
-                    <td className="px-4 py-3">
-                      <Badge className={statusColors[order.status] || "bg-gray-400 text-white"}>{order.status.replace("_", " ")}</Badge>
-                    </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">{formatDate(order.createdAt)}</td>
                     <td className="px-4 py-3">
                       <DropdownMenu>
@@ -455,58 +371,15 @@ export default function OrderManagement() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">Gig:</span>
-                    <span>{draftOrder.gig?.title}</span>
+                    <span>{draftOrder.title}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">Amount:</span>
                     <span>₹{draftOrder.amount?.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold">Status:</span>
-                    <Badge className={statusColors[draftOrder.status] || "bg-gray-400 text-white"}>{draftOrder.status.replace("_", " ")}</Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
                     <span className="font-semibold">Created:</span>
                     <span>{formatDate(draftOrder.createdAt)}</span>
-                  </div>
-                  {/* Payment details */}
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Payment:</span>
-                    <span>{draftOrder.paymentStatus || "N/A"}</span>
-                  </div>
-                  {/* Timeline/history */}
-                  <div className="mt-4">
-                    <span className="font-semibold">Order Timeline:</span>
-                    <div className="mt-2 space-y-2">
-                      {(draftOrder.timeline || []).map((event: any, idx: number) => (
-                        <div key={idx} className="flex items-center gap-2 text-xs">
-                          <span className="rounded-full w-2 h-2 bg-muted-foreground inline-block" />
-                          <span>{event.label}</span>
-                          <span className="text-muted-foreground">{formatDate(event.date)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  {/* Admin actions */}
-                  <div className="mt-4 space-y-2">
-                    <div>
-                      <span className="font-semibold mr-2">Change Status:</span>
-                      <select
-                        className="border rounded px-2 py-1 bg-background text-foreground"
-                        value={draftOrder.status}
-                        onChange={(e) => handleStatusChange(e.target.value)}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="disputed">Disputed</option>
-                      </select>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={handleRefund}>Refund</Button>
-                      <Button size="sm" variant="outline" onClick={handleResolveDispute}>Resolve Dispute</Button>
-                    </div>
                   </div>
                 </div>
               ) : null}

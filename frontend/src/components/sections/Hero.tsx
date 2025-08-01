@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { GradientButton } from "@/components/ui/gradient-button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { Search, ArrowRight, Users, Star, Briefcase } from "lucide-react";
 export function Hero() {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +20,20 @@ export function Hero() {
 
   const handlePopularSearch = (service: string) => {
     navigate(`/browse?search=${encodeURIComponent(service)}`);
+  };
+
+  const handlePostJobClick = (e: React.MouseEvent) => {
+    if (isAuthenticated && user?.role === 'freelancer') {
+      e.preventDefault();
+      navigate('/login?message=Please sign up as a client to post jobs');
+    }
+  };
+
+  const handleJoinAsFreelancerClick = (e: React.MouseEvent) => {
+    if (isAuthenticated && user?.role === 'client') {
+      e.preventDefault();
+      navigate('/login?message=Please sign up as a freelancer to offer services');
+    }
   };
 
   return (
@@ -50,13 +66,31 @@ export function Hero() {
 
           {/* Main Headline */}
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Find the perfect <span className="gradient-text">freelancer</span>{" "}
-            for your project
+            {isAuthenticated && user?.role === 'client' ? (
+              <>
+                Find the perfect <span className="gradient-text">freelancer</span>{" "}
+                for your project
+              </>
+            ) : (
+              <>
+                Find your next <span className="gradient-text">opportunity</span>{" "}
+                and grow your career
+              </>
+            )}
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-            Connect with talented Indian professionals and global experts. Get
-            your projects done faster, better, and at competitive prices in ₹.
+            {isAuthenticated && user?.role === 'client' ? (
+              <>
+                Connect with talented Indian professionals and global experts. Get
+                your projects done faster, better, and at competitive prices.
+              </>
+            ) : (
+              <>
+                Connect with clients worldwide and showcase your skills. Earn competitive
+                rates and build your freelance career.
+              </>
+            )}
           </p>
 
           {/* Search Bar */}
@@ -71,7 +105,10 @@ export function Hero() {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="What service are you looking for today?"
+                      placeholder={isAuthenticated && user?.role === 'client' 
+                        ? "What service are you looking for today?"
+                        : "What skills or services do you offer?"
+                      }
                       className="pl-12 h-14 text-lg border-0 bg-transparent focus:ring-0 focus:outline-none"
                     />
                   </div>
@@ -86,7 +123,9 @@ export function Hero() {
 
           {/* Popular searches */}
           <div className="mb-12">
-            <p className="text-muted-foreground mb-4">Popular searches:</p>
+            <p className="text-muted-foreground mb-4">
+              {isAuthenticated && user?.role === 'client' ? "Popular searches:" : "Popular skills:"}
+            </p>
             <div className="flex flex-wrap justify-center gap-2">
               {[
                 "Logo Design",
@@ -112,13 +151,21 @@ export function Hero() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <GradientButton size="lg" asChild>
-              <Link to="/register" className="px-8">
+              <Link 
+                to={isAuthenticated && user?.role === 'client' ? '/login?message=Please sign up as a freelancer to offer services' : '/register'} 
+                className="px-8"
+                onClick={handleJoinAsFreelancerClick}
+              >
                 Join as Freelancer
                 <Users className="ml-2 h-5 w-5" />
               </Link>
             </GradientButton>
             <GradientButton variant="secondary" size="lg" asChild>
-                              <Link to="/client/post-job" className="px-8">
+              <Link 
+                to={isAuthenticated && user?.role === 'freelancer' ? '/login?message=Please sign up as a client to post jobs' : '/client/post-job'} 
+                className="px-8"
+                onClick={handlePostJobClick}
+              >
                 Post a Job
                 <Briefcase className="ml-2 h-5 w-5" />
               </Link>

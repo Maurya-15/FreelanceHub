@@ -24,6 +24,7 @@ import {
   Briefcase,
   GraduationCap,
   Languages,
+  Star,
 } from "lucide-react";
 
 export default function FreelancerProfile() {
@@ -86,6 +87,20 @@ export default function FreelancerProfile() {
   
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading profile...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button asChild>
+            <Link to="/login">Try again</Link>
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   

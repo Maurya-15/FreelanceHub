@@ -37,6 +37,12 @@ export default function useFreelancerProfile(freelancerId: string) {
   const [error, setError] = useState<string | null>(null);
 
   const fetchProfile = useCallback(async () => {
+    if (!freelancerId) {
+      setLoading(false);
+      setError("No profile ID provided.");
+      return;
+    }
+    
     setLoading(true);
     try {
       const res = await axios.get(`/api/users/${freelancerId}`);

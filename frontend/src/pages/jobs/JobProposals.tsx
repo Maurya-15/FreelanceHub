@@ -14,13 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import {
   ArrowLeft,
-  Star,
   MessageSquare,
   Calendar,
-  IndianRupee,
-  Clock,
-  Award,
-  Heart,
   CheckCircle,
   X,
   UserCheck,
@@ -32,7 +27,7 @@ import useJobProposals from "@/hooks/useJobProposals"; // new hook for fetching 
 export default function JobProposals() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { proposals, loading, error } = useJobProposals(id);
+  const { proposals, loading, error, handleRejectProposal } = useJobProposals(id);
 
   const [selectedProposal, setSelectedProposal] = React.useState<any>(null);
   const [showAcceptDialog, setShowAcceptDialog] = React.useState(false);
@@ -129,32 +124,11 @@ export default function JobProposals() {
                             <Badge variant="outline">Invited</Badge>
                           )}
                         </div>
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <div className="flex items-center">
-                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
-                            <span>{proposal.freelancer.rating}</span>
-                            <span className="ml-1">
-                              ({proposal.freelancer.reviews} reviews)
-                            </span>
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="w-4 h-4 mr-1" />
-                            <span>
-                              {proposal.freelancer.responseTime} response time
-                            </span>
-                          </div>
-                          <div className="flex items-center">
-                            <Award className="w-4 h-4 mr-1" />
-                            <span>
-                              {proposal.freelancer.completionRate}% completion
-                              rate
-                            </span>
-                          </div>
-                        </div>
+
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-bold text-primary mb-1">
-                          ₹{proposal.bid}
+                          {proposal.bid}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           in {proposal.deliveryTime}
@@ -201,10 +175,7 @@ export default function JobProposals() {
                           <CheckCircle className="w-4 h-4 mr-2" />
                           Accept
                         </Button>
-                        <Button variant="outline" size="sm">
-                          <Heart className="w-4 h-4 mr-2" />
-                          Save
-                        </Button>
+
                         <Button variant="outline" size="sm" onClick={() => navigate(`/messages?userId=${proposal.freelancer._id}`)}>
                           <MessageSquare className="w-4 h-4 mr-2" />
                           Message
@@ -340,7 +311,7 @@ export default function JobProposals() {
                       {selectedProposal.freelancer.name}
                     </h4>
                     <p className="text-sm text-muted-foreground">
-                      ₹{selectedProposal.bid} in {selectedProposal.deliveryTime}
+                      {selectedProposal.bid} in {selectedProposal.deliveryTime}
                     </p>
                   </div>
                 </div>
@@ -368,12 +339,19 @@ export default function JobProposals() {
                   onClick={async () => {
                     if (!selectedProposal) return;
                     try {
-                      await fetch(`/api/jobs/${id}/proposals/${selectedProposal._id}/reject`, {
+                      const response = await fetch(`/api/jobs/${id}/proposals/${selectedProposal._id}/reject`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json', 'user-id': localStorage.getItem('userId') || '' },
                         body: JSON.stringify({ reason: rejectionReason }),
                       });
-                      window.location.reload();
+                      if (response.ok) {
+                        handleRejectProposal(selectedProposal._id);
+                        setShowRejectDialog(false);
+                        setRejectionReason("");
+                      } else {
+                        const data = await response.json();
+                        alert(data.message || 'Failed to reject proposal.');
+                      }
                     } catch (err) {
                       alert('Failed to reject proposal.');
                     }

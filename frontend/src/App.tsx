@@ -72,6 +72,7 @@ import CreateGig from "./pages/freelancer/CreateGig";
 import MyGigs from "./pages/freelancer/MyGigs";
 import FreelancerProfile from "./pages/freelancer/Profile";
 import EditFreelancerProfile from "./pages/freelancer/EditProfile";
+import EditGig from "./pages/freelancer/EditGIg";
 
 // Client Pages
 import ClientDashboard from "./pages/client/Dashboard";
@@ -208,6 +209,7 @@ function App() {
               <Route path="dashboard" element={<FreelancerDashboard />} />
               <Route path="create-gig" element={<CreateGig />} />
               <Route path="my-gigs" element={<MyGigs />} />
+              <Route path="edit-gig/:id" element={<EditGig />} />
               <Route path="profile" element={<FreelancerProfile />} />
               <Route path="edit-profile" element={<EditFreelancerProfile />} />
               <Route path="earnings" element={<Earnings />} />

@@ -201,25 +201,27 @@ export default function ClientDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Active Job Posts
-                  </p>
-                  <p className="text-2xl font-bold">{stats.activeJobs}</p>
+          {(stats.totalProposals || 0) > 0 && (
+            <Card className="border-0 bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Total Proposals
+                    </p>
+                    <p className="text-2xl font-bold">{stats.totalProposals || 0}</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+                    <Users className="h-6 w-6 text-purple-600" />
+                  </div>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-orange-600" />
+                <div className="flex items-center mt-4 text-sm">
+                  <MessageSquare className="h-4 w-4 text-purple-500 mr-1" />
+                  <span className="text-purple-600">Across all jobs</span>
                 </div>
-              </div>
-              <div className="flex items-center mt-4 text-sm">
-                <MessageSquare className="h-4 w-4 text-orange-500 mr-1" />
-                <span className="text-orange-600">35 new proposals</span>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Main Content Tabs */}

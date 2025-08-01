@@ -1,5 +1,5 @@
 import express from 'express';
-import { Job, User } from '../db.js';
+import { Job, User, Gig } from '../db.js';
 import Order from '../models/Order.js';
 import Activity from '../models/Activity.js';
 import multer from 'multer';
@@ -217,6 +217,10 @@ router.patch('/:jobId/proposals/:proposalId/accept', async (req, res) => {
       amount: proposalFound.proposedBudget || 0,
     });
     await order.save();
+    
+    // Update the gig's orders count
+    await Gig.findByIdAndUpdate(job._id, { $inc: { orders: 1 } });
+    
     res.json({ success: true, message: 'Proposal accepted and others rejected. Order created.', order });
   } catch (err) {
     console.error('Error accepting proposal:', err);
