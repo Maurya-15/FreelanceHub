@@ -208,88 +208,88 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" asChild>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
+        <div className="flex items-center space-x-3 sm:space-x-4">
+          <Button variant="ghost" asChild size="sm" className="p-2 sm:p-3">
             <Link to="/admin">
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">User Management</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">User Management</h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
               Manage all users on the platform
             </p>
           </div>
         </div>
-        <Button>
-          <UserPlus className="w-4 h-4 mr-2" />
+        <Button size="sm" className="text-xs sm:text-sm">
+          <UserPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
           Add User
         </Button>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* Stats Overview - 2x2 on mobile/tablet, 1x4 on desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 sm:p-4 lg:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Total Users
                 </p>
-                <p className="text-2xl font-bold">{users.length}</p>
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold">{users.length}</p>
               </div>
-              <Users className="h-8 w-8 text-blue-600" />
+              <Users className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 sm:p-4 lg:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Active Users
                 </p>
-                <p className="text-2xl font-bold">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold">
                   {users.filter((u) => u.status === "active").length}
                 </p>
               </div>
-              <Activity className="h-8 w-8 text-green-600" />
+              <Activity className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 sm:p-4 lg:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Freelancers
                 </p>
-                <p className="text-2xl font-bold">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold">
                   {users.filter((u) => u.role === "freelancer").length}
                 </p>
               </div>
-              <User className="h-8 w-8 text-purple-600" />
+              <User className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-purple-600" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 sm:p-4 lg:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Clients
                 </p>
-                <p className="text-2xl font-bold">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold">
                   {users.filter((u) => u.role === "client").length}
                 </p>
               </div>
-                                      <IndianRupee className="h-8 w-8 text-orange-600" />
+              <IndianRupee className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-orange-600" />
             </div>
           </CardContent>
         </Card>
@@ -297,16 +297,16 @@ export default function UserManagement() {
 
       {/* Filters */}
       <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="flex gap-4 w-full md:w-auto">
-              <div className="relative flex-1 md:w-80">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <CardContent className="p-3 sm:p-4 lg:p-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-60 lg:w-80">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-3 w-3 sm:h-4 sm:w-4" />
                 <Input
                   placeholder="Search users..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-8 sm:pl-10 text-xs sm:text-sm h-8 sm:h-10"
                 />
               </div>
               <Select value={roleFilter} onValueChange={setRoleFilter}>
@@ -351,18 +351,18 @@ export default function UserManagement() {
 
       {/* Users Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>All Users ({filteredUsers.length})</CardTitle>
+        <CardHeader className="pb-3 sm:pb-4">
+          <CardTitle className="text-lg sm:text-xl lg:text-2xl">All Users ({filteredUsers.length})</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 sm:p-4 lg:p-6">
           <div className="space-y-4">
             {filteredUsers.map((user) => (
               <div
                 key={user.id}
-                className="flex items-center justify-between p-4 border border-border/40 rounded-lg hover:bg-muted/50 transition-colors"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 border border-border/40 rounded-lg hover:bg-muted/50 transition-colors gap-3 sm:gap-4"
               >
-                <div className="flex items-center space-x-4 flex-1">
-                  <Avatar className="w-12 h-12">
+                <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                  <Avatar className="w-10 h-10 sm:w-12 sm:h-12">
                     <AvatarImage src={user.avatar} />
                     <AvatarFallback>
                       {user.name
@@ -372,30 +372,30 @@ export default function UserManagement() {
                     </AvatarFallback>
                   </Avatar>
 
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <h3 className="font-semibold">{user.name}</h3>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-1">
+                      <h3 className="font-semibold text-sm sm:text-base truncate">{user.name}</h3>
                       {user.verified && (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 flex-shrink-0" />
                       )}
-                      <Badge className={roleColors[user.role]}>
+                      <Badge className={`text-xs ${roleColors[user.role]}`}>
                         {user.role}
                       </Badge>
-                      <Badge className={statusColors[user.status]}>
+                      <Badge className={`text-xs ${statusColors[user.status]}`}>
                         {user.status}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-1">
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-1 truncate">
                       {user.email}
                     </p>
-                    <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                      <span>📍 {user.location}</span>
-                      <span>Joined {formatDate(user.joinDate)}</span>
-                      <span>Last active: {getTimeAgo(user.lastActive)}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-muted-foreground">
+                      <span className="truncate">📍 {user.location}</span>
+                      <span className="truncate">Joined {formatDate(user.joinDate)}</span>
+                      <span className="truncate">Last active: {getTimeAgo(user.lastActive)}</span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4 text-sm min-w-[120px]">
+                  <div className="grid grid-cols-1 gap-2 sm:gap-4 text-xs sm:text-sm min-w-[80px] sm:min-w-[120px]">
                     {user.role === "freelancer" ? (
                       <div>
                         <p className="text-muted-foreground">Projects</p>
@@ -410,7 +410,7 @@ export default function UserManagement() {
                   </div>
 
                   {user.rating > 0 && (
-                    <div className="text-sm">
+                    <div className="text-xs sm:text-sm">
                       <p className="text-muted-foreground">Rating</p>
                       <p className="font-medium">⭐ {user.rating}</p>
                     </div>
@@ -419,8 +419,8 @@ export default function UserManagement() {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreVertical className="h-4 w-4" />
+                    <Button variant="ghost" size="sm" className="p-1 sm:p-2">
+                      <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                                      <DropdownMenuContent align="end">

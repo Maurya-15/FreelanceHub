@@ -292,41 +292,43 @@ export default function CreateGig() {
 
   return (
     <div className="min-h-screen">
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" asChild>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <Button variant="ghost" asChild className="p-2 sm:p-3">
               <Link to="/freelancer/dashboard">
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </Link>
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Create New Gig</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Create New Gig</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Set up your service offering and start earning
               </p>
             </div>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline">
-              <Save className="w-4 h-4 mr-2" />
-              Save Draft
+          <div className="flex gap-2 sm:gap-3">
+            <Button variant="outline" size="sm" className="text-xs sm:text-sm px-3 py-2">
+              <Save className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Save Draft</span>
+              <span className="sm:hidden">Save</span>
             </Button>
-            <Button variant="outline">
-              <Eye className="w-4 h-4 mr-2" />
-              Preview
+            <Button variant="outline" size="sm" className="text-xs sm:text-sm px-3 py-2">
+              <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Preview</span>
+              <span className="sm:hidden">View</span>
             </Button>
           </div>
         </div>
 
         {/* Progress Steps */}
-        <div className="flex items-center justify-center mb-8">
-          <div className="flex items-center space-x-4">
+        <div className="flex items-center justify-center mb-6 sm:mb-8 overflow-x-auto px-2">
+          <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 min-w-max">
             {steps.map((step, index) => (
               <div key={step} className="flex items-center">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                  className={`w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors ${
                     index <= currentStep
                       ? "bg-brand-gradient text-white"
                       : "bg-muted text-muted-foreground"
@@ -335,13 +337,15 @@ export default function CreateGig() {
                   {index + 1}
                 </div>
                 <span
-                  className={`ml-2 ${index <= currentStep ? "text-primary" : "text-muted-foreground"}`}
+                  className={`ml-1 sm:ml-2 text-xs sm:text-sm ${index <= currentStep ? "text-primary" : "text-muted-foreground"}`}
                 >
-                  {step}
+                  <span className="hidden lg:inline">{step}</span>
+                  <span className="hidden sm:inline lg:hidden">{step.split(' ')[0]}</span>
+                  <span className="sm:hidden">{index + 1}</span>
                 </span>
                 {index < steps.length - 1 && (
                   <div
-                    className={`w-12 h-0.5 mx-4 ${index < currentStep ? "bg-primary" : "bg-muted"}`}
+                    className={`w-4 sm:w-6 lg:w-12 h-0.5 mx-1 sm:mx-2 lg:mx-4 ${index < currentStep ? "bg-primary" : "bg-muted"}`}
                   />
                 )}
               </div>
@@ -349,42 +353,42 @@ export default function CreateGig() {
           </div>
         </div>
 
-        <Tabs value={currentStep.toString()} className="space-y-6">
+        <Tabs value={currentStep.toString()} className="space-y-4 sm:space-y-6">
           {/* Step 1: Basic Info */}
           <TabsContent value="0">
             <Card className="border-0 bg-card/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="text-base sm:text-lg lg:text-xl">Basic Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4 sm:space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Gig Title</Label>
+                  <Label htmlFor="title" className="text-sm sm:text-base">Gig Title</Label>
                   <Input
                     id="title"
                     placeholder="I will..."
                     value={gigData.title}
                     onChange={(e) => handleInputChange("title", e.target.value)}
-                    className="text-lg"
+                    className="text-sm sm:text-base lg:text-lg h-10 sm:h-11"
                   />
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     {gigData.title.length}/80 characters
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
+                  <Label htmlFor="category" className="text-sm sm:text-base">Category</Label>
                   <Select
                     value={gigData.category}
                     onValueChange={(value) =>
                       handleInputChange("category", value)
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="text-sm sm:text-base h-10 sm:h-11">
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
+                        <SelectItem key={category} value={category} className="text-sm">
                           {category}
                         </SelectItem>
                       ))}
@@ -393,7 +397,7 @@ export default function CreateGig() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description" className="text-sm sm:text-base">Description</Label>
                   <Textarea
                     id="description"
                     placeholder="Describe your service in detail..."
@@ -401,25 +405,28 @@ export default function CreateGig() {
                     onChange={(e) =>
                       handleInputChange("description", e.target.value)
                     }
-                    className="min-h-[200px]"
+                    className="min-h-[120px] sm:min-h-[150px] lg:min-h-[200px] text-sm sm:text-base"
                   />
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     {gigData.description.length}/1200 characters
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Search Tags (max 5)</Label>
+                  <Label className="text-sm sm:text-base">Search Tags (max 5)</Label>
                   <div className="flex gap-2">
                     <Input
                       placeholder="Add a tag..."
                       value={currentTag}
                       onChange={(e) => setCurrentTag(e.target.value)}
                       onKeyPress={(e) => e.key === "Enter" && addTag()}
+                      className="text-sm sm:text-base h-10 sm:h-11"
                     />
                     <Button
                       onClick={addTag}
                       disabled={gigData.tags.length >= 5}
+                      size="sm"
+                      className="px-3 h-10 sm:h-11"
                     >
                       <Plus className="w-4 h-4" />
                     </Button>
@@ -429,14 +436,14 @@ export default function CreateGig() {
                       <Badge
                         key={index}
                         variant="secondary"
-                        className="px-3 py-1"
+                        className="px-2 py-1 text-xs sm:text-sm"
                       >
                         {tag}
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => removeTag(index)}
-                          className="ml-2 h-auto p-0"
+                          className="ml-1 h-auto p-0"
                         >
                           <X className="w-3 h-3" />
                         </Button>
@@ -450,26 +457,26 @@ export default function CreateGig() {
 
           {/* Step 2: Pricing & Packages */}
           <TabsContent value="1">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {Object.entries(gigData.packages).map(
                 ([packageType, packageData]) => (
                   <Card
                     key={packageType}
                     className={`border-0 bg-card/50 backdrop-blur-sm ${packageType === "standard" ? "ring-2 ring-primary" : ""}`}
                   >
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="flex items-center justify-between text-base sm:text-lg">
                         {packageData.name}
                         {packageType === "standard" && (
-                          <Badge className="bg-brand-gradient text-white">
+                          <Badge className="bg-brand-gradient text-white text-xs">
                             Popular
                           </Badge>
                         )}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                                        <CardContent className="space-y-3 sm:space-y-4">
                       <div className="space-y-2">
-                        <Label>Package Name</Label>
+                        <Label className="text-sm sm:text-base">Package Name</Label>
                         <Input
                           value={packageData.name}
                           onChange={(e) =>
@@ -479,11 +486,12 @@ export default function CreateGig() {
                               e.target.value,
                             )
                           }
+                          className="text-sm sm:text-base"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Description</Label>
+                        <Label className="text-sm sm:text-base">Description</Label>
                         <Textarea
                           value={packageData.description}
                           onChange={(e) =>
@@ -494,12 +502,13 @@ export default function CreateGig() {
                             )
                           }
                           placeholder="Describe what's included..."
+                          className="min-h-[80px] sm:min-h-[100px] text-sm sm:text-base"
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div className="space-y-2">
-                                                      <Label>Price (₹)</Label>
+                          <Label className="text-sm sm:text-base">Price (₹)</Label>
                           <div className="relative">
                             <IndianRupee className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                             <Input
@@ -677,33 +686,33 @@ export default function CreateGig() {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {Object.entries(gigData.packages).map(
                       ([packageType, packageData]) => (
                         <Card
                           key={packageType}
                           className="border border-border/40"
                         >
-                          <CardHeader>
-                            <CardTitle className="text-lg">
+                          <CardHeader className="pb-3">
+                            <CardTitle className="text-base sm:text-lg">
                               {packageData.name}
                             </CardTitle>
                           </CardHeader>
                           <CardContent className="space-y-3">
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               {packageData.description || "Package description"}
                             </p>
                             <div className="flex items-center justify-between">
-                              <span className="text-2xl font-bold">
+                              <span className="text-lg sm:text-2xl font-bold">
                                 ₹{packageData.price || "0"}
                               </span>
-                              <div className="flex items-center text-sm text-muted-foreground">
-                                <Clock className="w-4 h-4 mr-1" />
+                              <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                                <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                                 {packageData.deliveryTime} days
                               </div>
                             </div>
                             {packageData.features.length > 0 && (
-                              <ul className="text-sm space-y-1">
+                              <ul className="text-xs sm:text-sm space-y-1">
                                 {packageData.features.map((feature, index) => (
                                   <li key={index} className="flex items-center">
                                     <div className="w-1 h-1 bg-current rounded-full mr-2" />
@@ -724,11 +733,12 @@ export default function CreateGig() {
         </Tabs>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between mt-8">
+        <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 mt-6 sm:mt-8">
           <Button
             variant="outline"
             onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
             disabled={currentStep === 0}
+            className="w-full sm:w-auto h-11 sm:h-10"
           >
             Previous
           </Button>
@@ -738,11 +748,12 @@ export default function CreateGig() {
               onClick={() =>
                 setCurrentStep(Math.min(steps.length - 1, currentStep + 1))
               }
+              className="w-full sm:w-auto h-11 sm:h-10"
             >
               Next
             </Button>
           ) : (
-            <GradientButton onClick={handleSubmit}>
+            <GradientButton onClick={handleSubmit} className="w-full sm:w-auto h-11 sm:h-10">
               <Package className="w-4 h-4 mr-2" />
               Publish Gig
             </GradientButton>

@@ -125,7 +125,7 @@ export default function FreelancerProfile() {
     <div className="min-h-screen">
       <main>
                  {/* Cover Photo / Banner */}
-         <div className="relative h-64">
+         <div className="relative h-48 sm:h-64">
            {displayProfile.coverPhoto ? (
              <img
                src={displayProfile.coverPhoto}
@@ -133,7 +133,7 @@ export default function FreelancerProfile() {
                className="w-full h-full object-cover"
              />
            ) : (
-             <div className="w-full h-full flex justify-center items-start pt-12 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-7xl font-bold">
+             <div className="w-full h-full flex justify-center items-start pt-8 sm:pt-12 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-4xl sm:text-7xl font-bold">
                {displayProfile.name?.[0] || "?"}
              </div>
            )}
@@ -141,14 +141,14 @@ export default function FreelancerProfile() {
 
          {/* Profile Header */}
          <div className="relative">
-           <div className="container mx-auto px-4">
-             <div className="relative -mt-8 pb-8">
-              <div className="bg-card rounded-2xl p-8 shadow-lg border">
-                <div className="flex flex-col md:flex-row items-start md:items-end space-y-6 md:space-y-0 md:space-x-6">
+           <div className="container mx-auto px-4 sm:px-6">
+             <div className="relative -mt-6 sm:-mt-8 pb-6 sm:pb-8">
+              <div className="bg-card rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border">
+                <div className="flex flex-col md:flex-row items-start md:items-end space-y-4 sm:space-y-6 md:space-y-0 md:space-x-6">
                   <div className="relative">
-                    <Avatar className="w-32 h-32 border-4 border-white shadow-lg">
+                    <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-white shadow-lg">
                       <AvatarImage src={displayProfile.avatar} />
-                      <AvatarFallback>
+                      <AvatarFallback className="text-lg sm:text-xl">
                         {displayProfile.name
                           .split(" ")
                           .map((n) => n[0])
@@ -156,37 +156,39 @@ export default function FreelancerProfile() {
                       </AvatarFallback>
                     </Avatar>
                     {displayProfile.isOnline && (
-                      <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-2 border-white"></div>
+                      <div className="absolute bottom-1 sm:bottom-2 right-1 sm:right-2 w-4 h-4 sm:w-6 sm:h-6 bg-green-500 rounded-full border-2 border-white"></div>
                     )}
                   </div>
 
                   <div className="flex-1">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
                       <div>
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h1 className="text-3xl font-bold">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                          <h1 className="text-2xl sm:text-3xl font-bold">
                             {displayProfile.name}
                           </h1>
-                          <Badge className="bg-brand-gradient text-white">
-                            {displayProfile.level}
-                          </Badge>
-                          {displayProfile.isProVerified && (
-                            <Badge variant="outline">
-                              <CheckCircle className="w-3 h-3 mr-1" />
-                              Pro Verified
+                          <div className="flex flex-wrap gap-2">
+                            <Badge className="bg-brand-gradient text-white text-xs sm:text-sm">
+                              {displayProfile.level}
                             </Badge>
-                          )}
+                            {displayProfile.isProVerified && (
+                              <Badge variant="outline" className="text-xs sm:text-sm">
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Pro Verified
+                              </Badge>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-xl text-muted-foreground mb-2">
+                        <p className="text-lg sm:text-xl text-muted-foreground mb-2">
                           {displayProfile.title}
                         </p>
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                           <div className="flex items-center">
-                            <MapPin className="w-4 h-4 mr-1" />
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                             {displayProfile.location}
                           </div>
                           <div className="flex items-center">
-                            <Calendar className="w-4 h-4 mr-1" />
+                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                             Member since{" "}
                             {displayProfile.joinDate && !isNaN(new Date(displayProfile.joinDate).getTime())
                               ? formatDate(displayProfile.joinDate)
@@ -197,19 +199,19 @@ export default function FreelancerProfile() {
                         </div>
                       </div>
 
-                      <div className="flex items-center space-x-3">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mt-4 sm:mt-0">
                         {isOwnProfile ? (
                           // Actions for own profile
                           <>
-                            <Button variant="outline" asChild>
+                            <Button variant="outline" asChild size="sm" className="text-xs sm:text-sm">
                               <Link to="/freelancer/my-gigs">
-                                <Briefcase className="w-4 h-4 mr-2" />
+                                <Briefcase className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                                 Manage Gigs
                               </Link>
                             </Button>
-                            <GradientButton asChild>
+                            <GradientButton asChild size="sm" className="text-xs sm:text-sm">
                               <Link to="/freelancer/edit-profile">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L9 13zm0 0V21h8" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L9 13zm0 0V21h8" /></svg>
                                 Edit Profile
                               </Link>
                             </GradientButton>
@@ -240,11 +242,11 @@ export default function FreelancerProfile() {
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                       <div className="text-center">
                         <div className="flex items-center justify-center space-x-1 mb-1">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="font-bold text-lg">
+                          <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
+                          <span className="font-bold text-base sm:text-lg">
                             {displayProfile.stats?.rating ?? '--'}
                           </span>
                         </div>
@@ -253,7 +255,7 @@ export default function FreelancerProfile() {
                         </p>
                       </div>
                       <div className="text-center">
-                        <div className="font-bold text-lg mb-1">
+                        <div className="font-bold text-base sm:text-lg mb-1">
                           {displayProfile.stats?.totalOrders ?? '--'}
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -261,7 +263,7 @@ export default function FreelancerProfile() {
                         </p>
                       </div>
                       <div className="text-center">
-                        <div className="font-bold text-lg mb-1">
+                        <div className="font-bold text-base sm:text-lg mb-1">
                           {displayProfile.stats?.responseTime ?? '--'}
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -269,7 +271,7 @@ export default function FreelancerProfile() {
                         </p>
                       </div>
                       <div className="text-center">
-                        <div className="font-bold text-lg mb-1">
+                        <div className="font-bold text-base sm:text-lg mb-1">
                           {displayProfile.stats?.onTimeDelivery ?? '--'}%
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -277,7 +279,7 @@ export default function FreelancerProfile() {
                         </p>
                       </div>
                       <div className="text-center">
-                        <div className="font-bold text-lg mb-1">
+                        <div className="font-bold text-base sm:text-lg mb-1">
                           {displayProfile.stats?.repeatClients ?? '--'}%
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -298,27 +300,27 @@ export default function FreelancerProfile() {
             </div>
 
             {/* Main Content */}
-            <div className="container mx-auto px-4 py-8">
+            <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
                              <Tabs value={activeTab} onValueChange={setActiveTab}>
                  <TabsList className="grid w-full grid-cols-3">
-                   <TabsTrigger value="overview">Overview</TabsTrigger>
-                   <TabsTrigger value="gigs">
+                   <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+                   <TabsTrigger value="gigs" className="text-xs sm:text-sm">
                      Gigs ({displayProfile.gigs?.length ?? 0})
                    </TabsTrigger>
-                   <TabsTrigger value="about">About</TabsTrigger>
+                   <TabsTrigger value="about" className="text-xs sm:text-sm">About</TabsTrigger>
                  </TabsList>
 
-                <TabsContent value="overview" className="mt-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <TabsContent value="overview" className="mt-4 sm:mt-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                     {/* Skills & Expertise */}
                     <Card>
-                      <CardHeader>
-                        <CardTitle>Skills & Expertise</CardTitle>
+                      <CardHeader className="pb-3 sm:pb-4">
+                        <CardTitle className="text-base sm:text-lg">Skills & Expertise</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="flex flex-wrap gap-2">
                           {(displayProfile.skills ?? []).map((skill) => (
-                            <Badge key={skill} variant="secondary">
+                            <Badge key={skill} variant="secondary" className="text-xs sm:text-sm">
                               {skill}
                             </Badge>
                           ))}
@@ -328,9 +330,9 @@ export default function FreelancerProfile() {
 
                     {/* Languages */}
                     <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center">
-                          <Languages className="w-5 h-5 mr-2" />
+                      <CardHeader className="pb-3 sm:pb-4">
+                        <CardTitle className="flex items-center text-base sm:text-lg">
+                          <Languages className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                           Languages
                         </CardTitle>
                       </CardHeader>
@@ -341,8 +343,8 @@ export default function FreelancerProfile() {
                               key={lang.name}
                               className="flex justify-between items-center"
                             >
-                              <span>{lang.name}</span>
-                              <Badge variant="outline">{lang.level}</Badge>
+                              <span className="text-sm sm:text-base">{lang.name}</span>
+                              <Badge variant="outline" className="text-xs sm:text-sm">{lang.level}</Badge>
                             </div>
                           ))}
                         </div>

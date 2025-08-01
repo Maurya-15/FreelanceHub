@@ -104,96 +104,96 @@ export default function ClientDashboard() {
 
   return (
     <div className="flex-1">
-      <main className="p-6">
+      <main className="p-4 sm:p-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-1">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-1">
               Welcome back, {userName || 'User'}!
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Here's an overview of your projects and hiring activity.
             </p>
           </div>
-          <div className="flex gap-3 mt-4 md:mt-0">
-            <Button variant="outline" asChild>
+          <div className="flex gap-2 sm:gap-3 mt-3 sm:mt-0">
+            <Button variant="outline" asChild size="sm" className="text-xs sm:text-sm">
               <Link to="/messages">
-                <MessageSquare className="w-4 h-4 mr-2" />
+                <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 Messages
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild size="sm" className="text-xs sm:text-sm">
               <Link to="/client/post-job">
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 Post a Job
               </Link>
             </Button>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Stats Cards - Responsive Grid: 2x2 on mobile/tablet, 1x4 on desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Active Projects
                   </p>
-                  <p className="text-2xl font-bold">{stats.activeProjects}</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold">{stats.activeProjects}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                  <Briefcase className="h-6 w-6 text-blue-600" />
+                <div className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                  <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-blue-600" />
                 </div>
               </div>
-              <div className="flex items-center mt-4 text-sm">
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+              <div className="flex items-center mt-2 sm:mt-3 lg:mt-4 text-xs sm:text-sm">
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 mr-1" />
                 <span className="text-green-600">2 new this week</span>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Total Spent
                   </p>
-                                     <p className="text-2xl font-bold">
-                     ₹{stats.totalSpent.toLocaleString('en-IN')}
-                   </p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold">
+                    ₹{stats.totalSpent.toLocaleString('en-IN')}
+                  </p>
                 </div>
-                                 <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                   <IndianRupee className="h-6 w-6 text-green-600" />
-                 </div>
+                <div className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                  <IndianRupee className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600" />
+                </div>
               </div>
-              <div className="flex items-center mt-4 text-sm">
-                                 <IndianRupee className="h-4 w-4 text-blue-500 mr-1" />
-                                 <span className="text-blue-600">
-                   Saved ₹{stats.totalSavings.toLocaleString('en-IN')}
-                 </span>
+              <div className="flex items-center mt-2 sm:mt-3 lg:mt-4 text-xs sm:text-sm">
+                <IndianRupee className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 mr-1" />
+                <span className="text-blue-600">
+                  Saved ₹{stats.totalSavings.toLocaleString('en-IN')}
+                </span>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Completed Projects
                   </p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold">
                     {stats.completedProjects}
                   </p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-purple-600" />
+                <div className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-purple-600" />
                 </div>
               </div>
-              <div className="flex items-center mt-4 text-sm">
-                <Star className="h-4 w-4 text-yellow-500 mr-1" />
+              <div className="flex items-center mt-2 sm:mt-3 lg:mt-4 text-xs sm:text-sm">
+                <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500 mr-1" />
                 <span className="text-yellow-600">
                   {stats.avgRating} avg rating
                 </span>
@@ -203,20 +203,20 @@ export default function ClientDashboard() {
 
           {(stats.totalProposals || 0) > 0 && (
             <Card className="border-0 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-6">
+              <CardContent className="p-3 sm:p-4 lg:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                       Total Proposals
                     </p>
-                    <p className="text-2xl font-bold">{stats.totalProposals || 0}</p>
+                    <p className="text-lg sm:text-xl lg:text-2xl font-bold">{stats.totalProposals || 0}</p>
                   </div>
-                  <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-                    <Users className="h-6 w-6 text-purple-600" />
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+                    <Users className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-purple-600" />
                   </div>
                 </div>
-                <div className="flex items-center mt-4 text-sm">
-                  <MessageSquare className="h-4 w-4 text-purple-500 mr-1" />
+                <div className="flex items-center mt-2 sm:mt-3 lg:mt-4 text-xs sm:text-sm">
+                  <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500 mr-1" />
                   <span className="text-purple-600">Across all jobs</span>
                 </div>
               </CardContent>
@@ -225,38 +225,38 @@ export default function ClientDashboard() {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="orders" className="space-y-6">
+        <Tabs defaultValue="orders" className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="jobs">Posted Jobs</TabsTrigger>
-            <TabsTrigger value="messages">Recent Messages</TabsTrigger>
+            <TabsTrigger value="orders" className="text-xs sm:text-sm">Orders</TabsTrigger>
+            <TabsTrigger value="jobs" className="text-xs sm:text-sm">Posted Jobs</TabsTrigger>
+            <TabsTrigger value="messages" className="text-xs sm:text-sm">Recent Messages</TabsTrigger>
           </TabsList>
 
           {/* Active Orders Tab */}
           <TabsContent value="orders">
             <Card className="border-0 bg-card/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center justify-between text-base sm:text-lg">
                   Orders
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm">
                     <Link to="/client/orders">
                       View All
-                      <ArrowRight className="w-4 h-4 ml-1" />
+                      <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
                     </Link>
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {(orders || []).map((order) => (
                     <div
                       key={order.id}
-                      className="flex items-center justify-between p-4 rounded-lg border border-border/40 hover:bg-muted/20 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-lg border border-border/40 hover:bg-muted/20 transition-colors gap-3 sm:gap-4"
                     >
-                      <div className="flex items-center space-x-4 flex-1">
-                        <Avatar className="h-12 w-12">
+                      <div className="flex items-center space-x-3 sm:space-x-4 flex-1">
+                        <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
                           <AvatarImage src={order.freelancerAvatar} />
-                          <AvatarFallback>
+                          <AvatarFallback className="text-xs sm:text-sm">
                             {order.freelancer
                               .split(" ")
                               .map((n) => n[0])
@@ -264,32 +264,31 @@ export default function ClientDashboard() {
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <h4 className="font-medium">{order.title || "Untitled Order"}</h4>
-                          <p className="text-sm text-muted-foreground">
+                          <h4 className="font-medium text-sm sm:text-base">{order.title || "Untitled Order"}</h4>
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             by {order.freelancer}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             {order.service}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-4 text-right">
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-right">
                         <div>
-                          <Badge className={getStatusColor(order.status)}>
+                          <Badge className={`text-xs ${getStatusColor(order.status)}`}>
                             {getStatusIcon(order.status)}
                             {order.status.replace("_", " ")}
                           </Badge>
-
                         </div>
                         <div>
-                          <p className="font-semibold">₹{(order.amount || 0).toLocaleString('en-IN')}</p>
+                          <p className="font-semibold text-sm sm:text-base">₹{(order.amount || 0).toLocaleString('en-IN')}</p>
                           {order.deadline && (
                             <p className="text-xs text-muted-foreground">
                               {new Date(order.deadline).toLocaleDateString('en-IN')}
                             </p>
                           )}
                         </div>
-                        <Button variant="ghost" size="sm" asChild>
+                        <Button variant="ghost" size="sm" asChild className="text-xs">
                           <Link to={`/order/${order.id}`}>View</Link>
                         </Button>
                       </div>
@@ -303,69 +302,71 @@ export default function ClientDashboard() {
           {/* Posted Jobs Tab */}
           <TabsContent value="jobs">
             <Card className="border-0 bg-card/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center justify-between text-base sm:text-lg">
                   Posted Jobs
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm">
                     <Link to="/client/post-job">
                       Post New Job
-                      <Plus className="w-4 h-4 ml-1" />
+                      <Plus className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
                     </Link>
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {postedJobs.map((job) => (
                     <div
                       key={job.id}
-                      className="p-4 rounded-lg border border-border/40 hover:bg-muted/20 transition-colors"
+                      className="p-3 sm:p-4 rounded-lg border border-border/40 hover:bg-muted/20 transition-colors"
                     >
-                      <div className="flex items-start justify-between mb-3">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-3 gap-3 sm:gap-0">
                         <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <h4 className="font-medium">{job.title}</h4>
-                            <Badge className={getStatusColor(job.status)}>
-                              {job.status}
-                            </Badge>
-                            <Badge variant="outline">{job.category}</Badge>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                            <h4 className="font-medium text-sm sm:text-base">{job.title}</h4>
+                            <div className="flex flex-wrap gap-1 sm:gap-2">
+                              <Badge className={`text-xs ${getStatusColor(job.status)}`}>
+                                {job.status}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">{job.category}</Badge>
+                            </div>
                           </div>
-                          <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                          <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-2">
                             {job.description}
                           </p>
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                             <span>Budget: {formatBudget(job.budget)}</span>
-                            <span>•</span>
+                            <span className="hidden sm:inline">•</span>
                             <span>
                               Posted{" "}
                               {new Date(job.postedDate).toLocaleDateString()}
                             </span>
-                            <span>•</span>
+                            <span className="hidden sm:inline">•</span>
                             <span>
                                 Duration: {job.duration ?? "N/A"}
                             </span>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-semibold text-primary">
+                          <p className="text-base sm:text-lg font-semibold text-primary">
                             {job.proposals}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             proposals
                           </p>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" asChild>
+                      <div className="flex flex-wrap gap-2">
+                        <Button variant="outline" size="sm" asChild className="text-xs">
                           <Link to={`/job/${job.id}`}>View Details</Link>
                         </Button>
-                        <Button variant="outline" size="sm" asChild>
+                        <Button variant="outline" size="sm" asChild className="text-xs">
                           <Link to={`/job/${job.id}/proposals`}>
                             View Proposals ({job.proposals})
                           </Link>
                         </Button>
                         {job.status === "active" && (
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="text-xs">
                             Edit Job
                           </Button>
                         )}
@@ -380,29 +381,29 @@ export default function ClientDashboard() {
           {/* Recent Messages Tab */}
           <TabsContent value="messages">
             <Card className="border-0 bg-card/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center justify-between text-base sm:text-lg">
                   Recent Messages
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm">
                     <Link to="/messages">
                       View All
-                      <ArrowRight className="w-4 h-4 ml-1" />
+                      <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
                     </Link>
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {recentMessages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex items-start space-x-4 p-4 rounded-lg border border-border/40 hover:bg-muted/20 transition-colors ${
+                      className={`flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4 p-3 sm:p-4 rounded-lg border border-border/40 hover:bg-muted/20 transition-colors ${
                         message.unread ? "bg-primary/5" : ""
                       }`}
                     >
-                      <Avatar className="h-10 w-10">
+                      <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                         <AvatarImage src={message.avatar} />
-                        <AvatarFallback>
+                        <AvatarFallback className="text-xs sm:text-sm">
                           {message.freelancer
                             .split(" ")
                             .map((n) => n[0])
@@ -410,9 +411,9 @@ export default function ClientDashboard() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-1 gap-2 sm:gap-0">
                           <div className="flex items-center space-x-2">
-                            <h4 className="font-medium">
+                            <h4 className="font-medium text-sm sm:text-base">
                               {message.freelancer}
                             </h4>
                             {message.unread && (
@@ -423,12 +424,12 @@ export default function ClientDashboard() {
                             {message.time}
                           </span>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-1">
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-1">
                           {message.project}
                         </p>
-                        <p className="text-sm">{message.message}</p>
+                        <p className="text-xs sm:text-sm">{message.message}</p>
                       </div>
-                      <Button variant="outline" size="sm" asChild>
+                      <Button variant="outline" size="sm" asChild className="text-xs">
                         <Link
                           to={`/messages/${message.freelancer.replace(" ", "-").toLowerCase()}`}
                         >

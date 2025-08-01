@@ -152,109 +152,109 @@ export default function OrdersList() {
 
   return (
     <div className="flex-1"> {/* This div will be the main content area within LayoutClient/LayoutFreelancer */}
-      <main className="p-6"> {/* Adjusted padding for content within the layout */}
+      <main className="p-4 sm:p-6"> {/* Adjusted padding for content within the layout */}
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" asChild>
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <Button variant="ghost" asChild className="p-2 sm:p-3">
               <Link to={getBackRoute()}>
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </Link>
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Orders</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold">Orders</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 View and manage all your orders
               </p>
             </div>
           </div>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {/* Stats Overview - 2x2 on mobile/tablet, 1x4 on desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Total Orders
                   </p>
-                  <p className="text-2xl font-bold">{orders.length}</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold">{orders.length}</p>
                 </div>
-                <Package className="h-8 w-8 text-blue-600" />
+                <Package className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     In Progress
                   </p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold">
                     {
                       orders.filter((o) => o.status === "in_progress")
                         .length
                     }
                   </p>
                 </div>
-                <RefreshCw className="h-8 w-8 text-orange-600" />
+                <RefreshCw className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-orange-600" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Completed
                   </p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold">
                     {orders.filter((o) => o.status === "completed").length}
                   </p>
                 </div>
-                <CheckCircle className="h-8 w-8 text-green-600" />
+                <CheckCircle className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Total Value
                   </p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold">
                     ₹
                     {orders
                       .reduce((sum, order) => sum + (order.amount || 0), 0)
                       .toLocaleString('en-IN')}
                   </p>
                 </div>
-                                        <IndianRupee className="h-8 w-8 text-purple-600" />
+                <IndianRupee className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-purple-600" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Search orders..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-10 sm:h-11"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-full sm:w-[140px] h-10 sm:h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -267,7 +267,7 @@ export default function OrdersList() {
               </SelectContent>
             </Select>
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-full sm:w-[140px] h-10 sm:h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -304,35 +304,35 @@ export default function OrdersList() {
                   className="border-0 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors cursor-pointer"
                   onClick={() => navigate(`/order/${order._id}`)}
                 >
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <Avatar className="h-10 w-10">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
+                          <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                             <AvatarImage src={order.freelancer?.avatar || order.client?.avatar} />
-                            <AvatarFallback className="bg-brand-gradient text-white">
+                            <AvatarFallback className="bg-brand-gradient text-white text-xs sm:text-sm">
                               {(order.freelancer?.name || order.client?.name || "U").charAt(0)}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
-                            <h3 className="font-semibold">
+                            <h3 className="font-semibold text-sm sm:text-base">
                               {order.title || "Untitled Order"}
                             </h3>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               {order.freelancer?.name || order.client?.name || "Unknown User"}
                             </p>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Calendar className="w-4 h-4 text-blue-500" />
-                            <span className="text-sm text-muted-foreground">
+                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
+                            <span className="text-xs sm:text-sm text-muted-foreground">
                               {formatDate(order.createdAt)}
                             </span>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-xs sm:text-sm">
                           <div className="flex items-center space-x-2">
-                            <IndianRupee className="w-4 h-4 text-green-500" />
+                            <IndianRupee className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
                             <span className="text-muted-foreground">Amount:</span>
                             <span className="font-medium">
                               ₹{(order.amount ?? 0).toLocaleString('en-IN')}
@@ -342,7 +342,7 @@ export default function OrdersList() {
                           {order.status === "in_progress" &&
                             order.deadline && daysRemaining !== null && (
                               <div className="flex items-center space-x-2">
-                                <Clock className="w-4 h-4 text-orange-500" />
+                                <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-orange-500" />
                                 <span className="text-muted-foreground">
                                   Deadline:
                                 </span>
@@ -358,7 +358,7 @@ export default function OrdersList() {
 
                           {order.status === "completed" && order.rating && (
                             <div className="flex items-center space-x-2">
-                              <Star className="w-4 h-4 text-yellow-500" />
+                              <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500" />
                               <span className="text-muted-foreground">
                                 Rating:
                               </span>
@@ -370,7 +370,7 @@ export default function OrdersList() {
 
                           {order.progress && (
                             <div className="flex items-center space-x-2">
-                              <RefreshCw className="w-4 h-4 text-purple-500" />
+                              <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 text-purple-500" />
                               <span className="text-muted-foreground">
                                 Progress:
                               </span>

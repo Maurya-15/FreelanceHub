@@ -182,77 +182,68 @@ const PostedJobs: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-4">
+      <div className="flex items-center mb-6 sm:mb-8">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <Link to="/client/dashboard">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="w-4 h-4" />
+            <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold">Posted Jobs</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold">Posted Jobs</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Manage your job postings and track applications
             </p>
           </div>
         </div>
-        <Button
-          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-          asChild
-        >
-          <Link to="/client/post-job">
-            <Plus className="w-4 h-4 mr-2" />
-            Post New Job
-          </Link>
-        </Button>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      {/* Stats Overview - 2x2 on mobile/tablet, 1x4 on desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 sm:p-4 lg:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Total Jobs
                 </p>
-                <p className="text-2xl font-bold">{jobs.length}</p>
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold">{jobs.length}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 sm:p-4 lg:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Active Jobs
                 </p>
-                <p className="text-2xl font-bold">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold">
                   {jobs.filter((j) => j.status === "active").length}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 sm:p-4 lg:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Total Proposals
                 </p>
-                <p className="text-2xl font-bold">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold">
                   {jobs.reduce((sum, job) => {
                     if (Array.isArray(job.proposals)) {
                       return sum + job.proposals.length;
@@ -264,26 +255,26 @@ const PostedJobs: React.FC = () => {
                   }, 0)}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-purple-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 sm:p-4 lg:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Total Views
                 </p>
-                <p className="text-2xl font-bold">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold">
                   {jobs.reduce((sum, job) => sum + (typeof job.views === 'number' ? job.views : 0), 0)}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
-                <Eye className="w-6 h-6 text-orange-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
+                <Eye className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-orange-600" />
               </div>
             </div>
           </CardContent>
@@ -291,75 +282,85 @@ const PostedJobs: React.FC = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center space-x-4 mb-6">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
         <Button
           variant={selectedStatus === "all" ? "default" : "outline"}
           onClick={() => setSelectedStatus("all")}
+          size="sm"
+          className="text-xs sm:text-sm"
         >
           All Jobs ({jobs.length})
         </Button>
         <Button
           variant={selectedStatus === "active" ? "default" : "outline"}
           onClick={() => setSelectedStatus("active")}
+          size="sm"
+          className="text-xs sm:text-sm"
         >
           Active ({jobs.filter((j) => j.status === "active").length})
         </Button>
         <Button
           variant={selectedStatus === "paused" ? "default" : "outline"}
           onClick={() => setSelectedStatus("paused")}
+          size="sm"
+          className="text-xs sm:text-sm"
         >
           Paused ({jobs.filter((j) => j.status === "paused").length})
         </Button>
         <Button
           variant={selectedStatus === "completed" ? "default" : "outline"}
           onClick={() => setSelectedStatus("completed")}
+          size="sm"
+          className="text-xs sm:text-sm"
         >
           Completed ({jobs.filter((j) => j.status === "completed").length})
         </Button>
       </div>
 
       {/* Jobs List */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {filteredJobs.filter(job => job && (job._id || job.id)).map((job, idx) => (
           <Card key={job._id || job.id || idx} className="hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex justify-between items-start mb-3 sm:mb-4">
                 <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                    <h3 className="text-lg sm:text-xl font-semibold hover:text-primary cursor-pointer">
                       <Link to={`/job/${job.id}`}>{job.title}</Link>
                     </h3>
-                    {job.featured && (
-                      <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-                        Featured
+                    <div className="flex flex-wrap gap-1 sm:gap-2">
+                      {job.featured && (
+                        <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs">
+                          Featured
+                        </Badge>
+                      )}
+                      <Badge className={`${getStatusColor(job.status)} text-xs`}>
+                        {getStatusIcon(job.status)}
+                        {job.status ? job.status.charAt(0).toUpperCase() + job.status.slice(1) : ''}
                       </Badge>
-                    )}
-                    <Badge className={getStatusColor(job.status)}>
-                      {getStatusIcon(job.status)}
-                      {job.status ? job.status.charAt(0).toUpperCase() + job.status.slice(1) : ''}
-                    </Badge>
+                    </div>
                   </div>
-                  <p className="text-muted-foreground mb-4 line-clamp-2">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 line-clamp-2">
                     {job.description}
                   </p>
                 </div>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreVertical className="w-4 h-4" />
+                    <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
+                      <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
                       <Link to={`/job/${job.id}`}>
-                        <Eye className="w-4 h-4 mr-2" />
+                        <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                         View Job
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to={`/job/${job.id}/edit`}>
-                        <Edit className="w-4 h-4 mr-2" />
+                        <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                         Edit Job
                       </Link>
                     </DropdownMenuItem>
@@ -367,14 +368,14 @@ const PostedJobs: React.FC = () => {
                       <DropdownMenuItem
                         onClick={() => handleToggleStatus(job.id, "paused")}
                       >
-                        <Pause className="w-4 h-4 mr-2" />
+                        <Pause className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                         Pause Job
                       </DropdownMenuItem>
                     ) : job.status === "paused" ? (
                       <DropdownMenuItem
                         onClick={() => handleToggleStatus(job.id, "active")}
                       >
-                        <Play className="w-4 h-4 mr-2" />
+                        <Play className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                         Activate Job
                       </DropdownMenuItem>
                     ) : null}
@@ -410,29 +411,29 @@ const PostedJobs: React.FC = () => {
               </div>
 
               {/* Job Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                <div className="flex items-center space-x-2">
-                                          <IndianRupee className="w-4 h-4 text-green-600" />
-                  <span className="text-sm">{formatBudget(job.budget)}</span>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-3 sm:mb-4">
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                                          <IndianRupee className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
+                  <span className="text-xs sm:text-sm">{formatBudget(job.budget)}</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">{job.duration || 'N/A'}</span>
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+                  <span className="text-xs sm:text-sm">{job.duration || 'N/A'}</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <MapPin className="w-4 h-4 text-purple-600" />
-                  <span className="text-sm">{job.location || 'N/A'}</span>
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
+                  <span className="text-xs sm:text-sm">{job.location || 'N/A'}</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4 text-orange-600" />
-                  <span className="text-sm">
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-orange-600" />
+                  <span className="text-xs sm:text-sm">
                     Posted {getTimeAgo(job.postedDate || job.createdAt)}
                   </span>
                 </div>
               </div>
 
               {/* Skills */}
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4">
                 {job.skills.map((skill) => (
                   <Badge key={skill} variant="outline" className="text-xs">
                     {skill}
@@ -441,29 +442,29 @@ const PostedJobs: React.FC = () => {
               </div>
 
               {/* Stats and Actions */}
-              <div className="flex items-center justify-between pt-4 border-t">
-                <div className="flex items-center space-x-6 text-sm text-muted-foreground">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 sm:pt-4 border-t gap-3 sm:gap-0">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
                   <span className="flex items-center">
-  <Users className="w-4 h-4 mr-1 text-primary" />
-  <span className="font-semibold text-base bg-primary/10 text-primary px-3 py-1 rounded-full">
+  <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-primary" />
+  <span className="font-semibold text-xs sm:text-base bg-primary/10 text-primary px-2 sm:px-3 py-1 rounded-full">
     {Array.isArray(job.proposals) ? job.proposals.length : (typeof job.proposals === 'number' ? job.proposals : 0)} proposals
   </span>
 </span>
                   <span className="flex items-center">
-                    <Eye className="w-4 h-4 mr-1" />
+                    <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                     {typeof job.views === 'number' ? job.views : 0} views
                   </span>
                   <span className="flex items-center">
-                    <Star className="w-4 h-4 mr-1" />
+                    <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                     {typeof job.bookmarks === 'number' ? job.bookmarks : 0} bookmarks
                   </span>
                 </div>
 
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" asChild>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm">
                     <Link to={`/job/${job._id}/proposals`}>View Proposals</Link>
                   </Button>
-                  <Button size="sm" asChild>
+                  <Button size="sm" asChild className="text-xs sm:text-sm">
                     <Link to={`/job/${job._id}`}>View Details</Link>
                   </Button>
                 </div>
@@ -474,19 +475,19 @@ const PostedJobs: React.FC = () => {
       </div>
 
       {filteredJobs.length === 0 && (
-        <div className="text-center py-12">
-          <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-            <Users className="w-12 h-12 text-muted-foreground" />
+        <div className="text-center py-8 sm:py-12">
+          <div className="w-16 h-16 sm:w-24 sm:h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <Users className="w-8 h-8 sm:w-12 sm:h-12 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">No jobs found</h3>
-          <p className="text-muted-foreground mb-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-2">No jobs found</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
             {selectedStatus === "all"
               ? "You haven't posted any jobs yet. Create your first job posting to get started."
               : `No ${selectedStatus} jobs found. Try selecting a different status filter.`}
           </p>
-          <Button asChild>
+          <Button asChild size="sm" className="text-xs sm:text-sm">
             <Link to="/client/post-job">
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               Post Your First Job
             </Link>
           </Button>

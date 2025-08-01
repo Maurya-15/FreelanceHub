@@ -89,22 +89,16 @@ export const LayoutClient: React.FC = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               <Link
-                to="/find-work"
-                className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
-              >
-                Find Work
-              </Link>
-              <Link
                 to="/browse"
                 className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
               >
                 Find Talent
               </Link>
               <Link
-                to="/freelancer/create-gig"
+                to="/client/post-job"
                 className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
               >
-                Sell Services
+                Post a Job
               </Link>
             </div>
 

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +28,11 @@ import {
   Check,
   CheckCheck,
   Smile,
-  FileText
+  FileText,
+  AlertCircle,
+  RefreshCw,
+  Wifi,
+  WifiOff
 } from "lucide-react";
 
 import useChatSocket from "@/hooks/useChatSocket";
@@ -91,12 +96,36 @@ export default function Chat() {
     });
   };
 
-  const { sendMessage: emitMessage, isConnected } = useChatSocket({
+  // Updated socket hook with error handling
+  const { 
+    sendMessage: emitMessage, 
+    isConnected, 
+    connectionError, 
+    reconnect,
+    retryCount 
+  } = useChatSocket({
     userId: userId || undefined,
     conversationId: selectedConversation?._id,
-    onNewMessage: (msg) => {
+    onNewMessage: useCallback((msg) => {
       if (msg.conversationId === selectedConversation?._id) {
-        setMessages((prev) => [...prev, msg]);
+        // Check if this message is from the current user (optimistic message)
+        const isFromCurrentUser = msg.sender === userId;
+        
+        setMessages((prev) => {
+          // If it's from current user, replace the optimistic message
+          if (isFromCurrentUser) {
+            return prev.map(existingMsg => 
+              existingMsg.sender === userId && 
+              existingMsg.content === msg.content && 
+              (existingMsg.status === "sending" || existingMsg.status === "sent")
+                ? { ...msg, status: "sent" }
+                : existingMsg
+            );
+          } else {
+            // If it's from another user, add it normally
+            return [...prev, msg];
+          }
+        });
       }
       setConversations((prev) =>
         prev.map((conv) =>
@@ -109,7 +138,7 @@ export default function Chat() {
             : conv
         )
       );
-    },
+    }, [userId, selectedConversation?._id]),
     onUserStatus: handleUserStatus,
   });
 
@@ -197,8 +226,10 @@ export default function Chat() {
 
   const sendMessage = async () => {
     if ((!newMessage.trim() && !attachment) || !selectedConversation || sending) return;
+    
+    // Enhanced connection check with user feedback
     if (!isConnected) {
-      alert("Message failed to send: Socket not connected");
+      // Silently handle connection error without alert
       return;
     }
     
@@ -214,14 +245,22 @@ export default function Chat() {
           reader.onload = () => resolve(reader.result as string);
           reader.onerror = (error) => reject(error);
         });
-      const base64 = await toBase64(attachment);
-      attachmentData = {
-        name: attachment.name,
-        size: attachment.size,
-        type: attachment.type.startsWith("image") ? "image" : "file",
-        data: base64,
-      };
+      try {
+        const base64 = await toBase64(attachment);
+        attachmentData = {
+          name: attachment.name,
+          size: attachment.size,
+          type: attachment.type.startsWith("image") ? "image" : "file",
+          data: base64,
+        };
+      } catch (error) {
+        console.error('Error processing attachment:', error);
+        alert("Failed to process attachment. Please try again.");
+        setSending(false);
+        return;
+      }
     }
+
     const optimisticMsg = {
       conversationId: selectedConversation._id,
       sender: userId,
@@ -237,27 +276,43 @@ export default function Chat() {
     setMessages((prev) => [...prev, optimisticMsg]);
     
     try {
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Message send timeout')), 5000)
-      );
-
-      const ack: any = await Promise.race([
-        emitMessage({
-          ...optimisticMsg,
-          status: "sent",
-        }),
-        timeoutPromise
-      ]);
+      const ack: any = await emitMessage({
+        ...optimisticMsg,
+        status: "sent",
+      });
       
       if (ack.status !== "ok") {
-        alert("Message failed: " + (ack.message || "Unknown error"));
+        // Remove optimistic message on failure
+        setMessages((prev) => prev.filter(msg => msg._id !== optimisticMsg._id));
+        // Silently handle error without alert
       } else {
+        // Update optimistic message with server response
+        setMessages((prev) => 
+          prev.map(msg => 
+            msg._id === optimisticMsg._id 
+              ? { ...msg, _id: ack.messageId || msg._id, status: "sent" }
+              : msg
+          )
+        );
         setNewMessage("");
         setAttachment(null);
+        
+        // Fallback: If real-time doesn't work, ensure message stays
+        setTimeout(() => {
+          setMessages((prev) => 
+            prev.map(msg => 
+              msg._id === optimisticMsg._id && msg.status === "sending"
+                ? { ...msg, status: "sent" }
+                : msg
+            )
+          );
+        }, 1000);
       }
     } catch (err: any) {
       console.error('Message send error:', err);
-      alert("Message failed to send: " + (err.message || "Client-side error"));
+      // Remove optimistic message on error
+      setMessages((prev) => prev.filter(msg => msg._id !== optimisticMsg._id));
+      // Silently handle error without alert
     } finally {
       setSending(false);
     }
@@ -265,7 +320,13 @@ export default function Chat() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setAttachment(e.target.files[0]);
+      const file = e.target.files[0];
+      // Add file size validation (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File size must be less than 10MB");
+        return;
+      }
+      setAttachment(file);
     }
   };
 
@@ -279,7 +340,7 @@ export default function Chat() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "sending":
-        return <Clock className="w-3 h-3" />;
+        return <Clock className="w-3 h-3 animate-pulse" />;
       case "delivered":
         return <Check className="w-3 h-3" />;
       case "read":
@@ -313,14 +374,22 @@ export default function Chat() {
 
   return (
     <div className="min-h-screen">
-      <main className="container mx-auto px-4 py-8">
+             <main className="container mx-auto px-4 py-8">
+
         <div className="h-[80vh] min-h-0 grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Conversations Sidebar */}
           <div className="lg:col-span-1">
             <Card className="border-0 bg-card/50 backdrop-blur-sm h-full flex flex-col">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle>Messages</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    Messages
+                    {isConnected ? (
+                      <Wifi className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <WifiOff className="w-4 h-4 text-red-500" />
+                    )}
+                  </CardTitle>
                   <Button variant="ghost" size="sm">
                     <MoreVertical className="w-4 h-4" />
                   </Button>
@@ -536,33 +605,43 @@ export default function Chat() {
                   <div ref={messagesEndRef} />
                 </div>
               </CardContent>
-              {/* Message Input */}
-              <div className="p-6 pt-0">
+              
+                             {/* Message Input */}
+               <div className="p-6 pt-0">
+                
                 <div className="flex items-center space-x-3">
                   <input
                     type="file"
                     id="chat-attachment"
                     style={{ display: "none" }}
                     onChange={handleFileChange}
+                    accept="image/*,.pdf,.doc,.docx,.txt"
                   />
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => document.getElementById("chat-attachment")?.click()}
+                    disabled={!isConnected}
                   >
                     <Paperclip className="w-4 h-4" />
                   </Button>
                   {attachment && (
-                    <span className="text-xs truncate max-w-[120px] bg-muted px-2 py-1 rounded">
-                      {attachment.name}
-                      <Button variant="ghost" size="sm" onClick={clearAttachment}>
+                    <div className="flex items-center gap-2 text-xs bg-muted px-2 py-1 rounded max-w-[150px]">
+                      <FileText className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">{attachment.name}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={clearAttachment}
+                        className="p-0 h-auto ml-1 hover:bg-transparent"
+                      >
                         &times;
                       </Button>
-                    </span>
+                    </div>
                   )}
                   <div className="flex-1 relative">
                     <Input
-                      placeholder="Type a message..."
+                      placeholder={isConnected ? "Type a message..." : "Connecting..."}
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       onKeyPress={(e) => {
@@ -572,17 +651,27 @@ export default function Chat() {
                         }
                       }}
                       className="pr-10"
+                      disabled={!isConnected}
                     />
                     <Button
                       variant="ghost"
                       size="sm"
                       className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                      disabled={!isConnected}
                     >
                       <Smile className="w-4 h-4" />
                     </Button>
                   </div>
-                  <Button onClick={sendMessage} disabled={(!newMessage.trim() && !attachment) || sending}>
-                    <Send className="w-4 h-4" />
+                  <Button 
+                    onClick={sendMessage} 
+                    disabled={(!newMessage.trim() && !attachment) || sending || !isConnected}
+                    className="relative"
+                  >
+                    {sending ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
                   </Button>
                 </div>
               </div>

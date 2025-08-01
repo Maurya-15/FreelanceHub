@@ -118,6 +118,7 @@ import Message from './models/Message.js';
 
 const onlineUsers = new Map();
 io.on('connection', (socket) => {
+  
   // Join user and conversation rooms
   socket.on('join', async ({ userId, conversationId }) => {
     if (userId) {
@@ -177,10 +178,17 @@ io.on('connection', (socket) => {
         type: 'newMessage',
         message,
       });
-      if (typeof callback === 'function') callback({ status: 'ok' });
+      
+      // Respond immediately for faster acknowledgment
+      if (typeof callback === 'function') {
+        callback({ status: 'ok', messageId: message._id });
+      }
     } catch (err) {
-      if (typeof callback === 'function') callback({ status: 'error', message: err.message });
-      else socket.emit('error', { message: err.message });
+      if (typeof callback === 'function') {
+        callback({ status: 'error', message: err.message });
+      } else {
+        socket.emit('error', { message: err.message });
+      }
     }
   });
 

@@ -117,70 +117,70 @@ export default function FreelancerDashboard() {
 
   return (
     <div className="flex-1">
-      <main className="p-6">
+      <main className="p-4 sm:p-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Welcome back, {data?.stats?.name || user?.name || "Freelancer"}!</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Welcome back, {data?.stats?.name || user?.name || "Freelancer"}!</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Here's what's happening with your freelance business today.
             </p>
           </div>
-          <div className="flex gap-3 mt-4 md:mt-0">
-            <Button variant="outline" asChild>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-0">
+            <Button variant="outline" asChild size="sm" className="text-xs sm:text-sm">
               <Link to="/messages">
-                <MessageSquare className="w-4 h-4 mr-2" />
+                <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 Messages
               </Link>
             </Button>
-            <Button asChild>
+            <Button asChild size="sm" className="text-xs sm:text-sm">
               <Link to="/freelancer/create-gig">
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 Create New Gig
               </Link>
             </Button>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Stats Cards - 2x2 on mobile/tablet, 1x4 on desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Total Earnings
                   </p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold">
                     {loading ? "--" : data?.stats?.totalEarnings?.toLocaleString("en-IN", { style: "currency", currency: "INR" }) ?? 0}
                   </p>
                 </div>
-                                 <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                   <IndianRupee className="h-6 w-6 text-green-600" />
-                 </div>
+                <div className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                  <IndianRupee className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600" />
+                </div>
               </div>
-              <div className="flex items-center mt-4 text-sm">
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+              <div className="flex items-center mt-2 sm:mt-4 text-xs sm:text-sm">
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 mr-1" />
                 <span className="text-green-600">+12% from last month</span>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Your Gigs
                   </p>
-                  <p className="text-2xl font-bold">{loading ? "--" : (data?.stats?.totalGigs ?? data?.stats?.activeGigs ?? 0)}</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold">{loading ? "--" : (data?.stats?.totalGigs ?? data?.stats?.activeGigs ?? 0)}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-blue-600" />
+                <div className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-blue-600" />
                 </div>
               </div>
-              <div className="flex items-center mt-4 text-sm">
-                <Eye className="h-4 w-4 text-blue-500 mr-1" />
+              <div className="flex items-center mt-2 sm:mt-4 text-xs sm:text-sm">
+                <Eye className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 mr-1" />
                 <span className="text-blue-600">
                   {loading ? "--" : data?.stats?.profileViews ?? 0} profile views
                 </span>
@@ -189,20 +189,20 @@ export default function FreelancerDashboard() {
           </Card>
 
           <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Total Orders
                   </p>
-                  <p className="text-2xl font-bold">{loading ? "--" : data?.stats?.totalOrders ?? 0}</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold">{loading ? "--" : data?.stats?.totalOrders ?? 0}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-                  <MessageSquare className="h-6 w-6 text-purple-600" />
+                <div className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+                  <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-purple-600" />
                 </div>
               </div>
-              <div className="flex items-center mt-4 text-sm">
-                <Clock className="h-4 w-4 text-purple-500 mr-1" />
+              <div className="flex items-center mt-2 sm:mt-4 text-xs sm:text-sm">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500 mr-1" />
                 <span className="text-purple-600">
                   {loading ? "--" : data?.stats?.responseTime ?? "-"} avg response
                 </span>
@@ -211,20 +211,20 @@ export default function FreelancerDashboard() {
           </Card>
 
           <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Rating
                   </p>
-                  <p className="text-2xl font-bold">{loading ? "--" : data?.stats?.avgRating ?? 0}</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold">{loading ? "--" : data?.stats?.avgRating ?? 0}</p>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/20 flex items-center justify-center">
-                  <Star className="h-6 w-6 text-yellow-600" />
+                <div className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/20 flex items-center justify-center">
+                  <Star className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-yellow-600" />
                 </div>
               </div>
-              <div className="flex items-center mt-4 text-sm">
-                <Star className="h-4 w-4 text-yellow-500 mr-1" />
+              <div className="flex items-center mt-2 sm:mt-4 text-xs sm:text-sm">
+                <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500 mr-1" />
                 <span className="text-yellow-600">From {loading ? "--" : (data?.topGigs?.reduce((sum, gig) => sum + (gig.reviews || 0), 0) ?? 0)} reviews</span>
               </div>
             </CardContent>
@@ -232,19 +232,19 @@ export default function FreelancerDashboard() {
         </div>
 
                  {/* Main Content Tabs */}
-         <div className="space-y-6">
-           <div className="grid w-full grid-cols-3">
-             <Button variant="outline" asChild>
+         <div className="space-y-4 sm:space-y-6">
+           <div className="grid w-full grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+             <Button variant="outline" asChild size="sm" className="text-xs sm:text-sm">
                <Link to="/freelancer/orders">
                  Recent Orders
                </Link>
              </Button>
-             <Button variant="outline" asChild>
+             <Button variant="outline" asChild size="sm" className="text-xs sm:text-sm">
                <Link to="/freelancer/gigs">
                  Top Gigs
                </Link>
              </Button>
-             <Button variant="outline" asChild>
+             <Button variant="outline" asChild size="sm" className="text-xs sm:text-sm">
                <Link to="/freelancer/analytics">
                  Analytics
                </Link>
@@ -253,13 +253,13 @@ export default function FreelancerDashboard() {
 
           {/* Recent Orders Tab */}
           <Card className="border-0 bg-card/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                Recent Orders
-                <Button variant="outline" size="sm" asChild>
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 text-base sm:text-lg">
+                <span>Recent Orders</span>
+                <Button variant="outline" size="sm" asChild className="w-full sm:w-auto text-xs sm:text-sm">
                   <Link to="/freelancer/orders">
                     View All
-                    <ArrowRight className="w-4 h-4 ml-1" />
+                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
                   </Link>
                 </Button>
               </CardTitle>
