@@ -15,6 +15,7 @@ import jobsRouter from './routes/jobs.js';
 import adminRouter from './routes/admin.js';
 import clientRouter from './routes/client.js';
 import freelancerRouter from './routes/freelancer.js';
+import placeholderRoute from './routes/placeholder.js';
 import Activity from './models/Activity.js';
 import mongoose from "mongoose";
 import dotenv from 'dotenv';
@@ -105,6 +106,7 @@ app.use('/api/jobs', jobsRouter);
 app.use('/api', adminRouter);
 app.use('/api/client', clientRouter);
 app.use('/api/freelancer', freelancerRouter);
+app.use('/api/placeholder', placeholderRoute);
 
 // Remove any remaining direct definitions of /api/activities, /api/pending-actions, and /api/admin/stats from server.js
 
