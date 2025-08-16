@@ -6,7 +6,6 @@ services:
     rootDir: backend
     buildCommand: "npm install"
     startCommand: "npm start"
-    plan: free
     autoDeploy: true
 
   # Frontend (Vite)
@@ -16,5 +15,4 @@ services:
     rootDir: frontend
     buildCommand: "npm install && npm run build"
     staticPublishPath: dist
-    plan: free
     autoDeploy: true
