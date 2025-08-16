@@ -29,8 +29,7 @@ const io = new Server(server, {
       'http://localhost:8000',
       'http://localhost:8081',
       'http://localhost:5173',
-      'https://freelance-hub-inky.vercel.app' // <-- Add your deployed frontend URL here
-
+        'https://freelance-fbib08qjq-maurya-15s-projects.vercel.app' // your deployed frontend
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
@@ -65,7 +64,7 @@ const corsOptions = {
     'http://localhost:8000',
     'http://localhost:8081',
     'http://localhost:5173',
-    'https://freelance-hub-inky.vercel.app'
+      'https://freelance-fbib08qjq-maurya-15s-projects.vercel.app' // your deployed frontend
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
