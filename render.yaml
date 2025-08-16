@@ -1,18 +1,8 @@
 services:
-  # Backend API
   - type: web
     name: freelancehub-backend
     env: node
-    rootDir: backend        # 👈 tells Render to run inside backend/
+    rootDir: backend
     buildCommand: "npm install"
-    startCommand: "node server.js"   # 👈 now it finds backend/server.js
-    plan: free
-
-  # Frontend (Vite)
-  - type: web
-    name: freelancehub-frontend
-    env: static
-    rootDir: frontend
-    buildCommand: "npm install && npm run build"
-    staticPublishPath: dist
+    startCommand: "node server.js"
     plan: free
