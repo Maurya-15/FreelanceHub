@@ -3,6 +3,7 @@ services:
   - type: web
     name: freelancehub-backend
     env: node
+    plan: free   # 👈 Force free instance
     rootDir: backend
     buildCommand: "npm install"
     startCommand: "npm start"
@@ -12,6 +13,7 @@ services:
   - type: web
     name: freelancehub-frontend
     env: static
+    plan: free   # 👈 Force free instance
     rootDir: frontend
     buildCommand: "npm install && npm run build"
     staticPublishPath: dist

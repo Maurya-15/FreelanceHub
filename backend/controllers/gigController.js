@@ -1,5 +1,4 @@
 import Gig from '../models/Gig.js';
-import User from '../models/User.js';
 import mongoose from 'mongoose';
 
 export const createGig = (io, gigUpload) => async (req, res) => {

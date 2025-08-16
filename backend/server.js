@@ -19,8 +19,6 @@ import Activity from './models/Activity.js';
 import mongoose from "mongoose";
 import dotenv from 'dotenv';
 
-
-
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
@@ -55,7 +53,7 @@ function logger(req, res, next) {
   // console.log(`${req.method} ${req.url}`);
   next();
 }
-  app.use(logger);
+app.use(logger);
 
 // CORS options
 const corsOptions = {
@@ -97,8 +95,6 @@ app.get('/', (req, res) => {
 });
 
 // Mount all routers
-
-
 app.use('/api/users', usersRouter);
 app.use('/api/messages', messagesRouter);
 app.use('/api/gigs', gigsRouter);
@@ -219,6 +215,4 @@ io.on('connection', (socket) => {
   });
 });
 
-
-  
 server.listen(PORT, () => {});
