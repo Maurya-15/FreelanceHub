@@ -23,10 +23,6 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
 
-
-
-
-
   useEffect(() => {
     const fetchActivities = async () => {
       setLoading(true);
