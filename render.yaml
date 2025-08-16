@@ -1,0 +1,20 @@
+services:
+  # Backend API
+  - type: web
+    name: freelancehub-backend
+    env: node
+    rootDir: backend
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    plan: free
+    autoDeploy: true
+
+  # Frontend (Vite)
+  - type: web
+    name: freelancehub-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    staticPublishPath: dist
+    plan: free
+    autoDeploy: true
