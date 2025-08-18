@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getApiUrl } from "@/lib/api";
 
 export default function EditFreelancerProfile() {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ export default function EditFreelancerProfile() {
       // Also try to save to API if available
       if (freelancerId) {
         try {
-          await fetch(`/api/users/${freelancerId}`, {
+          await fetch(getApiUrl(`/api/users/${freelancerId}`), {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(profileData),

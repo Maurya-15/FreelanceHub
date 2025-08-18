@@ -7,6 +7,7 @@ import { GradientButton } from "@/components/ui/gradient-button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { getApiUrl } from "@/lib/api";
 import {
   ArrowLeft,
   Calendar,
@@ -40,7 +41,7 @@ export default function JobDetail() {
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    fetch(`/api/jobs/${id}`)
+    fetch(getApiUrl(`/api/jobs/${id}`))
       .then(res => res.json())
       .then(data => {
         if (data.success) setJobData(data.job);

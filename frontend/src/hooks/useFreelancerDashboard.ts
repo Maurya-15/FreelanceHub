@@ -49,7 +49,7 @@ export default function useFreelancerDashboard(userId: string) {
     async function fetchDashboard() {
       setLoading(true);
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/freelancer/dashboard/${userId}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/freelancer/dashboard/${userId}`);
         setData(res.data);
         setError(null);
       } catch (err: any) {

@@ -66,7 +66,7 @@ export default function useClientDashboard(userId: string) {
     async function fetchDashboard() {
       setLoading(true);
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/client/dashboard/${userId}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/client/dashboard/${userId}`);
         setData(res.data);
         setError(null);
       } catch (err: any) {

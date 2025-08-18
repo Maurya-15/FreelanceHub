@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getApiUrl } from "@/lib/api";
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -75,7 +76,7 @@ export default function OrdersList() {
 
   useEffect(() => {
     setLoading(true);
-    fetch('/api/orders', {
+    fetch(getApiUrl('/api/orders'), {
       headers: { 'user-id': localStorage.getItem('userId') || '' },
     })
       .then(res => res.json())

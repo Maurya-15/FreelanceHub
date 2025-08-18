@@ -81,7 +81,7 @@ export default function GigManagement() {
     const fetchGigs = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/gigs', {
+        const response = await fetch(getApiUrl('/api/gigs'), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -147,8 +147,8 @@ export default function GigManagement() {
     let endpoint = '';
     let method = 'PUT';
     let body = null;
-    if (action === 'approve') endpoint = `/api/gigs/${gigId}/approve`;
-    else if (action === 'delete') { endpoint = `/api/gigs/${gigId}`; method = 'DELETE'; }
+    if (action === 'approve') endpoint = getApiUrl(`/api/gigs/${gigId}/approve`);
+    else if (action === 'delete') { endpoint = getApiUrl(`/api/gigs/${gigId}`); method = 'DELETE'; }
     else return;
     setLoading(true);
     setError(null);
@@ -156,7 +156,7 @@ export default function GigManagement() {
       const res = await fetch(endpoint, { method, headers: { 'Content-Type': 'application/json' }, body });
       if (!res.ok) throw new Error('Action failed');
       // Refresh gigs
-      const gigsRes = await fetch('/api/gigs');
+      const gigsRes = await fetch(getApiUrl('/api/gigs'));
       const gigsData = await gigsRes.json();
       if (gigsData.success) {
         const transformedGigs = gigsData.gigs.map(gig => ({

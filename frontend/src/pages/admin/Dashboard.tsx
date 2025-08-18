@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getApiUrl } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ export default function AdminDashboard() {
     const fetchActivities = async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/activities');
+        const res = await fetch(getApiUrl('/api/activities'));
         const data = await res.json();
         if (data.success) setActivities(data.activities);
       } catch (err) {
@@ -42,7 +43,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch('/api/admin/stats');
+        const res = await fetch(getApiUrl('/api/admin/stats'));
         const data = await res.json();
         if (data.success) setStats(data);
       } catch (err) {

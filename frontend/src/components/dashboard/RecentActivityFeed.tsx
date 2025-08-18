@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getApiUrl } from "@/lib/api";
 
 // Helper to get relative time (e.g., '2 minutes ago')
 function getRelativeTime(dateString: string) {
@@ -50,7 +51,7 @@ const RecentActivityFeed: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch("/api/recent-activities")
+    fetch(getApiUrl("/api/recent-activities"))
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch activities");
         return res.json();

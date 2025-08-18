@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+import { getApiUrl } from "@/lib/api";
 
 export interface FreelancerProfile {
   _id: string;
@@ -45,7 +46,7 @@ export default function useFreelancerProfile(freelancerId: string) {
     
     setLoading(true);
     try {
-      const res = await axios.get(`/api/users/${freelancerId}`);
+      const res = await axios.get(getApiUrl(`/api/users/${freelancerId}`));
       // Normalize joinDate and lastSeen
       let data = res.data;
       // Support both joinDate and createdAt as 'joinDate' for display

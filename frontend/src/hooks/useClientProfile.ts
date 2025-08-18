@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { getApiUrl } from '@/lib/api';
 
 export interface ClientProfileData {
   id: string;
@@ -48,8 +49,8 @@ export default function useClientProfile(userId: string | undefined) {
 
     // Fetch both user and dashboard data in parallel
     Promise.all([
-      axios.get(`/api/users/${userId}`),
-      axios.get(`/api/client/dashboard/${userId}`)
+      axios.get(getApiUrl(`/api/users/${userId}`)),
+      axios.get(getApiUrl(`/api/client/dashboard/${userId}`))
     ])
       .then(([userRes, dashboardRes]) => {
         const user = userRes.data;

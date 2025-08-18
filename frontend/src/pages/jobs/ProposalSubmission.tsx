@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { UploadCloud } from "lucide-react";
 import axios from "axios";
+import { getApiUrl } from "@/lib/api";
 
 const mockQuestions = [
   "What is your experience with React and Node.js?",
@@ -28,7 +29,7 @@ const ProposalSubmission = () => {
   React.useEffect(() => {
     async function fetchJob() {
       try {
-        const res = await axios.get(`/api/jobs/${id}`);
+        const res = await axios.get(getApiUrl(`/api/jobs/${id}`));
         setJob(res.data.job);
       } catch (err) {
         // ignore
@@ -58,7 +59,7 @@ const ProposalSubmission = () => {
     setSubmitting(true);
     try {
       const res = await axios.post(
-        `/api/jobs/${id}/proposals`,
+        getApiUrl(`/api/jobs/${id}/proposals`),
         {
           coverLetter,
           proposedBudget: rate,

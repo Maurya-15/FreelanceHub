@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getApiUrl } from "@/lib/api";
 import { Link, useParams } from "react-router-dom";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -202,7 +203,7 @@ export default function Order() {
     }
     setLoading(true);
     setError(null);
-    fetch(`/api/orders/${id}`)
+    fetch(getApiUrl(`/api/orders/${id}`))
       .then((res) => res.json())
       .then((data) => {
         if (data.success) setOrder(data.order);

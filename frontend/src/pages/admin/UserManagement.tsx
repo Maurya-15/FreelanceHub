@@ -44,6 +44,7 @@ import {
   Activity,
   IndianRupee,
 } from "lucide-react";
+import { getApiUrl } from "@/lib/api";
 
 // Mock users data
 const usersData = [
@@ -140,7 +141,7 @@ export default function UserManagement() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("/api/users");
+        const res = await fetch(getApiUrl("/api/users"));
         if (!res.ok) throw new Error("Failed to fetch users");
         const data = await res.json();
         setUsers(Array.isArray(data.users) ? data.users : Array.isArray(data) ? data : []);
@@ -190,7 +191,7 @@ export default function UserManagement() {
   const handleUserAction = async (action: string, userId: string) => {
     let endpoint = '';
     let method = 'DELETE';
-    if (action === 'delete') endpoint = `/api/users/${userId}`;
+    if (action === 'delete') endpoint = getApiUrl(`/api/users/${userId}`);
     else {
       return;
     }
@@ -423,41 +424,41 @@ export default function UserManagement() {
                       <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                                     <DropdownMenuContent align="end">
-                     <DropdownMenuItem
-                       onClick={() => window.location.href = `/profile/${user.id}`}
-                     >
-                       <User className="mr-2 h-4 w-4" />
-                       View Profile
-                     </DropdownMenuItem>
-                     <AlertDialog>
-                       <AlertDialogTrigger asChild>
-                         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                           <Ban className="mr-2 h-4 w-4 text-red-500" />
-                           <span className="text-red-500">Ban User</span>
-                         </DropdownMenuItem>
-                       </AlertDialogTrigger>
-                       <AlertDialogContent>
-                         <AlertDialogHeader>
-                           <AlertDialogTitle>Delete User</AlertDialogTitle>
-                           <AlertDialogDescription>
-                             Are you sure you want to delete {user.name}? This
-                             action cannot be undone and will permanently remove
-                             the user from the platform.
-                           </AlertDialogDescription>
-                         </AlertDialogHeader>
-                         <AlertDialogFooter>
-                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                           <AlertDialogAction
-                             onClick={() => handleUserAction("delete", user.id)}
-                             className="bg-destructive hover:bg-destructive/90"
-                           >
-                             Delete User
-                           </AlertDialogAction>
-                         </AlertDialogFooter>
-                       </AlertDialogContent>
-                     </AlertDialog>
-                   </DropdownMenuContent>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => window.location.href = `/profile/${user.id}`}
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      View Profile
+                    </DropdownMenuItem>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <Ban className="mr-2 h-4 w-4 text-red-500" />
+                          <span className="text-red-500">Ban User</span>
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete User</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete {user.name}? This
+                            action cannot be undone and will permanently remove
+                            the user from the platform.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleUserAction("delete", user.id)}
+                            className="bg-destructive hover:bg-destructive/90"
+                          >
+                            Delete User
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             ))}

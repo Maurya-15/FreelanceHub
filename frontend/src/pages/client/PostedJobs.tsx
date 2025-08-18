@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getApiUrl } from "@/lib/api";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -62,7 +63,7 @@ const PostedJobs: React.FC = () => {
         return;
       }
       try {
-        const res = await fetch(`/api/jobs/client/${userId}`, {
+        const res = await fetch(getApiUrl(`/api/jobs/client/${userId}`), {
           headers: {
             'user-id': `userId-clientId-${userId}`,
             'Content-Type': 'application/json',

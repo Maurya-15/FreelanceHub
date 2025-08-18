@@ -22,7 +22,7 @@ import {
   ChevronRight,
   Play,
 } from "lucide-react";
-import { API_BASE_URL } from "@/lib/api";
+import { API_BASE_URL, getApiUrl } from "@/lib/api";
 
 export default function GigDetail() {
   const { gigId } = useParams();
@@ -39,7 +39,7 @@ export default function GigDetail() {
     if (!gigId) return;
     setLoading(true);
     setError("");
-    fetch(`/api/gigs/${gigId}`)
+    fetch(getApiUrl(`/api/gigs/${gigId}`))
       .then((res) => res.json())
       .then((data) => {
         if (data.success) setGigData(data.gig);
@@ -82,7 +82,7 @@ export default function GigDetail() {
         img.startsWith('http') ? img : `${API_BASE_URL}${img}`
       );
     } else {
-      images = gigData.images.map((_: any, idx: number) => `/api/gigs/image/${gigData._id}/${idx}`);
+      images = gigData.images.map((_: any, idx: number) => getApiUrl(`/api/gigs/image/${gigData._id}/${idx}`));
     }
   } else {
     images = ["https://placehold.co/600x400"];
@@ -488,7 +488,7 @@ const freelancerAvatar =
                                   return;
                                 }
                                 try {
-                                  const res = await fetch('/api/orders', {
+                                  const res = await fetch(getApiUrl('/api/orders'), {
                                     method: 'POST',
                                     headers: {
                                       'Content-Type': 'application/json',

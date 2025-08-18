@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { API_ENDPOINTS, fetchApi, API_BASE_URL } from "@/lib/api";
+import { API_ENDPOINTS, fetchApi, API_BASE_URL, getApiUrl } from "@/lib/api";
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -75,7 +75,7 @@ export default function MyGigs() {
         return;
       }
       try {
-        const res = await fetch(`${API_BASE_URL}/api/gigs/my`, {
+        const res = await fetch(getApiUrl('/api/gigs/my'), {
           headers: {
             'user-id': `userId-freelancerId-${userId}`,
             'Content-Type': 'application/json',

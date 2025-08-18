@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+import { getApiUrl } from "@/lib/api";
 import useJobProposalsSocket from "./useJobProposalsSocket";
 
 export interface Proposal {
@@ -31,7 +32,7 @@ export default function useJobProposals(jobId: string | undefined) {
     if (!jobId) return;
     setLoading(true);
     axios
-      .get(`/api/jobs/${jobId}`)
+      .get(getApiUrl(`/api/jobs/${jobId}`))
       .then((res) => {
         // Filter out rejected proposals
         const allProposals = res.data.job.proposals || [];

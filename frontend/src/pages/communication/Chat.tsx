@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 
 import useChatSocket from "@/hooks/useChatSocket";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, getApiUrl } from "@/lib/api";
 
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -151,7 +151,7 @@ export default function Chat() {
         let allConversations = res.conversations || [];
 
         if (targetUserId) {
-          const convRes = await fetch('/api/messages/conversation', {
+          const convRes = await fetch(getApiUrl('/api/messages/conversation'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId1: userId, userId2: targetUserId }),
@@ -163,7 +163,7 @@ export default function Chat() {
             );
             if (otherUser && typeof otherUser === 'string') {
               try {
-                const userRes = await fetch(`/api/users/${otherUser}`);
+                const userRes = await fetch(getApiUrl(`/api/users/${otherUser}`));
                 if (userRes.ok) {
                   otherUser = await userRes.json();
                 }

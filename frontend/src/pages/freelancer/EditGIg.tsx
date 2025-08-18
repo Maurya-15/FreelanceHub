@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getApiUrl } from "@/lib/api";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { FileUpload } from "@/components/upload/FileUpload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -191,7 +192,7 @@ export default function EditGig() {
          const controller = new AbortController();
          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
          
-         const response = await fetch(`/api/gigs/${id}`, {
+         const response = await fetch(getApiUrl(`/api/gigs/${id}`), {
            signal: controller.signal
          });
          
@@ -361,7 +362,7 @@ export default function EditGig() {
         activePackage: "basic", // Default to basic
       };
 
-      const response = await fetch(`/api/gigs/${id}`, {
+      const response = await fetch(getApiUrl(`/api/gigs/${id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

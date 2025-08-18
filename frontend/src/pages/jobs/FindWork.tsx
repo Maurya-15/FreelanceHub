@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getApiUrl } from "@/lib/api";
 import { Link } from "react-router-dom";
 import {
   Search,
@@ -65,7 +66,7 @@ const FindWork = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await fetch('/api/jobs');
+        const res = await fetch(getApiUrl('/api/jobs'));
         const data = await res.json();
         if (Array.isArray(data.jobs)) {
           setJobs(data.jobs);

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 
 import useJobProposals from "@/hooks/useJobProposals"; // new hook for fetching proposals from backend
+import { getApiUrl } from "@/lib/api";
 
 export default function JobProposals() {
   const { id } = useParams();
@@ -259,7 +260,7 @@ export default function JobProposals() {
                   onClick={async () => {
                     if (!selectedProposal) return;
                     try {
-                      const response = await fetch(`/api/jobs/${id}/proposals/${selectedProposal._id}/accept`, {
+                      const response = await fetch(getApiUrl(`/api/jobs/${id}/proposals/${selectedProposal._id}/accept`), {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json', 'user-id': localStorage.getItem('userId') || '' },
                       });
@@ -339,7 +340,7 @@ export default function JobProposals() {
                   onClick={async () => {
                     if (!selectedProposal) return;
                     try {
-                      const response = await fetch(`/api/jobs/${id}/proposals/${selectedProposal._id}/reject`, {
+                      const response = await fetch(getApiUrl(`/api/jobs/${id}/proposals/${selectedProposal._id}/reject`), {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json', 'user-id': localStorage.getItem('userId') || '' },
                         body: JSON.stringify({ reason: rejectionReason }),

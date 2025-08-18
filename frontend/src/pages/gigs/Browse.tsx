@@ -23,7 +23,7 @@ import {
   ListIcon,
   Search,
 } from "lucide-react";
-import { API_BASE_URL } from "@/lib/api";
+import { API_BASE_URL, getApiUrl } from "@/lib/api";
 
 // Mock data
 const categories = [
@@ -86,7 +86,7 @@ export default function BrowseGigs() {
     params.append("maxBudget", priceRange[1].toString());
     params.append("sortBy", sortBy);
     if (searchQuery) params.append("search", searchQuery);
-    fetch(`/api/gigs?${params.toString()}`)
+    fetch(getApiUrl(`/api/gigs?${params.toString()}`))
       .then(res => res.json())
       .then(data => {
         console.log("Fetched gigs:", data.gigs);
@@ -121,7 +121,7 @@ export default function BrowseGigs() {
       if (typeof gig.images[0] === 'string') {
         return gig.images[0].startsWith('http') ? gig.images[0] : `${API_BASE_URL}${gig.images[0]}`;
       } else {
-        return `/api/gigs/image/${gig._id}/0`;
+        return getApiUrl(`/api/gigs/image/${gig._id}/0`);
       }
     }
     return '/default-image.png';
@@ -541,7 +541,7 @@ export default function BrowseGigs() {
                                 {gig.images.slice(1, 4).map((img, i) => (
                                   <img
                                     key={i}
-                                    src={typeof img === "string" ? (img.startsWith('http') ? img : `${API_BASE_URL}${img}`) : `/api/gigs/image/${gig._id}/${i+1}`}
+                                    src={typeof img === "string" ? (img.startsWith('http') ? img : `${API_BASE_URL}${img}`) : getApiUrl(`/api/gigs/image/${gig._id}/${i+1}`)}
                                     alt={`Gig extra ${i+1}`}
                                     className="w-8 h-8 object-cover rounded border"
                                     onError={(e) => (e.currentTarget.src = '/default-image.png')}

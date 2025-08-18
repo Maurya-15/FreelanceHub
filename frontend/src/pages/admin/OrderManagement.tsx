@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getApiUrl } from "@/lib/api";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,7 @@ export default function OrderManagement() {
 
   useEffect(() => {
     setLoading(true);
-    fetch("/api/orders")
+    fetch(getApiUrl("/api/orders"))
       .then((res) => res.json())
       .then((data) => {
         setOrders(data.orders || []);
