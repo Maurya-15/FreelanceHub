@@ -3,6 +3,6 @@ services:
     name: freelancehub-backend
     env: node
     rootDir: backend
-    buildCommand: "npm install"
+    buildCommand: "bash ./render-build.sh && npm install"
     startCommand: "node server.js"
     plan: free
